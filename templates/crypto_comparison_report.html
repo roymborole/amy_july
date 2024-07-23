@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container report-container">
+    <h1 class="text-center">Cryptocurrency Comparison Report: {{ crypto1 }} vs {{ crypto2 }}</h1>
+
+    <img src="{{ url_for('static', filename='Header6.png') }}" class="header-image" alt="Header">
+
+    <div class="button-container">
+        <button class="btn btn-primary" onclick="showEmailOverlay()">Email this Comparison Report</button>
+        <a href="{{ url_for('display_crypto_report', crypto_name=crypto1) }}" class="btn btn-secondary">Return to {{ crypto1 }} Report</a>
+    </div>
+
+    <div class="report-content">
+        {{ report_content|safe }}
+    </div>
+</div>
+
+<div id="emailOverlay" class="overlay" style="display: none;">
+    <div class="popup">
+        <h2>Enter your email address</h2>
+        <input type="email" id="emailInput" placeholder="Your email address">
+        <button onclick="sendEmail()">Send</button>
+        <button onclick="hideEmailOverlay()">Cancel</button>
+    </div>
+</div>
+
+<div id="sendingOverlay" class="overlay" style="display: none;">
+    <div class="popup">
+        <h2>Sending Report</h2>
+        <p>Please wait...</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        /* Add any additional styles here */
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        function showEmailOverlay() {
+            document.getElementById('emailOverlay').style.display = 'flex';
+        }
+
+        function hideEmailOverlay() {
+            document.getElementById('emailOverlay').style.display = 'none';
+        }
+
+        function sendEmail() {
+            var email = document.getElementById('emailInput').value;
+            if (email) {
+                document.getElementById('emailOverlay').style.display = 'none';
+                document.getElementById('sendingOverlay').style.display = 'flex';
+
+                fetch('/send_comparison_report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        crypto1: '{{ crypto1 }}',
+                        crypto2: '{{ crypto2 }}',
+                        report_content: document.querySelector('.report-content').innerHTML
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('sendingOverlay').style.display = 'none';
+                    alert(data.message);
+                })
+                .catch((error) => {
+                    document.getElementById('sendingOverlay').style.display = 'none';
+                    alert('An error occurred while sending the email.');
+                });
+            } else {
+                alert('Please enter a valid email address.');
+            }
+        }
+    </script>
+{% endblock %}

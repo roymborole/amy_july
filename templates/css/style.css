@@ -1,0 +1,246 @@
+body {
+    font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #363636;
+    color: #ffffff;
+}
+
+header {
+    background-color: #242424;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px;
+}
+
+nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.main-content {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.main-logo img {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+.tagline {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 300px;
+}
+.subscribe-button {
+    background-color: #4CAF50 !important; /* Green background */
+    color: white !important;
+}
+
+.subscribe-button:hover {
+    background-color: #45a049 !important;
+}
+
+#subscribeOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+#subscribeOverlay .popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#subscribeOverlay input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+#subscribeOverlay button {
+    margin: 5px;
+    padding: 10px 20px;
+}
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #ff00d0;
+    color: white;
+    border: none;
+}
+
+animation-and-widget {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#animation-container {
+    width: 48%;
+    height: 400px;
+}
+
+.tradingview-widget-container {
+    width: 48%;
+}
+
+nav .btn {
+    margin-left: 10px;
+}
+
+.social-icons {
+    margin-top: 20px;
+}
+
+.social-icons a {
+    margin: 0 10px;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+}
+
+.footer {
+    margin-top: 30px;
+    font-style: italic;
+    text-align: center;
+}
+
+.search-box {
+    width: 400px; /* Doubled width, adjust as needed */
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn-analyze {
+    background-color: #FF1493; /* Bright pink */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.btn-analyze:hover {
+    background-color: #FF69B4; /* Lighter pink on hover */
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+@keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .gradient {
+    --size: 250px;
+    --speed: 50s;
+    --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+    width: var(--size);
+    height: var(--size);
+    filter: blur(calc(var(--size) / 5));
+    background-image: linear-gradient(rgba(55, 235, 169, 0.85), #5b37eb);
+    animation: rotate var(--speed) var(--easing) alternate infinite;
+    border-radius: 30% 70% 70% 30%/30% 30% 70% 70%;
+    position: fixed;
+    z-index: -1;
+  }
+  
+  @media (min-width: 720px) {
+    .gradient {
+      --size: 500px;
+    }
+  }
+  
+  body {
+    background-color: #222;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Rest of your existing styles */
+  
+  /* This is just to transition when you change the viewport size. */
+  * {
+    transition: all 0.25s ease-out;
+  }
+  
+  /* Adjustments for better readability */
+  .content {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+  }
+  
+  .btn-link {
+    color: white;
+  }
+  
+  .btn-link:hover {
+    color: #ddd;
+  }
+  
+  /* Adjust other styles as needed for better contrast with the new background */

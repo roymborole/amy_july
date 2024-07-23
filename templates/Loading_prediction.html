@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container loading-container">
+    <div id="lottie-animation" class="animation-container"></div>
+    <h2 class="text-center pink-heading">Holy Hell! We're gonna see the Future Baby!</h2>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-animation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: "{{ url_for('static', filename='mindblown.json') }}"
+        });
+
+        setTimeout(function() {
+            window.location.href = '/predict/{{ asset_name }}';
+        }, 3000);
+    });
+</script>
+<style>
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .animation-container {
+        width: 300px;
+        height: 300px;
+    }
+    .pink-heading {
+        color: #FF69B4;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

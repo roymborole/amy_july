@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Comparing Assets</h1>
+    <div id="comparisonLottieAnimation" style="width: 300px; height: 300px; margin: 0 auto;"></div>
+    <p class="text-center">Please wait while we generate the comparison report...</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('comparisonLottieAnimation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: "{{ url_for('static', filename='Fight-biz.json') }}"
+        });
+
+        // Initiate the comparison
+        fetch('/api/compare', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                asset1: '{{ asset1 }}',
+                asset2: '{{ asset2 }}'
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Redirect to the comparison report page
+            window.location.href = `/comparison/{{ asset1 }}/{{ asset2 }}`;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred while generating the comparison. Please try again.');
+            window.location.href = "/";
+        });
+    });
+</script>
+{% endblock %}

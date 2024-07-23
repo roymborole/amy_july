@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container report-container">
+    <div class="text-center">
+        <img src="{{ url_for('static', filename='Header3.png') }}" alt="Header" class="header-image">
+    </div>
+
+    <h1 class="text-center pink-heading">Price Prediction for {{ asset_name }}</h1>
+
+    <div class="button-container text-center">
+        <a href="{{ url_for('display_report', name_or_ticker=asset_name) }}" class="btn btn-secondary">View Financial Report</a>
+    </div>
+
+    <div class="report-content">
+        {% if prediction_data %}
+        <h2 class="text-center pink-heading">Price Prediction Results</h2>
+        <div class="prediction-results">
+            <p><strong>Current Price:</strong> ${{ prediction_data.current_price|round(2) }}</p>
+            <p><strong>Predicted Price:</strong> ${{ prediction_data.predicted_price|round(2) }}</p>
+            <p><strong>Prediction Date:</strong> {{ prediction_data.prediction_date }}</p>
+            <p><strong>95% Confidence Interval:</strong> ${{ prediction_data.ci_lower|round(2) }} - ${{ prediction_data.ci_upper|round(2) }}</p>
+        </div>
+
+        <div class="confidence-interval-info">
+            <h3 class="pink-heading">What is a Confidence Interval?</h3>
+            <p>Hey there! Let's talk about confidence intervals in stock price prediction. It's not as complicated as it sounds, promise!</p>
+            <p>Think of a confidence interval as the stock market's way of saying, "I'm pretty sure, but not 100% certain." It gives you a range where the future stock price is likely to land, along with how confident it is about that prediction.</p>
+            <p>Here's what our prediction means:</p>
+            <ol>
+                <li>Our best guess for the future price is ${{ prediction_data.predicted_price|round(2) }}. That's the bullseye we're aiming for.</li>
+                <li>We're 95% sure the actual price will fall somewhere between ${{ prediction_data.ci_lower|round(2) }} and ${{ prediction_data.ci_upper|round(2) }}. Pretty neat, right?</li>
+                <li>There's still a tiny 5% chance the price could go rogue and end up outside this range. Hey, the stock market likes to keep us on our toes!</li>
+            </ol>
+            <p>This way, you get a better sense of what might happen, helping you make smarter decisions with your hard-earned cash.</p>
+        </div>
+
+        <h2 class="text-center pink-heading">Analyst Recommendations</h2>
+        {% if prediction_data.analyst_recommendations %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Strong Buy</th>
+                    <th>Buy</th>
+                    <th>Hold</th>
+                    <th>Sell</th>
+                    <th>Strong Sell</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in prediction_data.analyst_recommendations %}
+                <tr>
+                    <td>{{ rec.get('period', '') }}</td>
+                    <td>{{ rec.get('strongBuy', 0) }}</td>
+                    <td>{{ rec.get('buy', 0) }}</td>
+                    <td>{{ rec.get('hold', 0) }}</td>
+                    <td>{{ rec.get('sell', 0) }}</td>
+                    <td>{{ rec.get('strongSell', 0) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No analyst recommendations available.</p>
+        {% endif %}
+
+        <h2 class="text-center pink-heading">Prediction Charts</h2>
+        <img src="data:image/png;base64,{{ prediction_data.plot_prediction }}" alt="Prediction Plot" class="chart">
+        <img src="data:image/png;base64,{{ prediction_data.plot_full }}" alt="Full Price History" class="chart">
+        {% else %}
+        <p>No prediction data available.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .pink-heading {
+        color: pink;
+    }
+    .header-image {
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}

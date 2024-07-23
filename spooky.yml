@@ -1,0 +1,5 @@
+authtoken: 2iediKGjHJVrYGrpiatHgLOOfyM_7UxrCKcZpkDimLb9CLUbB
+tunnels:
+  web:
+    addr: https://localhost:4040
+    proto: https

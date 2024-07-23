@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    {% extends "base.html" %}
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100x Club - Stock and Crypto Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            @keyframes rotate {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+    
+            .gradient {
+                --size: 800px;
+                --speed: 50s;
+                --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+                width: var(--size);
+                height: var(--size);
+                filter: blur(calc(var(--size) / 5));
+                background-image: linear-gradient(rgba(55, 235, 169, 0.5), rgba(91, 55, 235, 0.5));
+                animation: rotate var(--speed) var(--easing) alternate infinite;
+                border-radius: 30% 70% 70% 30%/30% 30% 70% 70%;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: -1;
+            }
+    
+            @media (min-width: 720px) {
+                .gradient {
+                    --size: 1000px;
+                }
+            }
+    
+            body {
+                background-color: #222;
+                color: white;
+                font-family: 'Roboto', sans-serif;
+            }
+    
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+    
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: left;
+                padding: 20px 0;
+            }
+    
+            .logo img {
+                height: 50px;
+            }
+    
+            .nav-buttons a {
+                margin-left: 10px;
+            }
+    
+            .main-content {
+                display: flex; 
+                justify-content: space-between; 
+                align-items: 
+                flex-start;"
+                text-align: left;
+            }
+    
+            .main-logo img {
+                height: 100px;
+            }
+    
+            .tagline {
+                font-size: 24px;
+                margin: 20px 0;
+            }
+    
+            .search-form input {
+                padding: 10px;
+                font-size: 16px;
+                width: 300px;
+            }
+    
+            .search-form button {
+                padding: 10px 20px;
+                font-size: 16px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+    
+            #loading {
+                margin-top: 20px;
+            }
+    
+            #lottie-container {
+                width: 100px;
+                height: 100px;
+                margin: 0 auto;
+            }
+            .nav-buttons {
+                display: flex; 
+                justify-content: right
+        }
+        </style>
+    </head>
+    {% endblock %}
+    
+    {% block content %}
+    <div class="gradient"></div>
+    
+    <div class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+            </div>
+            <div class="nav-buttons">
+                ::: nav-buttons
+                <div style="display: flex; justify-content: flex-start; width: 100%;">
+                {% if not session.get('user_id') %}
+                <a href="{{ url_for('login') }}" class="btn" style="background-color: red; color: white;">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn" style="background-color: yellow; color: black;">Sign Up</a>
+                {% else %}
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+                {% endif %}
+                <a href="{{ url_for('about') }}" class="btn btn-link">About Us</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-link">Contact Us</a>
+                </div>
+                :::
+                
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="content">
+            <div class="main-content">
+                <div class="main-logo">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="width: 60%; text-align: left;">
+                    <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+                </div>
+                <h3 class="tagline" style="font-weight: normal;">Free Technical Analysis Reports on Stonks and Crypto</h3>
+                <form class="search-form" action="{{ url_for('generate_report') }}" method="post" style="display: flex; justify-content: center; margin-top: 20px;">
+                    <input type="text" name="name_or_ticker" placeholder="Enter stock name or ticker" class="search-box" style="width: 300px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f0f0f0;">
+                    <button type="submit" class="btn-analyze" style="background-color: #FF1493; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; margin-left: 10px;">Analyze</button></form>
+                <div id="loading" style="display: none;">
+                    <div id="lottie-container"></div>
+
+                    <p>Generating report... Please wait.</p>
+                    
+                    
+                    <div style="width: 40%;">
+                    <div id="animation-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    
+    {% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script>
+    var animation = lottie.loadAnimation({
+        container: document.getElementById('animation-container'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: "{{ url_for('static', filename='Circle_2a.json') }}"
+    });
+    $(document).ready(function() {
+        $('.search-form').on('submit', function(e) {
+            e.preventDefault();
+            var name_or_ticker = $('input[name="name_or_ticker"]').val();
+            console.log("Form submitted for:", name_or_ticker);
+            $('#loading').show();
+            
+            var animation = lottie.loadAnimation({
+                container: document.getElementById('lottie-container'),
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: "{{ url_for('static', filename='loading_animation.json') }}"
+            });
+    
+            // Redirect to loading page
+            window.location.href = '/loading/' + encodeURIComponent(name_or_ticker);
+            // In the script section of index.html
+$('.search-form').on('submit', function(e) {
+    e.preventDefault();
+    var name_or_ticker = $('input[name="name_or_ticker"]').val();
+    console.log("Form submitted for:", name_or_ticker);
+    
+    // Redirect to loading page
+    window.location.href = "{{ url_for('loading', name_or_ticker='') }}" + encodeURIComponent(name_or_ticker);
+});
+        });
+    });
+    </script>
+    {% endblock %}
+    
+    {% block footer %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                © 2024 100x Club. All rights reserved.
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="{{ url_for('privacy_policy') }}" class="text-muted">Privacy Policy</a> |
+                <a href="{{ url_for('terms_of_service') }}" class="text-muted">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

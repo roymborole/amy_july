@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container comparison-container">
+    <h1 class="text-center pink-heading">Asset Comparison</h1>
+    <h2 class="text-center">{{ asset1 }} vs {{ asset2 }}</h2>
+
+    <div class="comparison-content">
+        {{ comparison_report|safe }}
+    </div>
+
+    <div class="asset-details">
+        <div class="asset1">
+            <h3>{{ asset1 }}</h3>
+            <p>Current Price: ${{ data1.close_price|round(2) }}</p>
+            <!-- Add more details for asset1 -->
+        </div>
+        <div class="asset2">
+            <h3>{{ asset2 }}</h3>
+            <p>Current Price: ${{ data2.close_price|round(2) }}</p>
+            <!-- Add more details for asset2 -->
+        </div>
+    </div>
+
+    <a href="{{ url_for('display_report', name_or_ticker=asset1) }}" class="btn btn-primary">Back to {{ asset1 }} Report</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .pink-heading {
+        color: #FF69B4;
+    }
+    .comparison-container {
+        margin-top: 20px;
+    }
+    .asset-details {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+    .asset1, .asset2 {
+        width: 45%;
+    }
+</style>
+{% endblock %}

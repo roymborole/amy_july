@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}100x Club Montage{% endblock %}
+{% block head %}{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h1>100x Club Montage</h1>
+    
+    <div id="comparisonCarousel" class="carousel slide">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="{{ url_for('static', filename='Carousel_1.jpg') }}" class="d-block carousel-image" alt="Comparison">
+            </div>
+        </div>
+    </div>
+
+    <div class="compare-container">
+        <button class="btn btn-primary" id="compareButton">Compare AAPL vs GOOGL</button>
+    </div>
+
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel" style="color: black;">Confirm Comparison</h5>  <!-- Added inline style here -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="color: black;"> Do you want to run a comparison of AAPL vs GOOGL?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="modalNo" data-bs-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-primary" id="modalYes">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const compareButton = document.getElementById('compareButton');
+    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'), {
+        backdrop: false,
+        keyboard: false
+    });
+    const modalYesButton = document.getElementById('modalYes');
+    const modalNoButton = document.getElementById('modalNo');
+
+    compareButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        confirmationModal.show();
+    });
+
+    modalYesButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        confirmationModal.hide();
+        window.location.href = '/comparison/AAPL/GOOGL';
+    });
+
+    modalNoButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        confirmationModal.hide();
+    });
+});
+</script>
+{% endblock %}

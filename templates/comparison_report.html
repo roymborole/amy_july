@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container report-container">
+    <h1 class="text-center" id="comparison-report-asset1-vs-asset2">Comparison Report: {{ asset1 }} vs {{ asset2 }}</h1>
+    <img src="{{ url_for('static', filename='Header6.png') }}" alt="Header" class="header-image">
+    
+    <div class="button-container">
+        <button id="emailReportBtn" class="btn btn-primary">Email this Comparison Report</button>
+        <a href="{{ url_for('display_report', name_or_ticker=asset1) }}" class="btn btn-secondary">Return to {{ asset1 }} Report</a>
+    </div>
+
+    <div class="report-content">
+        {{ report_content|safe }}
+    </div>
+</div>
+
+<div id="emailOverlay" class="overlay" style="display: none;">
+    <div class="popup">
+        <h2>Enter your email address</h2>
+        <input type="email" id="emailInput" placeholder="Enter your email">
+        <button id="sendEmailBtn">Send</button>
+        <button id="cancelEmailBtn">Cancel</button>
+    </div>
+</div>
+
+<div id="sendingOverlay" class="overlay" style="display: none;">
+    <div class="popup">
+        <h2>Sending Report</h2>
+        <p>Please wait...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .report-container h1, .report-container h2, .report-container h3, .report-container h4 {
+        color: #FF69B4;
+    }
+    .button-container {
+        margin-bottom: 20px;
+    }
+    .pink-heading {
+        color: #FF69B4;  /* Bright pink color */
+    }
+    .header-image {
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+    }
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .popup {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailReportBtn = document.getElementById('emailReportBtn');
+    const emailOverlay = document.getElementById('emailOverlay');
+    const sendingOverlay = document.getElementById('sendingOverlay');
+    const sendEmailBtn = document.getElementById('sendEmailBtn');
+    const cancelEmailBtn = document.getElementById('cancelEmailBtn');
+    const emailInput = document.getElementById('emailInput');
+
+    emailReportBtn.addEventListener('click', function() {
+        emailOverlay.style.display = 'flex';
+    });
+
+    cancelEmailBtn.addEventListener('click', function() {
+        emailOverlay.style.display = 'none';
+    });
+
+    sendEmailBtn.addEventListener('click', function() {
+        const email = emailInput.value;
+        if (email) {
+            emailOverlay.style.display = 'none';
+            sendingOverlay.style.display = 'flex';
+            
+            // Send email request to server
+            fetch('/send_comparison_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    asset1: '{{ asset1 }}',
+                    asset2: '{{ asset2 }}',
+                    report_content: document.querySelector('.report-content').innerHTML
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                sendingOverlay.style.display = 'none';
+                alert(data.message);
+            })
+            .catch((error) => {
+                sendingOverlay.style.display = 'none';
+                alert('An error occurred while sending the email.');
+            });
+        } else {
+            alert('Please enter a valid email address.');
+        }
+    });
+});
+</script>
+{% endblock %}

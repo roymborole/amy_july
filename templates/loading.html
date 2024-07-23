@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container loading-container">
+    <div id="loading">
+        <div id="lottie-container"></div>
+        <p>Generating report for {{ name_or_ticker }}... This report will take approximately 22 seconds to generate. #Biznass</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-container'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: "{{ url_for('static', filename='loading_animation.json') }}"
+        });
+
+        function checkReportStatus() {
+            fetch('/check_report/{{ name_or_ticker }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'ready') {
+                        window.location.href = '/report/{{ name_or_ticker }}';
+                    } else if (data.status === 'error') {
+                        alert('Error generating report: ' + data.message);
+                        window.location.href = '/';
+                    } else {
+                        setTimeout(checkReportStatus, 5000); // Check again after 5 seconds
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    setTimeout(checkReportStatus, 5000); // Check again after 5 seconds
+                });
+        }
+
+        checkReportStatus();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container report-container">
+    <img src="{{ url_for('static', filename='Header1.png') }}" alt="Header" class="header-image">
+
+    <h1 class="text-center pink-heading">Technical Analysis for {{ asset_name }}</h1>
+
+    <div class="button-container text-center">
+        <button onclick="emailReport()" class="btn btn-primary">Email this Report</button>
+        <a href="#" class="btn btn-prediction" onclick="showPrediction('{{ asset_name }}'); return false;">View Price Prediction</a>
+        <a href="#" onclick="showNewsSummary('{{ asset_name }}'); return false;" class="btn btn-news">View News Summary</a>
+        <a href="#" class="btn btn-info" onclick="compareAsset(); return false;">Compare with Another Asset</a>
+        <button onclick="subscribeUpdates()" class="btn btn-success">Subscribe</button>
+    </div>
+
+    <div class="report-content">
+        <h2 class="text-center pink-heading">Performance Overview</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Return</th>
+                    <th>{{ asset_name }}</th>
+                    <th>S&P 500</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>YTD</td>
+                    <td>{% if raw_data.performance and raw_data.performance.YTD %}
+                        {{ "%.2f"|format(raw_data.performance.YTD.stock) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>{% if raw_data.performance and raw_data.performance.YTD and raw_data.performance.YTD.sp500 is defined %}
+                        {{ "%.2f"|format(raw_data.performance.YTD.sp500) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>1-Year</td>
+                    <td>{% if raw_data.performance and raw_data.performance['1-Year'] %}
+                        {{ "%.2f"|format(raw_data.performance['1-Year'].stock) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>{% if raw_data.performance and raw_data.performance['1-Year'] and raw_data.performance['1-Year'].sp500 is defined %}
+                        {{ "%.2f"|format(raw_data.performance['1-Year'].sp500) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>3-Year</td>
+                    <td>{% if raw_data.performance and raw_data.performance['3-Year'] %}
+                        {{ "%.2f"|format(raw_data.performance['3-Year'].stock) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>{% if raw_data.performance and raw_data.performance['3-Year'] and raw_data.performance['3-Year'].sp500 is defined %}
+                        {{ "%.2f"|format(raw_data.performance['3-Year'].sp500) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        {{ report_content|safe }}
+
+        {% if prediction_data %}
+        <h2 class="text-center pink-heading">Price Prediction Results</h2>
+        <p><strong>Current Price:</strong> ${{ raw_data.close_price|round(2) }}</p>
+        <p><strong>Predicted Price:</strong> ${{ prediction_data.predicted_price|round(2) }}</p>
+        <p><strong>Prediction Date:</strong> {{ prediction_data.prediction_date }}</p>
+        <p><strong>95% Confidence Interval:</strong> ${{ prediction_data.ci_lower|round(2) }} - ${{ prediction_data.ci_upper|round(2) }}</p>
+        <img src="data:image/png;base64,{{ prediction_data.plot_prediction }}" alt="Prediction Plot" class="chart">
+        {% endif %}
+    </div>
+</div>
+
+<div id="emailOverlay" class="overlay">
+    <div class="popup">
+        <h2>Enter your email address</h2>
+        <input type="email" id="emailInput" placeholder="your@email.com">
+        <button onclick="sendEmail()">Send</button>
+        <button onclick="closeOverlay('emailOverlay')">Cancel</button>
+    </div>
+</div>
+
+<div id="subscribeOverlay" class="overlay">
+    <div class="popup">
+        <h2>Enter your email to get weekly updates on this stock</h2>
+        <input type="email" id="subscribeEmail" placeholder="your@email.com">
+        <button onclick="subscribe()">Subscribe</button>
+        <button onclick="closeOverlay('subscribeOverlay')">Cancel</button>
+    </div>
+</div>
+
+<div id="sendingOverlay" class="overlay">
+    <div class="popup">
+        <h2>Sending Report</h2>
+        <p>Please wait...</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showPrediction(assetName) {
+        window.location.href = '/loading_prediction/' + encodeURIComponent(assetName);
+    }
+    
+    function showNewsSummary(assetName) {
+        window.location.href = '/loading_news/' + encodeURIComponent(assetName);
+    }
+
+    function compareAsset() {
+        var asset2 = prompt("Enter the name or ticker of the asset you want to compare with {{ asset_name }}:");
+        if (asset2) {
+            window.location.href = '/compare/' + encodeURIComponent('{{ asset_name }}') + '/' + encodeURIComponent(asset2);
+        }
+    }
+    function emailReport() {
+        document.getElementById('emailOverlay').style.display = 'flex';
+    }
+
+    function subscribeUpdates() {
+        document.getElementById('subscribeOverlay').style.display = 'flex';
+    }
+
+    function closeOverlay(overlayId) {
+        document.getElementById(overlayId).style.display = 'none';
+    }
+
+    function sendEmail() {
+        var email = document.getElementById('emailInput').value;
+        document.getElementById('emailOverlay').style.display = 'none';
+        document.getElementById('sendingOverlay').style.display = 'flex';
+        
+        fetch('/send_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                asset_name: '{{ asset_name }}',
+                report_content: document.querySelector('.report-content').innerHTML
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('sendingOverlay').style.display = 'none';
+            alert(data.message);
+        })
+        .catch((error) => {
+            document.getElementById('sendingOverlay').style.display = 'none';
+            alert('Error sending email');
+        });
+    }
+
+    function subscribe() {
+        var email = document.getElementById('subscribeEmail').value;
+        closeOverlay('subscribeOverlay');
+        // Add subscription logic here
+        alert('Subscription feature coming soon!');
+    }
+
+    // comparison.js
+document.addEventListener('DOMContentLoaded', function() {
+    const compareButton = document.getElementById('compareButton');
+    const compareModal = document.getElementById('compareModal');
+    const compareForm = document.getElementById('compareForm');
+
+    compareButton.addEventListener('click', function() {
+        compareModal.style.display = 'block';
+    });
+
+    compareForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const asset2 = document.getElementById('asset2Input').value;
+        window.location.href = `/comparison/${currentAsset}/${asset2}`;
+    });
+});
+    
+</script>
+<style>
+    .pink-heading {
+        color: #FF69B4;
+    }
+    .header-image {
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+    .button-container {
+        margin: 20px 0;
+    }
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    .popup {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+</style>
+{% endblock %}

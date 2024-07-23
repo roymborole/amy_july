@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container report-container">
+    <div class="text-center">
+        <img src="{{ url_for('static', filename='Header4.png') }}" alt="Header" class="header-image">
+    </div>
+
+    <h1 class="text-center pink-heading">News Summary for {{ asset_name }}</h1>
+
+    <div class="button-container text-center">
+        <a href="{{ url_for('display_report', name_or_ticker=asset_name) }}" class="btn btn-secondary">View Financial Report</a>
+    </div>
+
+    <div class="report-content">
+        <div class="news-summary">
+            {{ news_summary | safe }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .pink-heading {
+        color: #FF69B4;  /* Bright pink color */
+    }
+    .header-image {
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+    }
+    .report-container {
+        text-align: center;
+    }
+    .news-summary {
+        text-align: left;
+        margin-top: 20px;
+    }
+    .news-summary h2, .news-summary h3, .news-summary h4 {
+        color: #FF69B4;  /* Bright pink color for all headings in the news summary */
+    }
+</style>
+{% endblock %}

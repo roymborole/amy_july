@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+    h3 {
+        font-family: 'Roboto', sans-serif;
+    }
+</style>
+100x Club - Stock and Crypto Analysis
+{% endblock %}
+{% block content %}
+
+<div class="gradient"></div>
+
+<div>
+    <div class="container">
+        <div class="logo" style="float: left;">
+            <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+        </div>
+        <div class="nav-buttons" style="display: flex; justify-content: flex-end; width: 100%;">
+            {% if not session.get('user_id') %}
+            <a href="{{ url_for('login') }}" class="btn" style="background-color: red; color: white;">Login</a>
+            <a href="{{ url_for('signup') }}" class="btn" style="background-color: yellow; color: black;">Sign Up</a>
+            {% else %}
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            {% endif %}
+            <a href="{{ url_for('about') }}" class="btn btn-link">About Us</a>
+            <a href="{{ url_for('contact') }}" class="btn btn-link">Contact Us</a>
+        </div>
+    </div>
+</div>
+
+<hr style="border-top: 1px solid #ccc; margin: 0;">
+
+<div class="container">
+    <div class="content">
+        <div class="main-content" style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="width: 90%; text-align: left;">
+                <div class="main-logo">
+                    <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+                </div>
+                <h3 class="tagline" style="font-weight: lighter;">Free Technical Analysis Reports on Stonks and Crypto</h3>
+                <form class="search-form" action="{{ url_for('generate_report') }}" method="post" style="margin-top: 20px; text-align: left; padding-left: 0;">
+                    <input type="text" name="name_or_ticker" placeholder="Enter stock name or ticker" class="search-box" style="width: 300px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f0f0f0;">
+                    <button type="submit" class="btn-analyze" style="background-color: #FF1493; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; margin-left: 10px;">Analyze</button>
+                </form>
+                <div id="loading" style="display: none;">
+                    <div id="lottie-container"></div>
+                    Generating report... Please wait.
+                </div>
+            </div>
+            <div style="width: 40%;">
+                <div id="animation-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script>
+    var animation = lottie.loadAnimation({
+        container: document.getElementById('animation-container'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: "{{ url_for('static', filename='Circle_2a.json') }}"
+    });
+    $(document).ready(function() {
+        $('.search-form').on('submit', function(e) {
+            e.preventDefault();
+            var name_or_ticker = $('input[name="name_or_ticker"]').val();
+            console.log("Form submitted for:", name_or_ticker);
+            $('#loading').show();
+            
+            var animation = lottie.loadAnimation({
+                container: document.getElementById('lottie-container'),
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: "{{ url_for('static', filename='loading_animation.json') }}"
+            });
+    
+            // Redirect to loading page
+            window.location.href = '/loading/' + encodeURIComponent(name_or_ticker);
+            // In the script section of index.html
+$('.search-form').on('submit', function(e) {
+    e.preventDefault();
+    var name_or_ticker = $('input[name="name_or_ticker"]').val();
+    console.log("Form submitted for:", name_or_ticker);
+    
+    // Redirect to loading page
+    window.location.href = "{{ url_for('loading', name_or_ticker='') }}" + encodeURIComponent(name_or_ticker);
+});
+        });
+    });
+</script>
+{% endblock %}
+
+{% block footer %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            © 2024 100x Club. All rights reserved.
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{{ url_for('privacy_policy') }}" class="text-muted">Privacy Policy</a> |
+            <a href="{{ url_for('terms_of_service') }}" class="text-muted">Terms of Service</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

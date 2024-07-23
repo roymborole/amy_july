@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - 100x Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #222222;
+            color: #cccccc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #111111;
+            width: 100%;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav a {
+            color: #cccccc;
+            text-decoration: none;
+        }
+
+        .container {
+            background-color: #333333;
+            padding: 20px;
+            border-radius: 8px;
+            width: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .container h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #444444;
+            background-color: #444444;
+            color: #ffffff;
+            border-radius: 4px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 150px;
+        }
+
+        .form-group button {
+            background-color: #ff1493;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        .form-group button:hover {
+            background-color: #ff69b4;
+        }
+
+        #json-container {
+            margin-left: 20px;
+            color: #ffffff;
+            overflow: auto;
+            max-height: 400px;
+            background-color: #444444;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+        </div>
+        <div class="nav">
+            <a href="{{ url_for('about') }}">About Us</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+        </div>
+    </div>
+    <div id="lottie-container" style="width: 400px; height: 400px;"></div>
+    <div class="container">
+        <h1>Contact Us</h1>
+        <form method="POST" action="{{ url_for('contact') }}">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit">Send</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        fetch('{{ url_for('static', filename='dogwee.json') }}')
+            .then(response => response.json())
+            .then(animationData => {
+                var animation = lottie.loadAnimation({
+                    container: document.getElementById('lottie-container'),
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: animationData
+                });
+            });
+    </script>
+</body>
+</html>

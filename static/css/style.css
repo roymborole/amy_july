@@ -1,0 +1,446 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.gradient {
+    --size: 250px;
+    --speed: 50s;
+    --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+    width: 100vw;
+    height: 100vh;
+    filter: blur(calc(var(--size) / 5));
+    background-image: linear-gradient(rgba(55, 235, 169, 0.85), #5b37eb);
+    animation: rotate var(--speed) var(--easing) alternate infinite;
+    border-radius: 30% 70% 70% 30%/30% 30% 70% 70%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+body {
+    font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.408);
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.205);
+    border-radius: 10px;
+}
+
+.news-button {
+    background-color: pink !important;
+    color: black !important;
+}
+
+.button.news-button:hover {
+    background-color: #ff9999 !important; /* Lighter pink on hover */
+}
+.news-button {
+    background-color: pink;
+    color: black;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+header {
+    background-color: rgba(36, 36, 36, 0.214);
+    padding: 20px;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px;
+    height: 50px;
+    margin-right: auto;
+}
+
+nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.main-logo img {
+    max-width: 400px;
+    margin-bottom: 20px;
+}
+
+.tagline {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 20px;
+    padding-left: 0;
+}
+
+.search-box {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+}
+
+.btn-analyze {
+    background-color: #FF1493;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+
+.btn-analyze:hover {
+    background-color: #FF69B4;
+}
+
+.animation-and-widget {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#animation-container {
+    width: 40%;
+    height: 400px;
+}
+
+.tradingview-widget-container {
+    width: 48%;
+}
+
+.content {
+    background-color: rgba(0, 0, 0, 0.138);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-link {
+    color: white;
+}
+
+.btn-link:hover {
+    color: #ddd;
+}
+
+* {
+    transition: all 0.25s ease-out;
+}
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow buttons to wrap to next line if needed */
+}
+.btn {
+    padding: 10px 10px; /* Reduce horizontal padding */
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px; /* Reduce font size */
+    margin: 2px; /* Add some margin between buttons */
+    white-space: nowrap; /* Prevent text from wrapping inside the button */
+}
+.btn-email {
+    background-color: #FF69B4; /* Bright pink */
+    color: white;
+}
+.btn-prediction {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+.btn-news {
+    background-color: #FFC0CB; /* Light pink */
+    color: black;
+}
+.btn-subscribe {
+    background-color: #800080; /* Purple */
+    color: white;
+}
+.btn:hover {
+    opacity: 0.8;
+}
+/* Add these new styles */
+.report-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border-radius: 10px;
+}
+
+.report-content {
+    text-align: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.performance-table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+.performance-table th, .performance-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.performance-table th {
+    background-color: #f2f2f2;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#loading {
+    text-align: center;
+}
+
+#lottie-container {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.comparison-table th, .comparison-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.comparison-table th {
+    background-color: #f2f2f2;
+}
+.text-center {
+    text-align: center;
+}.chart {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+}
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.btn {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+body, h3 {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Add these styles to your style.css file */
+
+.carousel-inner {
+    height: 400px; /* Adjust this value as needed */
+}
+
+.carousel-item {
+    height: 100%;
+}
+
+.carousel-image {
+    max-height: 100%;
+    max-width: 75%;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+/* Ensure modals are hidden by default */
+.modal {
+    display: none;
+}
+
+/* Additional styles to improve carousel appearance */
+#comparisonCarousel {
+    margin-bottom: 30px;
+}
+
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.carousel-caption h5 {
+    color: white;
+}
+
+.carousel-caption p {
+    color: #ddd;
+}
+
+.compare-btn {
+    margin-top: 10px;
+}
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+.modal {
+    z-index: 1050 !important;
+}
+.modal-dialog {
+    z-index: 1060 !important;
+}
+.modal-content {
+    z-index: 1070 !important;
+}
+.btn {
+    position: relative;
+    z-index: 1;
+}
+.debug-modal {
+    border: 3px solid red;
+}
+.debug-dialog {
+    border: 3px solid blue;
+}
+.debug-content {
+    border: 3px solid green;
+}

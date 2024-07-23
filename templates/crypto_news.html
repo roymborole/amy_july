@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container report-container">
+    <div class="text-center">
+        <img src="{{ url_for('static', filename='Header4.png') }}" class="header-image" alt="Header">
+    </div>
+
+    <h1 class="text-center pink-heading">Cryptocurrency News Summary for {{ crypto_name }}</h1>
+
+    <div class="button-container text-center">
+        <a href="{{ url_for('display_crypto_report', crypto_name=crypto_name) }}" class="btn btn-secondary">View Crypto Report</a>
+    </div>
+
+    <div class="report-content">
+        <div class="news-summary">
+            {{ news_summary | safe }}
+        </div>
+    </div>
+
+    <div class="detailed-news">
+        <h2>Recent News Articles</h2>
+        {% for article in detailed_news %}
+            <div class="news-item">
+                <h3><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h3>
+                <p class="news-meta">Source: {{ article.source }} | Published: {{ article.published_on }}</p>
+                <p>{{ article.body | truncate(200) }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        .pink-heading {
+            color: #ff69b4;
+        }
+        .news-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .news-meta {
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

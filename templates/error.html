@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - 100x Club</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #ff1493;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ff1493;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+        </div>
+    </div>
+    <div class="content">
+        <div class="error-message">
+            <h2>Oops! Something went wrong.</h2>
+            <p>{{ message }}</p>
+        </div>
+        <a href="{{ url_for('index') }}" class="back-button">Go Back to Home</a>
+    </div>
+</body>
+</html>
