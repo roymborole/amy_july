@@ -2,125 +2,45 @@ import yfinance as yf
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import io
 import base64
 import sys
-import torch.nn.functional as F
 from datetime import datetime, timedelta
-from crypto_analysis import get_crypto_data, crypto_mapping
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from crypto_analysis import get_crypto_data, crypto_mapping
 
 def next_business_day(date):
     one_day = timedelta(days=1)
     next_day = date + one_day
     return next_day  # For crypto, we don't skip weekends
 
-def create_sequences(data, seq_length):
-    xs = []
-    ys = []
-    for i in range(len(data) - seq_length - 1):
-        x = data[i:(i + seq_length)]
-        y = data[i + seq_length]
-        xs.append(x)
-        ys.append(y)
-    return np.array(xs), np.array(ys)
+def prepare_data(data, seq_length):
+    X, y = [], []
+    for i in range(len(data) - seq_length):
+        X.append(data[i:(i + seq_length)])
+        y.append(data[i + seq_length])
+    return np.array(X), np.array(y)
 
-def prepare_data_x(x, window_size):
-    n_row = x.shape[0] - window_size + 1
-    output = np.lib.stride_tricks.as_strided(x, shape=(n_row, window_size), strides=(x.strides[0], x.strides[0]))
-    return output[:-1], output[-1]
+def create_and_train_model(X_train, y_train):
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train.ravel())
+    return model
 
-def prepare_data_y(x, window_size):
-    output = x[window_size:]
-    return output
-
-class Normalizer:
-    def __init__(self):
-        self.mu = None
-        self.sd = None
-
-    def fit_transform(self, x):
-        self.mu = np.mean(x, axis=(0), keepdims=True)
-        self.sd = np.std(x, axis=(0), keepdims=True)
-        normalized_x = (x - self.mu)/self.sd
-        return normalized_x
-
-    def inverse_transform(self, x):
-        return (x*self.sd) + self.mu
-
-class TimeSeriesDataset(Dataset):
-    def __init__(self, x, y):
-        x = np.expand_dims(x, 2)
-        self.x = x.astype(np.float32)
-        self.y = y.astype(np.float32)
-
-    def __len__(self):
-        return len(self.x)
-
-    def __getitem__(self, idx):
-        return (self.x[idx], self.y[idx])
-
-class LSTMModel(nn.Module):
-    def __init__(self, input_size=1, hidden_layer_size=32, num_layers=2, output_size=1, dropout=0.2):
-        super().__init__()
-        self.hidden_layer_size = hidden_layer_size
-        self.linear_1 = nn.Linear(input_size, hidden_layer_size)
-        self.relu = nn.ReLU()
-        self.lstm = nn.LSTM(hidden_layer_size, hidden_size=self.hidden_layer_size, num_layers=num_layers, batch_first=True)
-        self.dropout = nn.Dropout(dropout)
-        self.linear_2 = nn.Linear(num_layers * hidden_layer_size, output_size)
-        self.init_weights()
-
-    def forward(self, x):
-        batchsize = x.shape[0]
-        x = self.linear_1(x)
-        x = self.relu(x)
-        lstm_out, (h_n, c_n) = self.lstm(x)
-        x = h_n.permute(1, 0, 2).reshape(batchsize, -1)
-        x = self.dropout(x)
-        predictions = self.linear_2(x)
-        return predictions[:, -1]
-
-    def init_weights(self):
-        for name, param in self.lstm.named_parameters():
-            if 'bias' in name:
-                nn.init.constant_(param, 0.0)
-            elif 'weight_ih' in name:
-                nn.init.kaiming_normal_(param)
-            elif 'weight_hh' in name:
-                nn.init.orthogonal_(param)
-
-    def enable_dropout(self):
-        """ Function to enable the dropout layers during test-time """
-        for m in self.modules():
-            if m.__class__.__name__.startswith('Dropout'):
-                m.train()
-
-def run_epoch(dataloader, model, optimizer, scheduler, criterion, is_training=False):
-    epoch_loss = 0
-    if is_training:
-        model.train()
-    else:
-        model.eval()
-    for idx, (x, y) in enumerate(dataloader):
-        if is_training:
-            optimizer.zero_grad()
-        batchsize = x.shape[0]
-        x = x.to(model.linear_1.weight.device)
-        y = y.to(model.linear_1.weight.device)
-        out = model(x)
-        loss = criterion(out.contiguous(), y.contiguous())
-        if is_training:
-            loss.backward()
-            optimizer.step()
-        epoch_loss += (loss.detach().item() / batchsize)
-    lr = scheduler.get_last_lr()[0]
-    return epoch_loss, lr
+def predict_with_confidence(model, X):
+    predictions = []
+    for _ in range(100):  # Bootstrap sampling
+        indices = np.random.randint(0, len(X), len(X))
+        sample_pred = model.predict(X[indices])
+        predictions.append(sample_pred)
+    
+    mean_pred = np.mean(predictions, axis=0)
+    ci_lower = np.percentile(predictions, 2.5, axis=0)
+    ci_upper = np.percentile(predictions, 97.5, axis=0)
+    
+    return mean_pred, ci_lower, ci_upper
 
 def create_config(crypto_symbol):
     return {
@@ -137,16 +57,11 @@ def create_config(crypto_symbol):
         },
         "model": {
             "input_size": 1,
-            "num_lstm_layers": 2,
-            "lstm_size": 32,
-            "dropout": 0.2,
+            "num_trees": 100,
         },
         "training": {
-            "device": "cpu",
             "batch_size": 64,
             "num_epoch": 100,
-            "learning_rate": 0.01,
-            "scheduler_step_size": 40,
         }
     }
 
@@ -179,41 +94,21 @@ def run_crypto_prediction(crypto_name):
 
         # Prepare training data
         seq_length = 60
-        x, y = create_sequences(scaled_data, seq_length)
+        X, y = prepare_data(scaled_data, seq_length)
         
         # Split data into train and test
-        train_size = int(len(x) * 0.8)
-        x_train, x_test = x[:train_size], x[train_size:]
-        y_train, y_test = y[:train_size], y[train_size:]
-
-        # Convert to PyTorch tensors
-        x_train = torch.FloatTensor(x_train)
-        y_train = torch.FloatTensor(y_train)
-        x_test = torch.FloatTensor(x_test)
-        y_test = torch.FloatTensor(y_test)
-
-        # Build LSTM model
-        model = LSTMModel(input_size=1, hidden_layer_size=50, num_layers=2, output_size=1)
-        criterion = nn.MSELoss()
-        optimizer = optim.Adam(model.parameters(), lr=0.01)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         # Train the model
-        num_epochs = 100
-        for epoch in range(num_epochs):
-            model.train()
-            optimizer.zero_grad()
-            outputs = model(x_train.unsqueeze(2))
-            loss = criterion(outputs, y_train)
-            loss.backward()
-            optimizer.step()
-            if (epoch+1) % 10 == 0:
-                print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+        model = create_and_train_model(X_train, y_train)
+        print("Model training completed")
 
         # Make prediction
-        model.eval()
-        with torch.no_grad():
-            test_pred = model(x_test.unsqueeze(2))
-            predicted_price = scaler.inverse_transform(test_pred[-1].numpy().reshape(1, -1))
+        mean_prediction, ci_lower, ci_upper = predict_with_confidence(model, X_test[-1].reshape(1, -1))
+        
+        predicted_price = scaler.inverse_transform(mean_prediction.reshape(-1, 1)).flatten()
+        ci_lower = scaler.inverse_transform(ci_lower.reshape(-1, 1)).flatten()
+        ci_upper = scaler.inverse_transform(ci_upper.reshape(-1, 1)).flatten()
 
         # Prepare result
         current_price = df['Close'].iloc[-1]
@@ -222,7 +117,9 @@ def run_crypto_prediction(crypto_name):
         result = {
             "symbol": symbol,
             "current_price": float(current_price),
-            "predicted_price": float(predicted_price[0][0]),
+            "predicted_price": float(predicted_price[0]),
+            "ci_lower": float(ci_lower[0]),
+            "ci_upper": float(ci_upper[0]),
             "prediction_date": prediction_date.strftime('%Y-%m-%d'),
             "display_date_range": f"from {df.index[0].strftime('%Y-%m-%d')} to {df.index[-1].strftime('%Y-%m-%d')}",
         }
@@ -234,6 +131,7 @@ def run_crypto_prediction(crypto_name):
         import traceback
         traceback.print_exc()
         return None
+
 def generate_crypto_plot(data_date, data_close_price, config, plot_type='full', predicted_price=None, ci_lower=None, ci_upper=None):
     plt.figure(figsize=(25, 5), dpi=80)
     if plot_type == 'full':
