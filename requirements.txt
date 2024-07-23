@@ -141,3 +141,4 @@ yfinance==0.2.40
 gunicorn
 fuzzywuzzy
 pyngrok
+Torch
