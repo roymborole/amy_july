@@ -142,7 +142,6 @@ gunicorn
 fuzzywuzzy
 pyngrok
 torch
-os
 yfinance 
 pandas 
 requests
@@ -150,7 +149,6 @@ matplotlib
 matplotlib.pyplot
 base64
 io 
-json
 postmarker
 smtplib
 email.mime.text 
@@ -164,11 +162,9 @@ sklearn.preprocessing
 uuid
 threading
 mixpanel
-datetime 
 time
 werkzeug.security
 dotenv 
 bs4
-sys
 flask_sqlalchemy 
 

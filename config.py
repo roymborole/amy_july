@@ -14,7 +14,11 @@ from pyngrok import ngrok
 import json
 from flask import Flask, request, render_template, jsonify, redirect, url_for
 
-
+try:
+    from pyngrok import ngrok
+except ImportError:
+    ngrok = None
+    
 ANTHROPIC_API_KEY = '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'
 anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
