@@ -145,8 +145,7 @@ pyngrok
 requests
 matplotlib
 postmarker
-flask_dance.contrib.google 
-flask_dance.consumer
+Flask-Dance
 warnings
 numpy 
 sklearn.preprocessing 
