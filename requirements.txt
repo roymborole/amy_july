@@ -149,7 +149,6 @@ Flask-Dance
 numpy 
 sklearn.preprocessing 
 mixpanel
-time
 dotenv 
 bs4
 Flask-SQLAlchemy
