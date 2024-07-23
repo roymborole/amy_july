@@ -27,7 +27,7 @@ from news_analysis import get_news_summary
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from price_prediction import run_prediction
-from price_prediction import LSTMModel, run_prediction
+from price_prediction import run_prediction
 import torch
 import json 
 from flask import request, jsonify
