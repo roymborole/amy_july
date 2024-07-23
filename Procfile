@@ -1,3 +1,1 @@
-
-web: python app.py
-web: gunicorn app:app
+web: pip install anthropic && gunicorn app:app
