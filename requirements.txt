@@ -146,7 +146,6 @@ requests
 matplotlib
 postmarker
 Flask-Dance
-warnings
 numpy 
 sklearn.preprocessing 
 mixpanel
