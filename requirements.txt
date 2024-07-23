@@ -141,7 +141,7 @@ yfinance==0.2.40
 gunicorn
 fuzzywuzzy
 pyngrok
-torch
+torch==2.3.1
 yfinance 
 pandas 
 requests
