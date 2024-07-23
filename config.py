@@ -22,9 +22,16 @@ except ImportError:
 from dotenv import load_dotenv
 load_dotenv()  # This loads the variables from .env
 
-anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+if not ANTHROPIC_API_KEY:
+    raise ValueError("ANTHROPIC_API_KEY is not set in the environment variables")
+
 CRYPTOCOMPARE_API_KEY = os.getenv('CRYPTOCOMPARE_API_KEY')
+if not CRYPTOCOMPARE_API_KEY:
+    raise ValueError("CRYPTOCOMPARE_API_KEY is not set in the environment variables")
+
+# Create the Anthropic client after loading the API key
+anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 START_DATE = '2020-01-01'
 END_DATE = '2024-07-16'
-
