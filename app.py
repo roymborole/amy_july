@@ -27,7 +27,6 @@ from news_analysis import get_news_summary
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from price_prediction import run_prediction
-from price_prediction import run_prediction
 import torch
 import json 
 from flask import request, jsonify
@@ -324,16 +323,21 @@ def display_news(name_or_ticker):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    app.logger.info("Index route accessed")
     if request.method == 'POST':
+        app.logger.info("POST request received")
         name_or_ticker = request.form.get('name_or_ticker')
         if not name_or_ticker:
+            app.logger.warning("Missing input")
             return "Missing input", 400
+        app.logger.info(f"Searching for asset: {name_or_ticker}")
         mp_eu.track(session.get('user_id', 'Asset Search'), 'Asset Search', {
             'asset_name': name_or_ticker
         })
         
         return redirect(url_for('display_report', name_or_ticker=name_or_ticker))
     
+    app.logger.info("Rendering index.html")
     return render_template('index.html')
 
 @app.route('/login', methods=['POST'])

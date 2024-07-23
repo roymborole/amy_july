@@ -1,4 +1,5 @@
-from config import anthropic_client, json
+from config import anthropic_client
+import json
 
 def format_value(value, is_currency=True, decimals=2):
     if value is None:
