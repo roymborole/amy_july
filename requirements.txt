@@ -153,4 +153,5 @@ dotenv
 bs4
 Flask-SQLAlchemy
 python-dotenv
-
+setuptools==65.5.0
+wheel==0.38.4
