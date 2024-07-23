@@ -142,7 +142,6 @@ yfinance==0.2.40
 gunicorn
 fuzzywuzzy
 pyngrok
-torch==2.3.1
 requests
 matplotlib
 postmarker
