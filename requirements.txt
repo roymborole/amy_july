@@ -145,6 +145,7 @@ pyngrok
 requests
 matplotlib
 postmarker
+pep517
 Flask-Dance
 numpy 
 sklearn.preprocessing 
