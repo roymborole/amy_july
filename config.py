@@ -22,7 +22,7 @@ except ImportError:
 from dotenv import load_dotenv
 load_dotenv()  # This loads the variables from .env
 
-ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 CRYPTOCOMPARE_API_KEY = os.getenv('CRYPTOCOMPARE_API_KEY')
 
 START_DATE = '2020-01-01'
