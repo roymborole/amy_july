@@ -44,33 +44,41 @@ from werkzeug.security import generate_password_hash
 import mixpanel
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
+import os
+from extensions import db, migrate
 from dotenv import load_dotenv
+from models import User, TempSubscription, Subscription
 load_dotenv()
 
 
-# ... (rest of the imports and app setup)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
+postmark = PostmarkClient(server_token=os.getenv('POSTMARK_SERVER_TOKEN'))
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+try:
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+except Exception as e:
+    print(f"Database connection error: {str(e)}")
+    
+generated_reports = {}
+
+
+migrate.init_app(app, db)
 
 mp_eu = mixpanel.Mixpanel(
-  "bfc13708c14264e73210551e942a0063",
+  os.getenv('MIXPANEL_API_KEY'),
   consumer=mixpanel.Consumer(api_host="api-eu.mixpanel.com"),
 )
-
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
 warnings.filterwarnings('ignore', category=Warning)
-
-app = Flask(__name__, static_folder='static', static_url_path='/static')
-postmark = PostmarkClient(server_token='4b36353e-54d7-49a6-b572-fa56e8675c4a')
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-app.config['SECRET_KEY'] = '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'  # Change this!
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-generated_reports = {}
-
-db.init_app(app)
 
 init_auth(app)
 
