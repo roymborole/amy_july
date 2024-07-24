@@ -77,6 +77,9 @@ init_auth(app)
 with app.app_context():
     db.create_all()
 
+@app.route('/hello')
+def hello():
+    return "Hello, World!"
 
 @app.route('/crypto_predict/<crypto_name>')
 def crypto_predict(crypto_name):
@@ -87,6 +90,10 @@ def crypto_predict(crypto_name):
     return render_template('crypto_prediction_report.html', 
                            asset_name=crypto_name,
                            prediction_data=prediction_data)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 @app.route('/montage')
 def montage():
@@ -869,40 +876,5 @@ if __name__ == '__main__':
             exit(1)
 
     app.run(host='127.0.0.1', port=4040)
-
-
-app = Flask(__name__)
-
-
-
-@app.route('/contact', methods=['GET', 'POST'])
-def contact():
-    if request.method == 'POST':
-        name = request.form['name']
-        phone = request.form['phone']
-        email = request.form['email']
-        message = request.form['message']
-
-        # Prepare the email
-        recipient = 'roy@borole.com'
-        subject = 'Contact Us Form Submission'
-        body = f"Name: {name}\nPhone: {phone}\nEmail: {email}\nMessage: {message}"
-        
-        msg = MIMEText(body)
-        msg['Subject'] = subject
-        msg['From'] = email
-        msg['To'] = recipient
-
-        # Send the email
-        try:
-            with smtplib.SMTP('smtp.example.com', 587) as server:
-                server.starttls()
-                server.login('your-email@example.com', 'your-email-password')
-                server.sendmail(email, recipient, msg.as_string())
-            return redirect(url_for('contact'))
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-
-    return render_template('contact.html')
 
 print(app.url_map)
