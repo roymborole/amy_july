@@ -12,6 +12,7 @@ from crypto_comparison import compare_cryptos, generate_crypto_comparison_report
 from flask import request, jsonify, flash
 import postmarker
 from postmarker.core import PostmarkClient
+from rabbitmq_config import get_rabbitmq_connection, get_channel
 import smtplib
 from email.mime.text import MIMEText
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory
@@ -19,7 +20,7 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
-from login import init_auth, google_bp, get_db, User
+from login import init_auth, auth_bp
 import warnings
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 import yfinance as yf
@@ -30,7 +31,7 @@ from price_prediction import run_prediction
 import torch
 import json 
 from flask import request, jsonify
-from models import User, db, TempSubscription, Subscription
+from models import User, TempSubscription, Subscription
 import uuid
 from postmarker.core import PostmarkClient
 from flask import request, jsonify
@@ -45,28 +46,30 @@ import mixpanel
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
 import os
-from extensions import db, migrate
+from extensions import db, migrate, init_extensions
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
-load_dotenv()
-
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 postmark = PostmarkClient(server_token=os.getenv('POSTMARK_SERVER_TOKEN'))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+
+load_dotenv()
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
 
-try:
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()
-except Exception as e:
-    print(f"Database connection error: {str(e)}")
-    
+
+init_extensions(app)
+init_auth(app, register=False)
+app.register_blueprint(auth_bp)
+
 generated_reports = {}
-
 
 migrate.init_app(app, db)
 
@@ -80,10 +83,15 @@ os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
 warnings.filterwarnings('ignore', category=Warning)
 
-init_auth(app)
-
 with app.app_context():
     db.create_all()
+
+def publish_to_queue(queue_name, message):
+    connection = get_rabbitmq_connection()
+    channel = get_channel(connection)
+    channel.queue_declare(queue=queue_name)
+    channel.basic_publish(exchange='', routing_key=queue_name, body=message)
+    connection.close()
 
 @app.route('/hello')
 def hello():
@@ -386,63 +394,37 @@ def generate_report():
     name_or_ticker = request.form.get('name_or_ticker')
     if not name_or_ticker:
         return jsonify({'error': 'Missing input'}), 400
-    
-    try:
-        if name_or_ticker.lower() in crypto_mapping:
-            raw_data = get_crypto_data(name_or_ticker)
-            report_content = get_crypto_analysis_report(raw_data, raw_data['asset_name'])
-            asset_type = 'Cryptocurrency'
-        else:
-            ticker = get_ticker_from_name(name_or_ticker)
-            if ticker:
-                raw_data = get_financial_data(ticker)
-                report_content = get_analysis_report(raw_data, raw_data['asset_name'])
-                asset_type = 'Stock'
-            else:
-                return jsonify({'error': 'Unable to find a matching stock or cryptocurrency.'}), 400
 
-        if not raw_data:
-            return jsonify({'error': 'Unable to fetch data for the given input.'}), 400
-        
-        if 'asset_name' not in raw_data:
-            raw_data['asset_name'] = name_or_ticker.capitalize()
-        
-        charts = {
-            'price_sma': create_chart(raw_data['historical_data'], 'price_sma', name_or_ticker),
-            'rsi': create_chart(raw_data['historical_data'], 'rsi', name_or_ticker),
-            'bollinger': create_chart(raw_data['historical_data'], 'bollinger', name_or_ticker)
-        }
-        raw_data['charts'] = charts
-        
-        for chart_type, chart_data in charts.items():
-            placeholder = f'[{chart_type.upper()}_CHART]'
-            chart_html = f'<img src="data:image/png;base64,{chart_data}" alt="{chart_type} chart" style="max-width: 100%; height: auto;">'
-            report_content = report_content.replace(placeholder, chart_html)
-        
+    try:
+        # Instead of generating the report here, publish a message to RabbitMQ
+        publish_to_queue('report_requests', json.dumps({
+            'name_or_ticker': name_or_ticker,
+            'user_id': session.get('user_id', 'Anonymous')
+        }))
+
         end_time = time.time()
-        generation_time = end_time - start_time
-    
-        # Track report generation
-        print("Tracking report generation in Mixpanel")  # Debug print
-        mp_eu.track(session.get('user_id', 'Anonymous'), 'Report Generated', {
-            'asset_name': raw_data['asset_name'],
-            'asset_type': asset_type
-            
+        queue_time = end_time - start_time
+
+        # Track report request
+        mp_eu.track(session.get('user_id', 'Anonymous'), 'Report Requested', {
+            'asset_name': name_or_ticker,
+            'queue_time': queue_time
         })
-        
-        return jsonify({'report': report_content})
+
+        return jsonify({'message': 'Report generation request submitted. Please check back later for results.'}), 202
+
     except Exception as e:
         import traceback
         error_traceback = traceback.format_exc()
         print(f"Error in generate_report: {str(e)}")
         print(f"Traceback: {error_traceback}")
-        
+
         # Track error
         mp_eu.track(session.get('user_id', 'Anonymous'), 'Report Generation Error', {
             'asset_name': name_or_ticker,
             'error_message': str(e)
         })
-        
+
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
 
 @app.route('/compare', methods=['POST'])
@@ -868,6 +850,9 @@ def get_report(name_or_ticker):
         print(f"Traceback: {error_traceback}")
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
     
+
+     # Register other blueprints and setup routes here
+
 if __name__ == '__main__':
     if app.debug:
         ngrok_auth_token = os.environ.get("NGROK_AUTH_TOKEN")

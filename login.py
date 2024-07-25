@@ -1,12 +1,11 @@
-# login.py
 from flask import Blueprint, redirect, url_for, session
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
-from flask_sqlalchemy import SQLAlchemy
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
-from models import db, User  # Import db and User from models.py
+from models import User
+from extensions import db
 
-auth = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth_bp', __name__)  # Changed name to auth_bp
 
 google_bp = make_google_blueprint(
     client_id="your-client-id",
@@ -16,10 +15,10 @@ google_bp = make_google_blueprint(
     redirect_to="index"  
 )
 
-def init_auth(app):
-    app.register_blueprint(auth)
+def init_auth(app, register=True):
+    if register:
+        app.register_blueprint(auth_bp)
     app.register_blueprint(google_bp, url_prefix="/login")
-    # Remove the init_db(app) call from here
 
 @oauth_authorized.connect_via(google_bp)
 def google_logged_in(blueprint, token):
@@ -42,16 +41,13 @@ def google_logged_in(blueprint, token):
         print(f"OAuth2Error: {str(e)}")
         return False
 
-@auth.route('/login')
+@auth_bp.route('/login')  # Changed to auth_bp
 def login():
     if not google.authorized:
         return redirect(url_for("google.login"))
     return redirect(url_for("index"))
 
-@auth.route('/logout')
+@auth_bp.route('/logout')  # Changed to auth_bp
 def logout():
     session.clear()
     return redirect(url_for("index"))
-
-def get_db():
-    return db
