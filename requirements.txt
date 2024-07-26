@@ -27,6 +27,7 @@ defusedxml==0.7.1
 distlib==0.3.8
 distro==1.9.0
 executing==2.0.1
+ddtrace
 fastjsonschema==2.19.1
 python-Levenshtein 
 filelock==3.15.4
