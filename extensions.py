@@ -1,6 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+
+from ddtrace import patch
+patch(sqlalchemy=True)
+
 db = SQLAlchemy()
 migrate = Migrate()
 

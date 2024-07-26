@@ -1,3 +1,6 @@
+from ddtrace import patch_all
+from ddtrace import tracer
+from logging import FileHandler
 from config import Flask, request, render_template, jsonify, redirect, url_for, os, ngrok
 from financial_analysis import get_financial_data
 from crypto_analysis import get_crypto_data, crypto_mapping
@@ -49,12 +52,49 @@ import os
 from extensions import db, migrate, init_extensions
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
+import logging
+from logging.handlers import RotatingFileHandler
+import sentry_sdk
+from flask import Flask
 
+sentry_sdk.init(
+    dsn="https://199427486a2a2238cc49d3b3f7e4a971@o4507667288031232.ingest.us.sentry.io/4507667290521600",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
+
+
+
+def setup_logging(app):
+    # Set up file logging
+    file_handler = RotatingFileHandler("app.log", maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+
+
+patch_all()
 app = Flask(__name__, static_folder='static', static_url_path='/static')
+app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
 postmark = PostmarkClient(server_token=os.getenv('POSTMARK_SERVER_TOKEN'))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+setup_logging(app)
+
 
 load_dotenv()
+
+tracer.configure(
+    hostname='localhost',
+    port=8126,
+)
 
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
@@ -86,12 +126,28 @@ warnings.filterwarnings('ignore', category=Warning)
 with app.app_context():
     db.create_all()
 
+file_handler = FileHandler("app.log")
+file_handler.setLevel(logging.INFO)
+
+# Add the handler to your app's logger
+app.logger.addHandler(file_handler)
+
+# Use this to log
+app.logger.info("This is a log message")
+
 def publish_to_queue(queue_name, message):
     connection = get_rabbitmq_connection()
     channel = get_channel(connection)
     channel.queue_declare(queue=queue_name)
     channel.basic_publish(exchange='', routing_key=queue_name, body=message)
     connection.close()
+
+
+
+
+@app.context_processor
+def inject_ga_tracking_id():
+    return dict(ga_tracking_id=app.config['GA_TRACKING_ID'])
 
 @app.route('/hello')
 def hello():
