@@ -207,6 +207,10 @@ def display_crypto_report(crypto_name):
                            charts=charts,
                            report_content=report_content)
 
+@app.route('/gym')
+def gym():
+    return render_template('gym.html')
+
 @app.route('/crypto_compare', methods=['POST'])
 def crypto_compare():
     crypto1 = request.form.get('crypto1')
@@ -522,7 +526,7 @@ def send_report():
 
     try:
         postmark.emails.send(
-            From='roy@borole.com',
+            From='reports@100-x.club',
             To=email,
             Subject=f'Analysis Report for {asset_name}',
             HtmlBody=f"""
@@ -746,7 +750,7 @@ def send_comparison_report():
 
     try:
         postmark.emails.send(
-            From='roy@borole.com',
+            From='reports@100-x.club',
             To=email,
             Subject=f'Comparison Report: {asset1} vs {asset2}',
             HtmlBody=f"""
@@ -767,7 +771,7 @@ def send_confirmation_email(email, asset_name, confirmation_token):
     confirmation_link = url_for('confirm_subscription', token=confirmation_token, _external=True)
     
     postmark.emails.send(
-        From='roy@borole.com',
+        From='reports@100-x.club',
         To=email,
         Subject='Confirm your subscription to 100x weekly reports',
         HtmlBody=f'''Please confirm that you want to subscribe to receive weekly email reports on {asset_name} from 100x.
@@ -802,7 +806,7 @@ def generate_weekly_report(asset_name):
 
 def send_weekly_report(email, asset_name, report_content):
     postmark.emails.send(
-        From='roy@borole.com',
+        From='reports@100-x.club',
         To=email,
         Subject=f'100x Weekly Report: {asset_name}',
         HtmlBody=render_template('report_email.html', asset_name=asset_name, report_content=report_content)
@@ -835,7 +839,7 @@ def contact():
 
         try:
             postmark.emails.send(
-                From='roy@borole.com',
+                From='info@100-x.club',
                 To='mothei@borole.com',
                 Subject='Contact Us Form Submission',
                 HtmlBody=f"""

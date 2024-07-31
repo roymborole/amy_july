@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="loading">Generating report for {{ name_or_ticker }}...</div>
+<div id="report-container" style="display: none;">
+    <h1 id="asset-name"></h1>
+    <div id="raw-data"></div>
+    <div id="charts"></div>
+    <div id="report-content"></div>
+</div>
+<div id="error" style="display: none; color: red;"></div>
+
+<script>
+const nameOrTicker = "{{ name_or_ticker }}";
+
+function checkReportStatus() {
+    fetch(`/api/report_data/${nameOrTicker}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'processing') {
+                setTimeout(checkReportStatus, 1000);  // Check again in 1 second
+            } else if (data.status === 'complete') {
+                displayReport(data);
+            } else if (data.status === 'error') {
+                showError(data.message);
+            }
+        })
+        .catch(error => showError('Error fetching report data: ' + error));
+}
+
+function displayReport(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('report-container').style.display = 'block';
+    document.getElementById('asset-name').textContent = data.asset_name;
+    document.getElementById('raw-data').innerHTML = JSON.stringify(data.raw_data, null, 2);
+    displayCharts(data.charts);
+    document.getElementById('report-content').innerHTML = data.report_content;
+}
+
+function displayCharts(charts) {
+    const chartsDiv = document.getElementById('charts');
+    for (const [chartType, chartData] of Object.entries(charts)) {
+        chartsDiv.innerHTML += `
+            <h3>${chartType} Chart</h3>
+            <img src="data:image/png;base64,${chartData}" alt="${chartType} chart" class="chart">
+        `;
+    }
+}
+
+function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').textContent = message;
+    document.getElementById('error').style.display = 'block';
+}
+
+// Start checking for the report status
+checkReportStatus();
+</script>
+{% endblock %}
