@@ -45,16 +45,6 @@ body {
     position: relative;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
-    background-color: rgba(0, 0, 0, 0.205);
-    border-radius: 10px;
-}
-
 .news-button {
     background-color: pink !important;
     color: black !important;
@@ -66,13 +56,6 @@ body {
 .news-button {
     background-color: pink;
     color: black;
-}
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
 }
 
 header {
@@ -164,10 +147,6 @@ form {
     height: 400px;
 }
 
-.tradingview-widget-container {
-    width: 48%;
-}
-
 .content {
     background-color: rgba(0, 0, 0, 0.138);
     padding: 20px;
@@ -245,12 +224,12 @@ body {
     margin: 0 auto;
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
+    color: #ffffff;
     border-radius: 10px;
 }
 
 .report-content {
-    text-align: center;
+    text-align: left;
 }
 
 .text-center {
@@ -345,7 +324,8 @@ body {
 }
 
 .popup {
-    background-color: white;
+    background-color: #ff00a2;
+    color: rgb(255, 255, 255);
     padding: 20px;
     border-radius: 5px;
     text-align: center;
@@ -364,6 +344,15 @@ body {
     color: white;
 }
 
+#sendingOverlay .popup {
+    color: #FF69B4; /
+}
+
+#sendingOverlay .popup h2,
+#sendingOverlay .popup p {
+    color: #FF69B4; /
+}
+
 .btn-secondary {
     background-color: #6c757d;
     color: white;
@@ -373,10 +362,10 @@ body, h3 {
     font-family: 'Roboto', sans-serif;
 }
 
-/* Add these styles to your style.css file */
+
 
 .carousel-inner {
-    height: 400px; /* Adjust this value as needed */
+    height: 400px; 
 }
 
 .carousel-item {
@@ -392,12 +381,12 @@ body, h3 {
     object-fit: contain;
 }
 
-/* Ensure modals are hidden by default */
+
 .modal {
     display: none;
 }
 
-/* Additional styles to improve carousel appearance */
+
 #comparisonCarousel {
     margin-bottom: 30px;
 }
@@ -454,12 +443,6 @@ body, h3 {
     width: 100px; /* Increase this value to make icons larger */
     height: auto;
 }
-.container {
-    background-color: rgba(0, 0, 0, 0.205);
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
-}
 
 .row {
     display: flex;
@@ -498,9 +481,4 @@ body, h3 {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-}
-
-.container {
-    padding-top: 20px;
-    padding-bottom: 20px;
 }

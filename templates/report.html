@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="container report-container">
+<div class="report-container">
     <img src="{{ url_for('static', filename='Header1.png') }}" alt="Header" class="header-image">
 
     <h1 class="text-center pink-heading">Technical Analysis for {{ asset_name }}</h1>
@@ -105,7 +105,7 @@
 </div>
 
 <div id="sendingOverlay" class="overlay">
-    <div class="popup">
+    <div class="popup" >
         <h2>Sending Report</h2>
         <p>Please wait...</p>
     </div>
