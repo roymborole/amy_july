@@ -15,16 +15,19 @@
         }
         .carousel-track {
             display: flex;
-            animation: scroll 30s linear infinite;
+            animation: scroll 20s linear infinite;
         }
         .carousel-slide {
-            flex: 0 0 10%;
-            min-width: 10%;
-            padding: 10px;
+            flex: 0 0 20%;
+            min-width: 20%;
+            padding: 20px;
             box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .carousel-slide img {
-            width: 100%;
+        .carousel-slide img, .carousel-icon {
+            width: 80px;
             height: auto;
             cursor: pointer;
         }
@@ -40,15 +43,13 @@
 
     // Company tickers mapping
     const companyTickers = {
-     
         'Co_logo_1': 'TSM', 'Co_logo_2': 'GOOGL', 'Co_logo_3': 'AMD',
-        'Co_logo_4': 'INTC', 'Co_logo_5': 'AVGO', 'Co_logo_6': 'RIVN ',
+        'Co_logo_4': 'INTC', 'Co_logo_5': 'AVGO', 'Co_logo_6': 'RIVN',
         'Co_logo_7': 'AAL', 'Co_logo_8': 'WMT', 'Co_logo_9': 'PFE',
         'Co_logo_10': 'MCD', 'Co_logo_11': 'CMG', 'Co_logo_12': 'AAPL',
         'Co_logo_13': 'SPOT', 'Co_logo_14': 'DIS', 'Co_logo_15': 'AMZN',
         'Co_logo_16': 'MSFT', 'Co_logo_17': 'TSLA', 'Co_logo_18': 'NVDA',
         'Co_logo_19': 'NFLX', 'Co_logo_20': 'META'
-
     };
 
     function createCarousel(elementId) {
@@ -73,6 +74,7 @@
             const img = document.createElement('img');
             img.src = `/static/Co_logo_${i}.png`;
             img.alt = `Company Logo ${i}`;
+            img.classList.add('carousel-icon');
             
             const logoKey = `Co_logo_${i}`;
             const ticker = companyTickers[logoKey] || 'UNKNOWN';
@@ -91,6 +93,10 @@
             const clone = slide.cloneNode(true);
             track.appendChild(clone);
         });
+
+        // Adjust the animation duration based on the number of slides
+        const animationDuration = totalSlides * 1.5; // 1.5 seconds per slide
+        track.style.animation = `scroll ${animationDuration}s linear infinite`;
     }
 
     function generateReport(ticker, logoNumber) {
