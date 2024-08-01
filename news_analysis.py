@@ -34,8 +34,6 @@ def scrape_article_content(url):
         print(f"Error scraping {url}: {e}")
         return None
 
-# news_analysis.py
-
 def get_news_summary(ticker):
     news_urls = get_recent_stock_news_urls(ticker)
     all_content = ""
@@ -45,19 +43,37 @@ def get_news_summary(ticker):
         if content:
             all_content += content + "\n\n"
     
-    prompt = f"""Human: Summarize the following news articles about {ticker}. Focus on the most important points and data points and their potential impact on the stock. Provide a fluid and excitine newsletter, the text should not exceed 800 words and be less than 500 words, conclude the text the way you would conclude a newsletter.
+    prompt = f"""Summarize the following news articles about {ticker}. Focus on the most important points and data points and their potential impact on the stock. Do not list the points, but rather let them flow in the style of an essay. Write in a fluid and well thought out manner. The text should not exceed 1000 words and be less than 500 words, conclude the text in a casual way. After your conclusion do not add any more text. DO NOT ASK if I have any need for any clarification or have additional questions. Do not add anything after your conclusion.
 
     {all_content}
 
-Assistant: Here's a summary of the recent news articles about {ticker}:
+    """
+    
+    try:
+        message = anthropic_client.messages.create(
+            model="claude-3-sonnet-20240229",
+            max_tokens=2000,
+            temperature=0,
+            system="You are a journalist writing insightful business news. Provide a well thought out balanced  summary of recent news articles about a given company.",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        }
+                    ]
+                }
+            ]
+        )
+        
+        if isinstance(message.content, list):
+            news_summary = ' '.join([item.text for item in message.content if hasattr(item, 'text')])
+        else:
+            news_summary = message.content
 
-"""
-    
-    response = anthropic_client.completions.create(
-        model="claude-2",
-        prompt=prompt,
-        max_tokens_to_sample=2000,
-        stop_sequences=["\n\nHuman:"]
-    )
-    
-    return response.completion
+        return news_summary
+
+    except Exception as e:
+        return f"Error generating news summary: {str(e)}"

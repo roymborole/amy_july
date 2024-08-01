@@ -27,8 +27,8 @@ def generate_comparison_summary(comparison_data):
 
     system_prompt = "You are a financial analyst tasked with comparing two stocks."
     
-    human_prompt = f"""Compare the following two stocks: {asset1['asset_name']} and {asset2['asset_name']}.
-    Provide an insightful and analytical summary of the comparison, focusing on highlighting the differences in performance between the two stocks. The summary should not exceed 700 words, START THE REPORT AS FINANCIAL ANALYST WOULD, DO NOT START WITH THE WORDS "Here is a X-WORD comparison.
+    human_prompt = f"""Take a deep breath and carefully consider my request. Compare the following two stocks: {asset1['asset_name']} and {asset2['asset_name']}.
+    Provide an insightful and analytical summary of the comparison, focusing on highlighting the differences in performance between the two stocks. The summary should not exceed 900 words. Do not start the analysis with the text "Here is a comparison" rather open with a casual but witty tone.
 
     {asset1['asset_name']} Data:
     Close Price: {asset1['close_price']}
@@ -55,16 +55,33 @@ def generate_comparison_summary(comparison_data):
     1-Year Return: {asset1['performance']['1-Year']['sp500']}%
     3-Year Return: {asset1['performance']['3-Year']['sp500']}%
 
-    Highlight performance differences, technical indicators, and how they compare to the S&P 500. Include insights on potential reasons for any significant differences and what these differences might indicate about the stocks' future performance."""
+    Highlight performance differences, technical indicators, and how they compare to the S&P 500. Include insights on potential reasons for any significant differences and what these differences might indicate about the stocks' future performance. Lastly, do not use jargon, and explain complex concepts when they appear."""
 
     try:
-        response = client.completions.create(
-            model="claude-2",
-            prompt=f"{system_prompt}\n\nHuman: {human_prompt}\n\nAssistant:",
-            max_tokens_to_sample=800,
-            temperature=0.7
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20240620",
+            max_tokens=2000,
+            temperature=0.7,
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": human_prompt
+                        }
+                    ]
+                }
+            ]
         )
-        return response.completion
+        
+        if isinstance(message.content, list):
+            comparison_summary = ' '.join([item.text for item in message.content if hasattr(item, 'text')])
+        else:
+            comparison_summary = message.content
+
+        return comparison_summary
     except Exception as e:
         print(f"Error generating comparison summary: {str(e)}")
         return f"Unable to generate AI summary at this time. Error: {str(e)}"
