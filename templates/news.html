@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div>
+    <div class="header">
+        <div class="logo logo-mini">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='mini-logo.png') }}" alt="100x Club Logo">
+            </a>
+        </div>
+        <div class="nav-buttons">
+           <a href="{{ url_for('about') }}"><strong>About Us</strong></a>
+            <a href="{{ url_for('contact') }}"><strong>Contact Us</strong></a>
+            <div id="search-container"></div>
+    </div>
+</div>
+
+
 <div class="container report-container">
     <div class="text-center">
         <img src="{{ url_for('static', filename='Header4.png') }}" alt="Header" class="header-image">
@@ -9,37 +24,27 @@
     <h1 class="text-center pink-heading">News Summary for {{ asset_name }}</h1>
 
     <div class="button-container text-center">
-        <a href="{{ url_for('display_report', name_or_ticker=asset_name) }}" class="btn btn-secondary">View Financial Report</a>
-    </div>
-
+   
     <div class="report-content">
         <div class="news-summary">
             {{ news_summary | safe }}
         </div>
+        <div id="search-container"></div>
     </div>
-</div>
 
 {% endblock %}
 
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
 {% block scripts %}
-<style>
-    .pink-heading {
-        color: #FF69B4;  /* Bright pink color */
-    }
-    .header-image {
-        max-width: 100%;
-        height: auto;
-        margin: 0 auto;
-    }
-    .report-container {
-        text-align: center;
-    }
-    .news-summary {
-        text-align: left;
-        margin-top: 20px;
-    }
-    .news-summary h2, .news-summary h3, .news-summary h4 {
-        color: #FF69B4;  /* Bright pink color for all headings in the news summary */
-    }
-</style>
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            SearchModule.init('search-container');
+        });
+    </script>
 {% endblock %}

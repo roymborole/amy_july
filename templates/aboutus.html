@@ -1,88 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block head %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - 100x</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        body {
-            font-family: Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0;
-            background-color: #222222;
-            
-        }
-        .logo img {
-            height: 40px;
-        }
+</head> 
+{% endblock %}
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+{% block content %}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0;
-            background-color: #111111;
-            width: 100%;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .nav {
-            display: flex;
-            gap: 10px;
-        }
-        .nav a {
-            color: #cccccc;
-            text-decoration: none;
-        }
-        h1 {
-            color: #ff1493;
-            text-align: center;
-        }
-        #animation-container {
-            width: 300px;
-            height: 300px;
-            margin: 0 auto;
-        }
-        .social-icons {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .social-icons img {
-            width: 40px;
-            height: 40px;
-            margin: 0 10px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-style: italic;
-        }
-    </style>
-</head>
-<header>
-    <div class="logo">
-        <img src="{{ url_for('static', filename='Logo-main.png') }}" alt="100x Club Logo">
+<div>
+    <div class="header">
+        <div class="logo logo-mini">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='mini-logo.png') }}" alt="100x Club Logo">
+            </a>
+        </div>
+        <div class="nav-buttons">
+           <a href="{{ url_for('about') }}"><strong>About Us</strong></a>
+            <a href="{{ url_for('contact') }}"><strong>Contact Us</strong></a>
+            <div id="search-container"></div>
     </div>
-    <nav>
-        <a href="{{ url_for('about') }}">About Us</a>
-        <a href="{{ url_for('contact') }}">Contact Us</a>
-    </nav>
-</header>
+</div>
 
-<div class="container" style="text-align: center;">
+<div class="container report-container" style="text-align: center;">
     <h1>Welcome to 100x</h1>
 
-    <div id="animation-container"></div>
+    <div id="lottie-container" style="width: 400px; height: 400px;"></div>
+
+    <div class="container">
 
     <p>100x was started and is run and maintained by <a href="https://linktr.ee/m0th3i" target="_blank">Roy Mathieu Borole</a>.</p>
 
@@ -97,16 +47,32 @@
         <a href="#"><img src="{{ url_for('static', filename='images/instagram-logo.png') }}" alt="Instagram"></a>
         <a href="#"><img src="{{ url_for('static', filename='images/medium-logo.png') }}" alt="Medium"></a>
     </div>
-
-    <footer>
-        Made with code and ♥️ in Ouagadougou
-    </footer>
 </div>
 
+{% endblock %}
+{% block footer %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p>© 2024 100x Club. All rights reserved - Made with code and ♥️ in Kingdom of Mapungubwe</p>
+            <p><a href="{{ url_for('privacy_policy') }}" class="text-muted">Privacy Policy</a> | <a href="{{ url_for('terms_of_service') }}" class="text-muted">Terms of Service</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            SearchModule.init('search-container');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
             var animation = lottie.loadAnimation({
-                container: document.getElementById('animation-container'),
+                container: document.getElementById('lottie-container'),
                 renderer: 'svg',
                 loop: true,
                 autoplay: true,
@@ -114,5 +80,5 @@
             });
         });
     </script>
-</body>
-</html>
+
+{% endblock %}

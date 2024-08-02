@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
+<div>
+    <div class="header">
+        <div class="logo logo-mini">
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='mini-logo.png') }}" alt="100x Club Logo">
+            </a>
+        </div>
+        <div class="nav-buttons">
+           <a href="{{ url_for('about') }}"><strong>About Us</strong></a>
+            <a href="{{ url_for('contact') }}"><strong>Contact Us</strong></a>
+    </div>
+</div>
 
 <div class="report-container">
     <img src="{{ url_for('static', filename='Header1.png') }}" alt="Header" class="header-image">
@@ -103,6 +115,12 @@
     </div>
 </div>
 
+<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;">
+    <div style="background-color:#FF69B4; padding:20px; border-radius:5px; text-align:center; color:white;">
+        <h2> Get ready for the ultimate showdown... or not.</h2>
+    </div>
+</div>
+
 <div id="sendingOverlay" class="overlay">
     <div class="popup" >
         <h2>Sending Report</h2>
@@ -123,9 +141,10 @@
     }
 
     function compareAsset() {
-        var asset2 = prompt("Enter the name or ticker of the asset you want to compare with {{ asset_name }}:");
-        if (asset2) {
-            window.location.href = '/compare/' + encodeURIComponent('{{ asset_name }}') + '/' + encodeURIComponent(asset2);
+        var compareWith = prompt("Enter the ticker symbol to compare with:");
+        if (compareWith) {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            window.location.href = "/comparison/{{ asset_name }}/" + encodeURIComponent(compareWith);
         }
     }
     function emailReport() {

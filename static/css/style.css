@@ -60,7 +60,7 @@ body {
 
 header {
     background-color: rgba(36, 36, 36, 0.214);
-    padding: 20px;
+    padding: 10px;
 }
 
 header .container {
@@ -81,11 +81,7 @@ nav a {
     color: #ffffff;
 }
 
-.nav-buttons {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-}
+
 
 .main-content {
     display: flex;
@@ -123,7 +119,7 @@ form {
 .btn-analyze {
     background-color: #FF1493;
     color: white;
-    border: none;
+    border: 1px solid #ccc;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -259,6 +255,19 @@ body {
     height: 100vh;
 }
 
+    #loadingOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
 #loading {
     text-align: center;
 }
@@ -331,10 +340,11 @@ body {
     text-align: center;
 }
 
+
 .btn {
     padding: 10px 20px;
     margin: 5px;
-    border: none;
+    border: 1px solid #ccc;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -477,8 +487,238 @@ body, h3 {
     width: auto;
 }
 
+.pink-heading {
+    color: #FF69B4;  /* Bright pink color */
+}
+.header-image {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+.report-container {
+    text-align: center;
+}
+.news-summary {
+    text-align: left;
+    margin-top: 20px;
+}
+.news-summary h2, .news-summary h3, .news-summary h4 {
+    color: #FF69B4;  
+}
+
+
+.report-container {
+    padding-top: 50px; 
+}
+
+
 .nav-buttons {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
+}
+
+.nav-buttons a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.search-form {
+    display: flex;
+    margin-left: 20px;
+}
+
+.search-form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px 0 0 3px;
+}
+
+.search-form button {
+    padding: 5px 10px;
+    background-color: #ff00ff;
+    border: 1px solid #ccc;
+    border-radius: 0 3px 3px 0;
+    cursor: pointer;
+}
+
+.centered-animation {
+    display: center;
+    justify-content: center;
+    align-items: center;
+    height: 100px; 
+}
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.social-icons a {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.social-icons a:hover {
+    transform: scale(1.1);
+}
+
+.social-icons img {
+    width: 20px;
+    height: 20px;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f8f9fa;
+}
+
+.header .nav-buttons #search-container {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.header .nav-buttons #search-container form {
+    margin: 0;
+}
+
+.header .nav-buttons #search-container .input-group {
+    margin-bottom: 0;
+}
+
+.header .nav-buttons #search-container .form-control {
+    height: 30px;
+    font-size: 14px;
+}
+
+.header .nav-buttons #search-container .btn-analyze {
+    height: 20px;
+    font-size: 14px;
+    padding: 0px;
+    line-height: 30px;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ff69b434; /* Pink background */
+    padding: 0px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-mini img {
+    height: 30px;
+    width: auto;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+}
+
+.nav-buttons a {
+    color: rgb(255, 0, 187);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#search-container {
+    display: flex;
+    align-items: center;
+}
+
+#search-container form {
+    display: flex;
+    margin: 0;
+}
+
+#search-container .input-group {
+    display: flex;
+    margin: 0;
+}
+
+#search-container .form-control {
+    height: 30px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+}
+
+#search-container .btn-analyze {
+    height: 30px;
+    font-size: 14px;
+    padding: 0 10px;
+    line-height: 30px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    background-color: #ff00ee; 
+    color: white;
+    cursor: pointer;
+}
+
+.report-container {
+    padding-top: 60px; /
+}
+
+#search-container {
+    display: flex;
+    align-items: center;
+    margin-top: 40px; /
+}
+
+#search-container .input-group {
+    display: flex;
+    margin: 0;
+    height: 30px; /* Match the height of other nav elements */
+}
+
+#search-container .form-control {
+    height: 30px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+}
+
+#search-container .btn-analyze {
+    height: 30px;
+    font-size: 14px;
+    padding: 0 10px;
+    line-height: 30px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    background-color: #ea05ff;
+    color: white;
+    cursor: pointer;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup input {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 5px;
+}
+
+.popup button {
+    margin: 5px;
 }
