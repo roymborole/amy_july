@@ -4,12 +4,15 @@ from flask_dance.consumer import oauth_authorized
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 from models import User
 from extensions import db
+import os
 
 auth_bp = Blueprint('auth_bp', __name__)  # Changed name to auth_bp
 
+
+
 google_bp = make_google_blueprint(
-    client_id="your-client-id",
-    client_secret="your-client-secret",
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
     scope=["openid", "https://www.googleapis.com/auth/userinfo.email", 
            "https://www.googleapis.com/auth/userinfo.profile"],
     redirect_to="index"  
