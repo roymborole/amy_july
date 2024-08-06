@@ -170,3 +170,8 @@ Flask-Login
 Flask-Migrate==3.0.1
 psycopg2-binary==2.9.9
 Pika 
+flask_mail
+Celery 
+pytz
+sqlalchemy.exc 
+pscheduler.triggers.cron
