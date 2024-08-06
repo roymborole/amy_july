@@ -171,10 +171,7 @@ Flask-Migrate==3.0.1
 psycopg2-binary==2.9.9
 Pika 
 flask_mail
-Celery 
 pytz
-Flask==2.3.2
-SQLAlchemy==2.0.15
 APScheduler==3.10.1
 celery==5.2.7
 redis==4.5.5
