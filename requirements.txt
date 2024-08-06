@@ -173,4 +173,8 @@ Pika
 flask_mail
 Celery 
 pytz
-pscheduler.triggers.cron
+Flask==2.3.2
+SQLAlchemy==2.0.15
+APScheduler==3.10.1
+celery==5.2.7
+redis==4.5.5
