@@ -10,6 +10,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
+import postmarker
+from postmarker.core import PostmarkClient
 from pyngrok import ngrok
 import json
 from flask import Flask, request, render_template, jsonify, redirect, url_for
@@ -21,6 +23,8 @@ except ImportError:
     
 from dotenv import load_dotenv
 load_dotenv()  # This loads the variables from .env
+
+postmark = PostmarkClient(server_token=os.getenv('POSTMARK_SERVER_TOKEN'))
 
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 if not ANTHROPIC_API_KEY:

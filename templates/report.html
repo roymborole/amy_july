@@ -22,7 +22,7 @@
         <button onclick="emailReport()" class="btn btn-primary">Email this Report</button>
         <a href="#" onclick="showNewsSummary('{{ asset_name }}'); return false;" class="btn btn-news">View News Summary</a>
         <a href="#" class="btn btn-info" onclick="compareAsset(); return false;">Compare with Another Asset</a>
-        <button onclick="subscribeUpdates()" class="btn btn-success">Subscribe</button>
+        <button class="btn btn-subscribe" onclick="subscribeToReport('{{ asset_name }}')">Subscribe to Weekly Reports</button>
     </div>
 
     <div class="report-content">
@@ -186,14 +186,7 @@
         });
     }
 
-    function subscribe() {
-        var email = document.getElementById('subscribeEmail').value;
-        closeOverlay('subscribeOverlay');
-        // Add subscription logic here
-        alert('Subscription feature coming soon!');
-    }
-
-    // comparison.js
+    
 document.addEventListener('DOMContentLoaded', function() {
     const compareButton = document.getElementById('compareButton');
     const compareModal = document.getElementById('compareModal');
@@ -209,7 +202,29 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = `/comparison/${currentAsset}/${asset2}`;
     });
 });
-    
+function subscribeToReport(assetName) {
+    var email = prompt("Enter your email address to subscribe to weekly reports for " + assetName);
+    if (email) {
+        fetch('/api/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                asset_name: assetName
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
 </script>
 <style>
     .pink-heading {

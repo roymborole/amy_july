@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Report for {{ asset_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .header { background-color: #f4f4f4; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .footer { background-color: #f4f4f4; padding: 10px; text-align: center; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Weekly Report for {{ asset_name }}</h1>
+        <p>Report Date: {{ report_date }}</p>
+    </div>
+    <div class="content">
+        {{ report_content | safe }}
+    </div>
+    <div class="footer">
+        <p>This is an automated weekly report from 100x Club. For more information, visit our website.</p>
+    </div>
+</body>
+</html>

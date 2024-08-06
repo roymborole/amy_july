@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <style>
         .navbar {
             display: flex;
@@ -19,6 +22,70 @@
         .nav-buttons a {
             margin-left: 10px;
         }
+        
+          @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        
+          .footer-separator {
+            border: 0;
+            height: 0px;
+            background-color: white;
+            margin: 0;
+          }
+        
+          .footer {
+            background-color: rgba(128, 128, 128, 0.1); /* Transparent grey */
+            padding: 2rem 0;
+            font-family: 'Roboto', sans-serif;
+          }
+        
+          .footer h5 {
+            color: white; /* White */
+            font-weight: 700; /* Bold */
+            margin-bottom: 1rem;
+          }
+        
+          .footer ul {
+            padding-left: 0;
+          }
+        
+          .footer ul li {
+            margin-bottom: 0.5rem;
+          }
+        
+          .footer a {
+            color: #333333; /* Dark Grey */
+            text-decoration: none;
+            transition: color 0.15s ease-in-out;
+            font-weight: 300; /* Light */
+          }
+        
+          .footer a:hover {
+            color: #e0e0e0; /* Light grey on hover */
+            text-decoration: underline;
+          }
+        
+          .footer hr {
+            margin: 2rem 0;
+            border-color: rgba(255, 255, 255, 0.2); /* Slightly visible white line */
+          }
+        
+          .footer .list-inline {
+            margin-bottom: 0;
+          }
+        
+          .footer .list-inline-item:not(:last-child) {
+            margin-right: 1rem;
+          }
+        
+          .footer p {
+            font-weight: 400; /* Regular */
+            color: white;
+          }
+        
+          /* Adjusting the color of the copyright text and social media links */
+          .footer .text-muted {
+            color: white !important;
+          }
     </style>
 {% endblock %}
 {% block content %}
@@ -64,17 +131,56 @@
 {% endblock %}
 
 {% block footer %}
-<div class="container">
-    <div class="row">
+</footer>
+<hr class="footer-separator">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <h5>Resources</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted">Blog</a></li>
+            <li><a href="#" class="text-muted">Glossary</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-3">
+          <h5>Get in Touch</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted">Suggest a feature</a></li>
+            <li><a href="#" class="text-muted">Partnerships</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-3">
+          <h5>100-X</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted">About Us</a></li>
+            <li><a href="#" class="text-muted">Editorial Guidelines</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-3">
+          <h5>Legal</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted">Imprint</a></li>
+            <li><a href="#" class="text-muted">Privacy</a></li>
+            <li><a href="#" class="text-muted">Terms</a></li>
+            <li><a href="#" class="text-muted">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
         <div class="col-md-6">
-            © 2024 100x Club. All rights reserved.
+          <p class="text-muted">&copy; 2024 100x Club. All rights reserved.</p>
         </div>
         <div class="col-md-6 text-md-end">
-            <a href="{{ url_for('privacy_policy') }}" class="text-muted">Privacy Policy</a> |
-            <a href="{{ url_for('terms_of_service') }}" class="text-muted">Terms of Service</a>
+          <ul class="list-inline">
+            <li class="list-inline-item"><a href="#" class="text-muted">Facebook</a></li>
+            <li class="list-inline-item"><a href="#" class="text-muted">Twitter</a></li>
+            <li class="list-inline-item"><a href="#" class="text-muted">LinkedIn</a></li>
+          </ul>
         </div>
+      </div>
     </div>
-</div>
+  </footer>
 {% endblock %}
 
 {% block scripts %}

@@ -49,26 +49,83 @@ import mixpanel
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
 import os
-from extensions import db, migrate, init_extensions
+from extensions import db, migrate, init_extensions, Migrate
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
 import logging
 from logging.handlers import RotatingFileHandler
 import sentry_sdk
 from flask import Flask
+from flask_mail import Mail, Message
+from models import Subscription
+import secrets
+from models import PendingSubscription
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask import current_app
+from flask import Flask
+from sqlalchemy.exc import IntegrityError
+from weekly_reports import send_weekly_reports
+from subscription_management import create_subscription, confirm_subscription, unsubscribe, get_user_subscriptions
+
+scheduler = BackgroundScheduler()
+
+def create_app():
+    app = Flask(__name__, static_folder='static', static_url_path='/static')
+    
+    # Load environment variables
+    load_dotenv()
+
+    # Configure database URL
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    # Your existing app configuration code here
+    app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
+    app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
+
+    # Initialize extensions
+    init_extensions(app)
+    init_auth(app, register=False)
+    app.register_blueprint(auth_bp)
+
+    # Start the scheduler
+    if not scheduler.running:
+        scheduler.start()
+
+    return app
+
+# Create the app instance
+app = create_app()
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    func=send_weekly_reports,
+    args=[app],  
+    trigger='interval',
+    minutes=5,  
+    id='send_weekly_reports',
+    name='Send reports every 5 minutes',
+    replace_existing=True
+)
+
+if not scheduler.running:
+    scheduler.start()
+
+if __name__ == '__main__':
+    app.run()
 
 sentry_sdk.init(
     dsn="https://199427486a2a2238cc49d3b3f7e4a971@o4507667288031232.ingest.us.sentry.io/4507667290521600",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
     traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
     profiles_sample_rate=1.0,
 )
-
-
 
 def setup_logging(app):
     # Set up file logging
@@ -82,7 +139,6 @@ def setup_logging(app):
 
 
 patch_all()
-app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
 postmark = PostmarkClient(server_token=os.getenv('POSTMARK_SERVER_TOKEN'))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -95,19 +151,7 @@ tracer.configure(
     hostname='localhost',
     port=8126,
 )
-
-database_url = os.environ.get('DATABASE_URL')
-if database_url and database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
-
-
-init_extensions(app)
-init_auth(app, register=False)
-app.register_blueprint(auth_bp)
+mail = Mail(app)
 
 generated_reports = {}
 
@@ -141,8 +185,6 @@ def publish_to_queue(queue_name, message):
     channel.queue_declare(queue=queue_name)
     channel.basic_publish(exchange='', routing_key=queue_name, body=message)
     connection.close()
-
-
 
 
 @app.context_processor
@@ -718,24 +760,7 @@ def track_visit():
             'referrer': request.referrer
         })
 
-@app.route('/api/subscribe', methods=['POST'])
-def subscribe():
-    email = request.json.get('email')
-    asset_name = request.json.get('asset_name')
-    
-    if not email or not asset_name:
-        return jsonify({'error': 'Email and asset name are required'}), 400
-    
-    confirmation_token = str(uuid.uuid4())
-    
-    temp_sub = TempSubscription(email=email, asset_name=asset_name, confirmation_token=confirmation_token)
-    db.session.add(temp_sub)
-    db.session.commit()
-    
-    # Call email confirmation module here
-    send_confirmation_email(email, asset_name, confirmation_token)
-    
-    return jsonify({'message': 'Subscription request received. Please check your email for confirmation.'}), 200
+
 
 @app.route('/send_comparison_report', methods=['POST'])
 def send_comparison_report():
@@ -767,50 +792,41 @@ def send_comparison_report():
         print(f"Error sending email: {str(e)}")
         return jsonify({'message': 'Failed to send email'}), 500
 
-def send_confirmation_email(email, asset_name, confirmation_token):
-    confirmation_link = url_for('confirm_subscription', token=confirmation_token, _external=True)
+
+@app.route('/api/subscribe', methods=['POST'])
+def subscribe():
+    email = request.json.get('email')
+    asset_name = request.json.get('asset_name')
     
-    postmark.emails.send(
-        From='reports@100-x.club',
-        To=email,
-        Subject='Confirm your subscription to 100x weekly reports',
-        HtmlBody=f'''Please confirm that you want to subscribe to receive weekly email reports on {asset_name} from 100x.
-        
-        Click here to confirm: {confirmation_link}
-        
-        If you did not request this subscription, please ignore this email.'''
-    )
-from models import Subscription
+    if not email or not asset_name:
+        return jsonify({'error': 'Email and asset name are required'}), 400
+    
+    result = create_subscription(email, asset_name)
+    if result == "already_subscribed":
+        return jsonify({'message': 'You are already subscribed to this asset.'}), 200
+    elif result == "confirmation_sent":
+        return jsonify({'message': 'Subscription request received. Please check your email for confirmation.'}), 200
+    else:
+        return jsonify({'error': 'An error occurred while processing your subscription.'}), 500
 
 @app.route('/confirm_subscription/<token>')
-def confirm_subscription(token):
-    temp_sub = TempSubscription.query.filter_by(confirmation_token=token).first()
-    
-    if temp_sub is None:
-        return render_template('error.html', message='Invalid or expired confirmation link'), 400
-    
-    new_sub = Subscription(email=temp_sub.email, asset_name=temp_sub.asset_name)
-    db.session.add(new_sub)
-    db.session.delete(temp_sub)
-    db.session.commit()
-    
-    return redirect(url_for('subscription_success', asset_name=new_sub.asset_name))
+def confirm_subscription_route(token):
+    result = confirm_subscription(token)
+    if result == "subscription_confirmed":
+        return 'Subscription confirmed. You will now receive weekly reports.'
+    elif result == "error":
+        return 'An error occurred while confirming your subscription. Please try again or contact support.', 500
+    else:
+        return 'Invalid or expired confirmation link.', 400
+
+@app.route('/test_weekly_reports')
+def test_weekly_reports():
+    send_weekly_reports(app)
+    return "Weekly reports sending process initiated (check logs for details)"
 
 @app.route('/subscription_success')
 def subscription_success():
     return render_template('subscription_success.html')
-
-def generate_weekly_report(asset_name):
-    # Placeholder for report generation logic
-    return f"Weekly report for {asset_name}"
-
-def send_weekly_report(email, asset_name, report_content):
-    postmark.emails.send(
-        From='reports@100-x.club',
-        To=email,
-        Subject=f'100x Weekly Report: {asset_name}',
-        HtmlBody=render_template('report_email.html', asset_name=asset_name, report_content=report_content)
-    )
 
 
 @app.route('/privacy_policy')
@@ -910,9 +926,6 @@ def get_report(name_or_ticker):
         print(f"Traceback: {error_traceback}")
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
     
-
-     # Register other blueprints and setup routes here
-
 if __name__ == '__main__':
     if app.debug:
         ngrok_auth_token = os.environ.get("NGROK_AUTH_TOKEN")
@@ -929,5 +942,3 @@ if __name__ == '__main__':
             exit(1)
 
     app.run(host='127.0.0.1', port=4040)
-
-print(app.url_map)

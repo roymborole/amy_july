@@ -722,3 +722,37 @@ body, h3 {
 .popup button {
     margin: 5px;
 }
+  .footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: 2rem;
+  }
+  .footer h5 {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  .footer ul {
+    padding-left: 0;
+  }
+  .footer ul li {
+    margin-bottom: 0.5rem;
+  }
+  .footer a {
+    color: #6c757d;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+  }
+  .footer a:hover {
+    color: #007bff;
+    text-decoration: underline;
+  }
+  .footer hr {
+    margin: 2rem 0;
+  }
+  .footer .list-inline {
+    margin-bottom: 0;
+  }
+  .footer .list-inline-item:not(:last-child) {
+    margin-right: 1rem;
+  }
