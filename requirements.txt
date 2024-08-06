@@ -173,5 +173,4 @@ Pika
 flask_mail
 Celery 
 pytz
-sqlalchemy.exc 
 pscheduler.triggers.cron
