@@ -1,6 +1,20 @@
 from config import anthropic_client
 import json
 
+def format_large_number(value):
+    if value is None:
+        return 'N/A'
+    if isinstance(value, (int, float)):
+        if value >= 1e12:
+            return f"${value/1e12:.2f}T"
+        elif value >= 1e9:
+            return f"${value/1e9:.2f}B"
+        elif value >= 1e6:
+            return f"${value/1e6:.2f}M"
+        else:
+            return f"${value:,.2f}"
+    return str(value)
+
 def format_value(value, is_currency=True, decimals=2):
     if value is None:
         return 'N/A'
@@ -30,7 +44,9 @@ def get_analysis_report(raw_data, company_name):
         'Interest Expense': raw_data.get('Interest Expense'),
         'Interest Income': raw_data.get('Interest Income'),
         'Net Income': raw_data.get('Net Income'),
-        'Normalized Income': raw_data.get('Normalized Income')
+        'Normalized Income': raw_data.get('Normalized Income'),
+        'market_cap': raw_data.get('market_cap')
+        
     }
     
     prompt = f"""
@@ -43,7 +59,7 @@ def get_analysis_report(raw_data, company_name):
        - Simple Moving Averages (50-day and 200-day)
        - Relative Strength Index (RSI)
        - Bollinger Bands
-    3. Financial Analysis: Discuss the provided financial indicators: Operating Revenue, Total Expenses, Interest Expense, Interest Income, Basic EPS, Net Income
+    3. Financial Analysis: Discuss the provided financial indicators: Market Cap, Operating Revenue, Total Expenses, Interest Expense, Interest Income, Basic EPS, Net Income
     4. Summary: Synthesize insights from all indicators.
     5. Investment Outlook: Based on the technical and financial analysis.
 
@@ -133,15 +149,16 @@ def get_analysis_report(raw_data, company_name):
         financial_table = f"""
         <table>
             <tr><th>Indicator</th><th>Value</th></tr>
-            <tr><td>Total Revenue</td><td>{format_value(summarized_data['Total Revenue'], decimals=0)}</td></tr>
-            <tr><td>Operating Revenue</td><td>{format_value(summarized_data['Operating Revenue'], decimals=0)}</td></tr>
+            <tr><td>Market Cap</td><td>{format_large_number(summarized_data['market_cap'])}</td></tr>
+            <tr><td>Total Revenue</td><td>{summarized_data['Total Revenue']}</td></tr>
+            <tr><td>Operating Revenue</td><td>{summarized_data['Operating Revenue']}</td></tr>
             <tr><td>Basic EPS</td><td>{format_value(summarized_data['Basic EPS'])}</td></tr>
-            <tr><td>Total Expenses</td><td>{format_value(summarized_data['Total Expenses'], decimals=0)}</td></tr>
-            <tr><td>Net Interest Income</td><td>{format_value(summarized_data['Net Interest Income'], decimals=0)}</td></tr>
-            <tr><td>Interest Expense</td><td>{format_value(summarized_data['Interest Expense'], decimals=0)}</td></tr>
-            <tr><td>Interest Income</td><td>{format_value(summarized_data['Interest Income'], decimals=0)}</td></tr>
-            <tr><td>Net Income</td><td>{format_value(summarized_data['Net Income'], decimals=0)}</td></tr>
-            <tr><td>Normalized Income</td><td>{format_value(summarized_data['Normalized Income'], decimals=0)}</td></tr>
+            <tr><td>Total Expenses</td><td>{summarized_data['Total Expenses']}</td></tr>
+            <tr><td>Net Interest Income</td><td>{summarized_data['Net Interest Income']}</td></tr>
+            <tr><td>Interest Expense</td><td>{summarized_data['Interest Expense']}</td></tr>
+            <tr><td>Interest Income</td><td>{summarized_data['Interest Income']}</td></tr>
+            <tr><td>Net Income</td><td>{summarized_data['Net Income']}</td></tr>
+            <tr><td>Normalized Income</td><td>{summarized_data['Normalized Income']}</td></tr>
         </table>
         """
 

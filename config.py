@@ -39,3 +39,13 @@ anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 START_DATE = '2020-01-01'
 END_DATE = '2024-07-16'
+
+
+class Config:
+   
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
+    
+    # Celery configurations
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    

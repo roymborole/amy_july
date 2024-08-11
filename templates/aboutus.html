@@ -10,7 +10,7 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
+    <style>
     .pink-heading {
         color: #FF69B4;
     }
@@ -40,6 +40,7 @@
         border-radius: 5px;
         text-align: center;
     }
+</style>
 {% endblock %}
 {% block content %}
 

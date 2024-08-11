@@ -79,7 +79,7 @@ def generate_comparison_report(comparison_data):
     report += generate_performance_table(comparison_data)
 
     # Price Information
-    price_metrics = [('close_price', 'Close Price'), ('change_percent', 'Percentage Change')]
+    price_metrics = [('close_price', 'Close Price'), ('change_percent', 'Percentage Change'), ('market_cap', 'Market Cap')]
     report += generate_table("Price Information", price_metrics, comparison_data)
 
     # Technical Indicators
@@ -119,23 +119,44 @@ def generate_performance_table(comparison_data):
     table += "</table>"
     return table
 
-def format_value(value, metric):
+def format_value(value, metric, color_code=False):
+    def format_large_number(num):
+        if num >= 1e12:  # Trillion
+            return f"${num/1e12:.2f}T"
+        elif num >= 1e9:  # Billion
+            return f"${num/1e9:.2f}B"
+        elif num >= 1e6:  # Million
+            return f"${num/1e6:.2f}M"
+        else:
+            return f"${num:,.2f}"
+
     if isinstance(value, (int, float)):
-        if metric in ['close_price', 'Total Revenue', 'Operating Revenue', 'Total Expenses', 
-                      'Net Interest Income', 'Interest Expense', 'Interest Income', 'Net Income', 'Normalized Income']:
-            return f"${value:,.2f}"
-        elif metric in ['change_percent', 'performance']:
-            return f"{value:.2f}%"
+        if metric == 'market_cap':
+            return format_large_number(value)
+        elif metric in ['close_price', 'Total Revenue', 'Operating Revenue', 'Total Expenses',
+                        'Net Interest Income', 'Interest Expense', 'Interest Income', 'Net Income', 'Normalized Income']:
+            return format_large_number(value)
+        elif metric in ['change_percent', 'percentage']:
+            formatted_value = f"{value:.2f}%"
+            if color_code:
+                color = 'green' if value > 0 else 'red' if value < 0 else 'black'
+                return f'<span style="color: {color};">{formatted_value}</span>'
+            return formatted_value
         elif metric in ['Diluted EPS', 'Basic EPS']:
             return f"${value:.2f}"
         else:
             return f"{value:.2f}"
+    elif value == 'N/A':
+        return value
     return str(value)
 
 def generate_table(title, metrics, comparison_data):
     table = f"<h3>{title}</h3>"
     table += "<table>"
-    table += f"<tr><th>Metric</th><th>{comparison_data['asset1']['asset_name']}</th><th>{comparison_data['asset2']['asset_name']}</th></tr>"
+    if title == "Financial Metrics":
+        table += f"<tr><th>Metric</th><th>{comparison_data['asset1']['asset_name']}</th><th>Y/Y Change</th><th>{comparison_data['asset2']['asset_name']}</th><th>Y/Y Change</th></tr>"
+    else:
+        table += f"<tr><th>Metric</th><th>{comparison_data['asset1']['asset_name']}</th><th>{comparison_data['asset2']['asset_name']}</th></tr>"
 
     for metric in metrics:
         if isinstance(metric, tuple):
@@ -149,24 +170,18 @@ def generate_table(title, metrics, comparison_data):
             value1 = comparison_data['asset1'][key]
             value2 = comparison_data['asset2'][key]
             table += f"<td>{format_value(value1, key)}</td>"
-            table += f"<td>{format_value(value2, key)}</td>"
+            if title == "Financial Metrics":
+                change1 = comparison_data['asset1'].get(f'{key}_yoy_change', 'N/A')
+                change2 = comparison_data['asset2'].get(f'{key}_yoy_change', 'N/A')
+                table += f"<td>{format_value(change1, 'percentage', color_code=True)}</td>"
+                table += f"<td>{format_value(value2, key)}</td>"
+                table += f"<td>{format_value(change2, 'percentage', color_code=True)}</td>"
+            else:
+                table += f"<td>{format_value(value2, key)}</td>"
             table += "</tr>"
 
     table += "</table>"
     return table
-
-def format_value(value, metric):
-    if isinstance(value, (int, float)):
-        if metric in ['close_price', 'Total Revenue', 'Operating Revenue', 'Total Expenses', 
-                      'Net Interest Income', 'Interest Expense', 'Interest Income', 'Net Income', 'Normalized Income']:
-            return f"${value:,.2f}"
-        elif metric == 'change_percent':
-            return f"{value:.2f}%"
-        elif metric in ['Diluted EPS', 'Basic EPS']:
-            return f"${value:.2f}"
-        else:
-            return f"{value:.2f}"
-    return str(value)
 
 def plt_to_base64():
     buf = io.BytesIO()

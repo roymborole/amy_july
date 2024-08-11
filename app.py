@@ -63,35 +63,57 @@ from models import PendingSubscription
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask import current_app
 from flask import Flask
 from sqlalchemy.exc import IntegrityError
 from weekly_reports import send_weekly_reports
 from subscription_management import create_subscription, confirm_subscription, unsubscribe, get_user_subscriptions
+from pytz import timezone
+from flask import Flask
+from extensions import celery, make_celery, init_celery
+from config import Config
+from functools import partial
+from celery_worker import send_weekly_reports
+
 
 scheduler = BackgroundScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static', static_url_path='/static')
+    app.config.from_object(Config)
+
     
-    # Load environment variables
     load_dotenv()
 
-    # Configure database URL
     database_url = os.environ.get('DATABASE_URL')
     if database_url and database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-    # Your existing app configuration code here
+
     app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
+    app.config.update(
+    CELERY_BROKER_URL='redis://localhost:6379/0',
+    CELERY_RESULT_BACKEND='redis://localhost:6379/0'
+    )
 
-    # Initialize extensions
+    celery_app = make_celery(app)
+    celery.conf.update(app.config)
+
+    setup_done = False
+    
+    @app.before_request
+    def setup_periodic_tasks():
+        nonlocal setup_done
+        if not setup_done:
+            send_weekly_reports.apply_async()
+            setup_done = True
+            
     init_extensions(app)
+    init_celery(app)
     init_auth(app, register=False)
     app.register_blueprint(auth_bp)
 
@@ -104,19 +126,24 @@ def create_app():
 # Create the app instance
 app = create_app()
 
+
+
 scheduler = BackgroundScheduler()
 scheduler.add_job(
-    func=send_weekly_reports,
-    args=[app],  
-    trigger='interval',
-    minutes=5,  
-    id='send_weekly_reports',
-    name='Send reports every 5 minutes',
-    replace_existing=True
-)
+        func=partial(send_weekly_reports, app),  # Use partial to pass app
+        trigger=CronTrigger(
+            day_of_week='fri',
+            hour=15,
+            minute=30,
+            timezone=timezone('GMT')
+        ),
+        id='send_weekly_reports',
+        name='Send weekly reports every Friday at 15:30 GMT',
+        replace_existing=True
+    )
+scheduler.start()
 
-if not scheduler.running:
-    scheduler.start()
+from celery_worker import send_weekly_reports
 
 if __name__ == '__main__':
     app.run()

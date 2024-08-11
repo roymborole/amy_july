@@ -18,6 +18,18 @@ except Exception as e:
     print(f"Error accessing Anthropic client: {e}")
     client = None
 
+def format_market_cap(value):
+        if value is None:
+            return 'N/A'
+        if isinstance(value, (int, float)):
+            if value >= 1e9:
+                return f"${value/1e9:.2f}B"
+            elif value >= 1e6:
+                return f"${value/1e6:.2f}M"
+            else:
+                return f"${value:,.2f}"
+        return str(value)
+
 def generate_comparison_summary(comparison_data):
     if not client:
         return "Unable to generate AI summary due to API configuration issues."
@@ -33,6 +45,7 @@ def generate_comparison_summary(comparison_data):
     {asset1['asset_name']} Data:
     Close Price: {asset1['close_price']}
     Change Percent: {asset1['change_percent']}%
+    Market Cap: {format_market_cap(asset1.get('market_cap'))}
     RSI: {asset1['RSI']}
     50-day SMA: {asset1['SMA50']}
     200-day SMA: {asset1['SMA200']}
@@ -43,6 +56,7 @@ def generate_comparison_summary(comparison_data):
     {asset2['asset_name']} Data:
     Close Price: {asset2['close_price']}
     Change Percent: {asset2['change_percent']}%
+    Market Cap: {format_market_cap(asset1.get('market_cap'))}
     RSI: {asset2['RSI']}
     50-day SMA: {asset2['SMA50']}
     200-day SMA: {asset2['SMA200']}
