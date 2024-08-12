@@ -149,7 +149,7 @@ postmarker
 pep517
 numpy 
 sklearn.preprocessing 
-mixpanel-python==4.10.0
+mixpanel
 bs4
 python-dotenv
 setuptools==65.5.0
