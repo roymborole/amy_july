@@ -47,7 +47,7 @@ import mixpanel
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
 import os
-from extensions import db, celery, migrate, init_extensions, Migrate, init_celery, make_celery, Celery
+from extensions import db, celery, migrate, init_extensions, Migrate, init_celery, make_celery, Celery,redis_client, get_redis_url
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
 import logging
@@ -72,9 +72,10 @@ from config import Config
 from functools import partial
 from celery_worker import send_weekly_reports
 from trie import Trie
+from celery import Celery
+from apscheduler.schedulers.background import BackgroundScheduler
+from extensions import init_extensions, init_celery, make_celery, get_redis_url
 from company_data import COMPANIES
-
-
 
 scheduler = BackgroundScheduler()
 
@@ -82,32 +83,30 @@ def create_app():
     app = Flask(__name__, static_folder='static', static_url_path='/static')
     app.config.from_object(Config)
 
-    
     load_dotenv()
 
     database_url = os.environ.get('DATABASE_URL')
     if database_url and database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-
     app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
+    app.config['MIXPANEL_TOKEN'] = os.getenv('MIXPANEL_TOKEN')
 
-    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    if not redis_url.startswith('redis://'):
-        redis_url = 'redis://' + redis_url
+    redis_url = get_redis_url()
     
-    app.config['CELERY_BROKER_URL'] = redis_url
-    app.config['CELERY_RESULT_BACKEND'] = redis_url
     app.config.update(
-  
+        CELERY_BROKER_URL=redis_url,
+        CELERY_RESULT_BACKEND=redis_url,
+        broker_url=redis_url,
+        result_backend=redis_url
     )
 
-
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+    init_celery(app)
     celery_app = make_celery(app)
     celery.conf.update(app.config)
 
@@ -121,10 +120,6 @@ def create_app():
             setup_done = True
             
     init_extensions(app)
-
-    init_celery(app)
-    init_auth(app, register=False)
-    app.register_blueprint(auth_bp)
 
     # Start the scheduler
     if not scheduler.running:
@@ -184,7 +179,18 @@ mail = Mail(app)
 
 generated_reports = {}
 
+from flask_migrate import Migrate
+
+migrate = Migrate(app, db)
+
 migrate.init_app(app, db)
+
+mixpanel_token = os.getenv('MIXPANEL_TOKEN')
+if mixpanel_token:
+    mp_eu = Mixpanel(mixpanel_token)
+else:
+    print("WARNING: Mixpanel token not set. Tracking will be disabled.")
+    mp_eu = None
 
 mp_eu = mixpanel.Mixpanel(
   os.getenv('MIXPANEL_API_KEY'),
@@ -219,6 +225,21 @@ def publish_to_queue(queue_name, message):
 company_trie = Trie()
 for company, ticker in COMPANIES.items():
     company_trie.insert(company, ticker)
+
+@app.before_request
+def track_visit():
+    if mp_eu:
+        mp_eu.track(session.get('user_id', 'Anonymous'), 'Page Visit', {
+            'path': request.path,
+            'user_agent': request.user_agent.string
+        })
+    else:
+        print("Mixpanel tracking skipped: Token not set")
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/api/autocomplete', methods=['GET'])
 def autocomplete():
@@ -486,16 +507,37 @@ def display_news(name_or_ticker):
     news_summary = get_news_summary(ticker)
     return render_template('news.html', asset_name=name_or_ticker, news_summary=news_summary)
 
+from flask import Flask, request, render_template, redirect, url_for, session
+from extensions import redis_client, mp_eu
+import json
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     app.logger.info("Index route accessed")
+    
     if request.method == 'POST':
         app.logger.info("POST request received")
         name_or_ticker = request.form.get('name_or_ticker')
+        
         if not name_or_ticker:
             app.logger.warning("Missing input")
             return "Missing input", 400
+        
         app.logger.info(f"Searching for asset: {name_or_ticker}")
+        
+        # Check if we have cached data in Redis
+        cached_data = redis_client.get(name_or_ticker)
+        if cached_data:
+            app.logger.info(f"Cache hit for {name_or_ticker}")
+            # If we have cached data, you might want to use it or update it
+            # For now, we'll just log it and continue with the normal flow
+            cached_data = json.loads(cached_data)
+            app.logger.info(f"Cached data: {cached_data}")
+        else:
+            app.logger.info(f"Cache miss for {name_or_ticker}")
+            # If no cached data, you might want to fetch new data and cache it
+            # This would typically happen in your display_report route
+        
         mp_eu.track(session.get('user_id', 'Asset Search'), 'Asset Search', {
             'asset_name': name_or_ticker
         })
@@ -967,8 +1009,10 @@ def get_report(name_or_ticker):
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
     
 if __name__ == '__main__':
-    if app.debug:
-        ngrok_auth_token = os.environ.get("NGROK_AUTH_TOKEN")
+     with app.app_context():
+        db.create_all()
+        if app.debug:
+            ngrok_auth_token = os.environ.get("NGROK_AUTH_TOKEN")
         if ngrok_auth_token:
             ngrok.set_auth_token(ngrok_auth_token)
             try:
@@ -981,4 +1025,4 @@ if __name__ == '__main__':
             print("NGROK_AUTH_TOKEN not found. Please set it as an environment variable.")
             exit(1)
 
-    app.run(host='127.0.0.1', port=4040)
+        app.run(host='127.0.0.1', port=4040)

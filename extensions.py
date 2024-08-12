@@ -1,19 +1,39 @@
+import os
+import redis
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from celery import Celery
-import os
-
+from mixpanel import Mixpanel
 
 db = SQLAlchemy()
 migrate = Migrate()
 
-redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+# Redis connection
+redis_host = os.getenv('REDIS_HOST', 'localhost')
+redis_port = int(os.getenv('REDIS_PORT', 6379))
+redis_password = os.getenv('REDIS_PASSWORD', '')
 
-if not redis_url.startswith('redis://'):
-    redis_url = 'redis://' + redis_url
+redis_client = redis.Redis(
+    host=redis_host,
+    port=redis_port,
+    password=redis_password,
+    decode_responses=True  # This ensures responses are returned as strings, not bytes
+)
 
+
+def get_redis_url():
+    redis_host = os.getenv('REDIS_HOST', 'localhost')
+    redis_port = os.getenv('REDIS_PORT', '6379')
+    redis_password = os.getenv('REDIS_PASSWORD', '')
+    if redis_password:
+        return f"redis://:{redis_password}@{redis_host}:{redis_port}/0"
+    return f"redis://{redis_host}:{redis_port}/0"
+
+redis_url = f"redis://:{redis_password}@{redis_host}:{redis_port}/0"
 celery = Celery(__name__, broker=redis_url, backend=redis_url)
+
+mp_eu = Mixpanel(os.getenv('MIXPANEL_TOKEN'))
 
 def init_extensions(app):
     db.init_app(app)
