@@ -47,7 +47,7 @@ import mixpanel
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
 import os
-from extensions import db, migrate, init_extensions, Migrate
+from extensions import db, celery, migrate, init_extensions, Migrate, init_celery, make_celery, Celery
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
 import logging
@@ -68,13 +68,12 @@ from weekly_reports import send_weekly_reports
 from subscription_management import create_subscription, confirm_subscription, unsubscribe, get_user_subscriptions
 from pytz import timezone
 from flask import Flask
-from extensions import celery, make_celery, init_celery
 from config import Config
 from functools import partial
 from celery_worker import send_weekly_reports
 from trie import Trie
 from company_data import COMPANIES
-from extensions import celery, Celery
+
 
 
 scheduler = BackgroundScheduler()
@@ -96,9 +95,11 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
+
     redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     if not redis_url.startswith('redis://'):
         redis_url = 'redis://' + redis_url
+    
     app.config['CELERY_BROKER_URL'] = redis_url
     app.config['CELERY_RESULT_BACKEND'] = redis_url
     app.config.update(
