@@ -175,3 +175,4 @@ pytz
 APScheduler==3.10.1
 celery==5.2.7
 redis==4.5.5
+Trie
