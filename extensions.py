@@ -3,12 +3,16 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from celery import Celery
 from ddtrace import patch
+import os
 
 patch(sqlalchemy=True)
 
 db = SQLAlchemy()
 migrate = Migrate()
-celery = Celery(__name__, broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+
+# Use environment variable for Redis URL
+redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+celery = Celery(__name__, broker=redis_url, backend=redis_url)
 
 def init_extensions(app):
     db.init_app(app)

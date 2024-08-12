@@ -76,7 +76,7 @@ from functools import partial
 from celery_worker import send_weekly_reports
 from trie import Trie
 from company_data import COMPANIES
-
+from extensions import celery, Celery
 
 
 scheduler = BackgroundScheduler()
@@ -98,11 +98,14 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
+    app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     app.config.update(
-    CELERY_BROKER_URL='redis://localhost:6379/0',
-    CELERY_RESULT_BACKEND='redis://localhost:6379/0'
+  
     )
 
+
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
     celery_app = make_celery(app)
     celery.conf.update(app.config)
 
