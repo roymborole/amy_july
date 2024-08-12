@@ -6,10 +6,8 @@ from ai_analysis import get_analysis_report
 from crypto_ai_analysis import get_crypto_analysis_report
 from visualization import create_chart
 import time
-from mixpanel import Mixpanel
-from ticker_utils import get_ticker_from_name
 
-mp_eu = Mixpanel("your_mixpanel_token")
+from ticker_utils import get_ticker_from_name
 
 def callback(ch, method, properties, body):
     data = json.loads(body)
@@ -54,12 +52,8 @@ def callback(ch, method, properties, body):
         end_time = time.time()
         generation_time = end_time - start_time
 
-        # Track report generation
-        mp_eu.track(user_id, 'Report Generated', {
-            'asset_name': raw_data['asset_name'],
-            'asset_type': asset_type,
-            'generation_time': generation_time
-        })
+        # Log report generation (you can replace this with your preferred logging method)
+        print(f"Generated report for {name_or_ticker} ({asset_type}) in {generation_time:.2f} seconds")
 
         # Store the report in a database or file system
         # For now, we'll just print it
@@ -67,10 +61,9 @@ def callback(ch, method, properties, body):
 
     except Exception as e:
         print(f"Error generating report for {name_or_ticker}: {str(e)}")
-        mp_eu.track(user_id, 'Report Generation Error', {
-            'asset_name': name_or_ticker,
-            'error_message': str(e)
-        })
+        # Log the error (you can replace this with your preferred error logging method)
+        print(f"Error details: Asset: {name_or_ticker}, User: {user_id}, Error: {str(e)}")
+
 
 def start_worker():
     connection = get_rabbitmq_connection()
