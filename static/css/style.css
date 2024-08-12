@@ -125,6 +125,7 @@ form {
     cursor: pointer;
     border-radius: 4px;
     margin-left: 10px;
+    white-space: nowrap;
 }
 
 
@@ -645,25 +646,6 @@ body, h3 {
     margin: 0;
 }
 
-#search-container .form-control {
-    height: 30px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px 0 0 4px;
-}
-
-#search-container .btn-analyze {
-    height: 30px;
-    font-size: 14px;
-    padding: 0 10px;
-    line-height: 30px;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    background-color: #ff00ee; 
-    color: white;
-    cursor: pointer;
-}
-
 .report-container {
     padding-top: 60px; /
 }
@@ -677,11 +659,13 @@ body, h3 {
 #search-container .input-group {
     display: flex;
     margin: 0;
-    height: 30px; /* Match the height of other nav elements */
+    height: 30px; 
 }
 
 #search-container .form-control {
     height: 30px;
+    width: 100%;
+    max-width: 1000px;
     font-size: 14px;
     border: none;
     border-radius: 4px 0 0 4px;
@@ -756,3 +740,67 @@ body, h3 {
   .footer .list-inline-item:not(:last-child) {
     margin-right: 1rem;
   }
+  .autocomplete-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.autocomplete-list li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-list li:hover {
+    background-color: #f0f0f0;
+}
+#search-container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+#search-form .input-group {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+#search-input {
+    flex-grow: 1;
+}
+
+.autocomplete-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: rgba(255, 157, 250, 0.564);
+    
+}
+
+.autocomplete-list li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-list li:hover {
+    background-color: #f0f0f02f;
+}
+
+.autocomplete-list li strong {
+    font-weight: bold;
+}
+
+#autocomplete-results {
+    position: absolute;
+    width: 100%;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+}

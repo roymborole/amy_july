@@ -74,6 +74,9 @@ from extensions import celery, make_celery, init_celery
 from config import Config
 from functools import partial
 from celery_worker import send_weekly_reports
+from trie import Trie
+from company_data import COMPANIES
+
 
 
 scheduler = BackgroundScheduler()
@@ -212,6 +215,17 @@ def publish_to_queue(queue_name, message):
     channel.queue_declare(queue=queue_name)
     channel.basic_publish(exchange='', routing_key=queue_name, body=message)
     connection.close()
+
+
+company_trie = Trie()
+for company, ticker in COMPANIES.items():
+    company_trie.insert(company, ticker)
+
+@app.route('/api/autocomplete', methods=['GET'])
+def autocomplete():
+    prefix = request.args.get('prefix', '').lower()
+    matches = company_trie.search_prefix(prefix)
+    return jsonify([{'name': name, 'ticker': ticker} for name, ticker in matches[:10]])
 
 
 @app.context_processor

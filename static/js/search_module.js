@@ -8,9 +8,10 @@ const SearchModule = {
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" id="search-input" placeholder="Enter asset name or ticker" required>
                     <div class="input-group-append">
-                         <button class="btn-analyze" type="submit">Analyze</button>
+                        <button class="btn-analyze" type="submit">Analyze</button>
                     </div>
                 </div>
+                <div id="autocomplete-results"></div>
             </form>
             <div id="loading" style="display:none;">
                 <div id="lottie-container"></div>
@@ -20,6 +21,7 @@ const SearchModule = {
 
         this.setupEventListeners();
         this.setupLottieAnimation();
+        this.setupAutocomplete();
     },
 
     setupEventListeners: function() {
@@ -36,6 +38,66 @@ const SearchModule = {
             autoplay: true,
             path: '/static/loading_animation.json'
         });
+    },
+
+    setupAutocomplete: function() {
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('autocomplete-results');
+        let debounceTimer;
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const prefix = searchInput.value.trim();
+                if (prefix.length >= 2) {
+                    this.fetchAutocompleteSuggestions(prefix);
+                } else {
+                    resultsContainer.innerHTML = '';
+                }
+            }, 300);
+        });
+
+        // Hide autocomplete results when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!resultsContainer.contains(event.target) && event.target !== searchInput) {
+                resultsContainer.innerHTML = '';
+            }
+        });
+    },
+
+    fetchAutocompleteSuggestions: function(prefix) {
+        fetch(`/api/autocomplete?prefix=${encodeURIComponent(prefix)}`)
+            .then(response => response.json())
+            .then(data => this.displayAutocompleteSuggestions(data))
+            .catch(error => console.error('Error fetching autocomplete suggestions:', error));
+    },
+
+    displayAutocompleteSuggestions: function(suggestions) {
+        const resultsContainer = document.getElementById('autocomplete-results');
+        resultsContainer.innerHTML = '';
+
+        if (suggestions.length === 0) {
+            resultsContainer.innerHTML = '<p>No matches found</p>';
+            return;
+        }
+
+        const ul = document.createElement('ul');
+        ul.className = 'autocomplete-list';
+
+        suggestions.forEach(suggestion => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${suggestion.name}</strong> (${suggestion.ticker})`;
+            li.addEventListener('click', () => this.selectAutocompleteSuggestion(suggestion));
+            ul.appendChild(li);
+        });
+
+        resultsContainer.appendChild(ul);
+    },
+
+    selectAutocompleteSuggestion: function(suggestion) {
+        const searchInput = document.getElementById('search-input');
+        searchInput.value = suggestion.name;
+        document.getElementById('autocomplete-results').innerHTML = '';
     },
 
     handleSubmit: function(event) {

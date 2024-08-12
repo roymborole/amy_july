@@ -97,6 +97,7 @@ def get_financial_data(name_or_ticker):
             'asset_name': info.get('longName', ticker),
             'close_price': df['Close'].iloc[-1],
             'change_percent': ((df['Close'].iloc[-1] - df['Close'].iloc[-2]) / df['Close'].iloc[-2]) * 100,
+            'market_cap': info.get('marketCap'),
             'date': df.index[-1].strftime('%Y-%m-%d'),
             'SMA50': df['SMA50'].iloc[-1],
             'SMA200': df['SMA200'].iloc[-1],

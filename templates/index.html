@@ -3,8 +3,9 @@
     {{ super() }}
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="/static/styles.css">
     <style>
+      
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -86,6 +87,50 @@
           .footer .text-muted {
             color: white !important;
           }
+          .autocomplete-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.086);
+            z-index: 1000;
+        }
+        
+        .autocomplete-list li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .autocomplete-list li:hover {
+            background-color: #f0f0f02f;
+        }
+        #search-container {
+          position: relative;
+          width: 100%;
+          max-width: 800px;
+          margin: 0 auto;
+      }
+      
+      #search-input {
+          width: 100%;
+      }
+      .autocomplete-list li {
+        padding: 10px;
+        cursor: pointer;
+    }
+    
+    .autocomplete-list li:hover {
+        background-color: #f0f0f02f;
+    }
+    
+    .autocomplete-list li strong {
+        font-weight: bold;
+    }
+
     </style>
 {% endblock %}
 {% block content %}
