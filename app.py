@@ -95,6 +95,9 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
     app.config['MIXPANEL_TOKEN'] = os.getenv('MIXPANEL_TOKEN')
+    app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
 
     redis_url = get_redis_url()
     
@@ -185,18 +188,6 @@ migrate = Migrate(app, db)
 
 migrate.init_app(app, db)
 
-mixpanel_token = os.getenv('MIXPANEL_TOKEN')
-if mixpanel_token:
-    mp_eu = Mixpanel(mixpanel_token)
-else:
-    print("WARNING: Mixpanel token not set. Tracking will be disabled.")
-    mp_eu = None
-
-mp_eu = mixpanel.Mixpanel(
-  os.getenv('MIXPANEL_API_KEY'),
-  consumer=mixpanel.Consumer(api_host="api-eu.mixpanel.com"),
-)
-
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
@@ -226,15 +217,6 @@ company_trie = Trie()
 for company, ticker in COMPANIES.items():
     company_trie.insert(company, ticker)
 
-@app.before_request
-def track_visit():
-    if mp_eu:
-        mp_eu.track(session.get('user_id', 'Anonymous'), 'Page Visit', {
-            'path': request.path,
-            'user_agent': request.user_agent.string
-        })
-    else:
-        print("Mixpanel tracking skipped: Token not set")
 
 @app.route('/favicon.ico')
 def favicon():
@@ -352,12 +334,6 @@ def get_client_ip():
 @app.route('/search', methods=['POST'])
 def search():
     query = request.form.get('query')
-    mp_eu.track(session.get('user_id', 'Anonymous'), 'Search', {
-       'page': request.path,
-        'ip': get_client_ip(),
-        'user_agent': request.user_agent.string,
-        'referrer': request.referrer
-    })
     
     # Perform the search
     search_results = []
@@ -416,20 +392,7 @@ def signup():
         # Log the user in
         login_user(new_user)
 
-        # Track the signup event in Mixpanel
-        mp_eu.track(new_user.id, 'Sign Up', {
-            'ip': get_client_ip(),
-            'user_agent': request.user_agent.string,
-            'email': email,
-            'name': name
-        })
-
-        # Set user properties in Mixpanel
-        mp_eu.people_set(new_user.id, {
-            '$email': email,
-            '$name': name,
-            'sign_up_date': datetime.datetime.now().isoformat()
-        })
+    
 
         flash('Account created successfully')
         return redirect(url_for('index'))
@@ -439,12 +402,6 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    start_time = session.get('login_time')
-    if start_time:
-        time_on_site = time.time() - start_time
-        mp_eu.track(session.get('user_id'), 'Logout', {
-            'time_on_site': time_on_site
-        })
     session.clear()
     return redirect(url_for('index'))
 
@@ -479,16 +436,6 @@ def get_price_prediction(name_or_ticker):
         } 
         end_time = time.time()
         generation_time = end_time - start_time
-        
-        
-        mp_eu.track(session.get('user_id', 'Anonymous'), 'Prediction Generated', {
-            'asset_name': name_or_ticker,
-            'generation_time': generation_time,
-            'ip': get_client_ip(),
-            'user_agent': request.user_agent.string
-
-            
-        })
 
         return jsonify(response)
     else:
@@ -506,10 +453,6 @@ def display_news(name_or_ticker):
     
     news_summary = get_news_summary(ticker)
     return render_template('news.html', asset_name=name_or_ticker, news_summary=news_summary)
-
-from flask import Flask, request, render_template, redirect, url_for, session
-from extensions import redis_client, mp_eu
-import json
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -535,12 +478,6 @@ def index():
             app.logger.info(f"Cached data: {cached_data}")
         else:
             app.logger.info(f"Cache miss for {name_or_ticker}")
-            # If no cached data, you might want to fetch new data and cache it
-            # This would typically happen in your display_report route
-        
-        mp_eu.track(session.get('user_id', 'Asset Search'), 'Asset Search', {
-            'asset_name': name_or_ticker
-        })
         
         return redirect(url_for('display_report', name_or_ticker=name_or_ticker))
     
@@ -550,25 +487,12 @@ def index():
 @app.route('/login', methods=['POST'])
 def login():
     if not google.authorized:
-        # Track login attempt
-        mp_eu.track('Anonymous', 'Login Attempt', {
-            'method': 'Google'
-        })
         return redirect(url_for("google.login"))
     
-    # If the user is already logged in, track this event
     user_info = google.get("/oauth2/v2/userinfo").json()
     user_id = user_info['id']
-    mp_eu.track(user_id, 'Login Success', {
-        'method': 'Google'
-    })
     
-    # Set or update user properties
-    mp_eu.people_set(user_id, {
-        '$email': user_info.get('email'),
-        '$name': user_info.get('name'),
-        'last_login': datetime.datetime.now().isoformat()
-    })
+    session['user_id'] = user_id
     session['login_time'] = time.time()
     return redirect(url_for("index"))
 
@@ -589,12 +513,6 @@ def generate_report():
         end_time = time.time()
         queue_time = end_time - start_time
 
-        # Track report request
-        mp_eu.track(session.get('user_id', 'Anonymous'), 'Report Requested', {
-            'asset_name': name_or_ticker,
-            'queue_time': queue_time
-        })
-
         return jsonify({'message': 'Report generation request submitted. Please check back later for results.'}), 202
 
     except Exception as e:
@@ -603,13 +521,8 @@ def generate_report():
         print(f"Error in generate_report: {str(e)}")
         print(f"Traceback: {error_traceback}")
 
-        # Track error
-        mp_eu.track(session.get('user_id', 'Anonymous'), 'Report Generation Error', {
-            'asset_name': name_or_ticker,
-            'error_message': str(e)
-        })
-
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
+
 
 @app.route('/compare', methods=['POST'])
 def compare():
@@ -831,17 +744,6 @@ def serve_static(filename):
 @app.route('/about')
 def about():
     return render_template('aboutus.html')
-
-@app.before_request
-def track_visit():
-    if request.endpoint != 'static':  # Don't track requests for static files
-        mp_eu.track(session.get('user_id', 'Anonymous'), 'Butt Stuff', {
-            'page': request.path,
-            'ip': get_client_ip(),
-            'user_agent': request.user_agent.string,
-            'referrer': request.referrer
-        })
-
 
 
 @app.route('/send_comparison_report', methods=['POST'])

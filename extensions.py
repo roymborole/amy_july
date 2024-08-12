@@ -4,7 +4,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from celery import Celery
-from mixpanel import Mixpanel
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -32,8 +31,6 @@ def get_redis_url():
 
 redis_url = f"redis://:{redis_password}@{redis_host}:{redis_port}/0"
 celery = Celery(__name__, broker=redis_url, backend=redis_url)
-
-mp_eu = Mixpanel(os.getenv('MIXPANEL_TOKEN'))
 
 def init_extensions(app):
     db.init_app(app)
