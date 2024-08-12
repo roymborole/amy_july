@@ -2,10 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from celery import Celery
-from ddtrace import patch
 import os
 
-patch(sqlalchemy=True)
 
 db = SQLAlchemy()
 migrate = Migrate()

@@ -1,5 +1,3 @@
-from ddtrace import patch_all
-from ddtrace import tracer
 from logging import FileHandler
 from config import Flask, request, render_template, jsonify, redirect, url_for, os, ngrok
 from financial_analysis import get_financial_data
@@ -98,8 +96,9 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
-    app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['REDIS_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['CELERY_BROKER_URL'] = app.config['REDIS_URL']
+    app.config['CELERY_RESULT_BACKEND'] = app.config['REDIS_URL']
     app.config.update(
   
     )
@@ -119,6 +118,7 @@ def create_app():
             setup_done = True
             
     init_extensions(app)
+
     init_celery(app)
     init_auth(app, register=False)
     app.register_blueprint(auth_bp)
@@ -127,10 +127,9 @@ def create_app():
     if not scheduler.running:
         scheduler.start()
 
-    return app
+    return app, celery
 
-# Create the app instance
-app = create_app()
+app, celery = create_app()
 
 
 
@@ -170,8 +169,6 @@ def setup_logging(app):
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
 
-
-patch_all()
 app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
 postmark = PostmarkClient(server_token=os.getenv('POSTMARK_SERVER_TOKEN'))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -180,10 +177,6 @@ setup_logging(app)
 
 load_dotenv()
 
-tracer.configure(
-    hostname='localhost',
-    port=8126,
-)
 mail = Mail(app)
 
 generated_reports = {}
