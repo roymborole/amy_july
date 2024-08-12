@@ -96,9 +96,11 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
-    app.config['REDIS_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    app.config['CELERY_BROKER_URL'] = app.config['REDIS_URL']
-    app.config['CELERY_RESULT_BACKEND'] = app.config['REDIS_URL']
+    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    if not redis_url.startswith('redis://'):
+        redis_url = 'redis://' + redis_url
+    app.config['CELERY_BROKER_URL'] = redis_url
+    app.config['CELERY_RESULT_BACKEND'] = redis_url
     app.config.update(
   
     )

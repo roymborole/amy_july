@@ -8,8 +8,11 @@ import os
 db = SQLAlchemy()
 migrate = Migrate()
 
-# Use environment variable for Redis URL
 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
+if not redis_url.startswith('redis://'):
+    redis_url = 'redis://' + redis_url
+
 celery = Celery(__name__, broker=redis_url, backend=redis_url)
 
 def init_extensions(app):
