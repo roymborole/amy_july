@@ -38,12 +38,10 @@ from postmarker.core import PostmarkClient
 from flask import request, jsonify
 import threading
 from comparison_analysis import compare_assets, generate_comparison_report
-from mixpanel import Mixpanel
 from datetime import datetime, timedelta
 import time
 from flask_login import login_user
 from werkzeug.security import generate_password_hash
-import mixpanel
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
 import os
@@ -94,7 +92,6 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
-    app.config['MIXPANEL_TOKEN'] = os.getenv('MIXPANEL_TOKEN')
     app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
