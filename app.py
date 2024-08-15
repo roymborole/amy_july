@@ -521,25 +521,29 @@ def generate_report():
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
 
 
-@app.route('/compare', methods=['POST'])
+@app.route('/compare', methods=['GET', 'POST'])
 def compare():
-    asset1 = request.form.get('asset1')
-    asset2 = request.form.get('asset2')
+    if request.method == 'POST':
+        asset1 = request.form.get('asset1')
+        asset2 = request.form.get('asset2')
+    else:
+        asset1 = request.args.get('asset1')
+        asset2 = request.args.get('asset2')
+
     if not asset1 or not asset2:
         return "Missing input", 400
+
     return redirect(url_for('display_comparison', asset1=asset1, asset2=asset2))
 
-@app.route('/comparison/<asset1>/<asset2>')
+@app.route('/compare/<asset1>/<asset2>')
 def display_comparison(asset1, asset2):
     comparison_data = compare_assets(asset1, asset2)
-    if comparison_data is None:
-        return render_template('error.html', message=f"Unable to fetch data for comparison between {asset1} and {asset2}.")
+    if comparison_data:
+        report = generate_comparison_report(comparison_data)
+        return render_template('comparison_report.html', report=report)
+    else:
+        return render_template('error.html', message="Unable to generate comparison report.")
     
-    report_content = generate_comparison_report(comparison_data)
-    return render_template('comparison_report.html', 
-                           asset1=asset1, 
-                           asset2=asset2, 
-                           report_content=report_content)
 
 @app.route('/api/compare', methods=['POST'])
 def api_compare():

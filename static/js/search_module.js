@@ -23,8 +23,80 @@ const SearchModule = {
         this.setupLottieAnimation();
         this.setupAutocomplete();
     },
-
-    setupEventListeners: function() {
+    
+    setupComparisonAutocomplete: function(inputId, resultsId) {
+        const searchInput = document.getElementById(inputId);
+        const resultsContainer = document.getElementById(resultsId);
+        if (!searchInput || !resultsContainer) {
+            console.error('Comparison input or results container not found');
+            return;
+        }
+        
+        let debounceTimer;
+    
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const prefix = searchInput.value.trim();
+                if (prefix.length >= 2) {
+                    this.fetchAutocompleteSuggestions(prefix, resultsContainer);
+                } else {
+                    resultsContainer.innerHTML = '';
+                }
+            }, 300);
+        });
+    
+        // Hide autocomplete results when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!resultsContainer.contains(event.target) && event.target !== searchInput) {
+                resultsContainer.innerHTML = '';
+            }
+        });
+    },
+    
+    fetchAutocompleteSuggestions: function(prefix, resultsContainer) {
+        fetch(`/api/autocomplete?prefix=${encodeURIComponent(prefix)}`)
+            .then(response => response.json())
+            .then(data => this.displayAutocompleteSuggestions(data, resultsContainer))
+            .catch(error => console.error('Error fetching autocomplete suggestions:', error));
+    },
+    
+    displayAutocompleteSuggestions: function(suggestions, resultsContainer) {
+        if (!resultsContainer) {
+            console.error('Results container not found');
+            return;
+        }
+    
+        resultsContainer.innerHTML = '';
+    
+        if (suggestions.length === 0) {
+            resultsContainer.innerHTML = '<p>No matches found</p>';
+            return;
+        }
+    
+        const ul = document.createElement('ul');
+        ul.className = 'autocomplete-list';
+    
+        suggestions.forEach(suggestion => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${suggestion.name}</strong> (${suggestion.ticker})`;
+            li.addEventListener('click', () => this.selectAutocompleteSuggestion(suggestion, resultsContainer.previousElementSibling));
+            ul.appendChild(li);
+        });
+    
+        resultsContainer.appendChild(ul);
+    },
+    
+    selectAutocompleteSuggestion: function(suggestion, inputElement) {
+        if (inputElement) {
+            inputElement.value = suggestion.name;
+            const resultsContainer = inputElement.nextElementSibling;
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '';
+            }
+        }
+    },
+        setupEventListeners: function() {
         const form = document.getElementById('search-form');
         form.addEventListener('submit', this.handleSubmit.bind(this));
     },
@@ -65,40 +137,6 @@ const SearchModule = {
         });
     },
 
-    fetchAutocompleteSuggestions: function(prefix) {
-        fetch(`/api/autocomplete?prefix=${encodeURIComponent(prefix)}`)
-            .then(response => response.json())
-            .then(data => this.displayAutocompleteSuggestions(data))
-            .catch(error => console.error('Error fetching autocomplete suggestions:', error));
-    },
-
-    displayAutocompleteSuggestions: function(suggestions) {
-        const resultsContainer = document.getElementById('autocomplete-results');
-        resultsContainer.innerHTML = '';
-
-        if (suggestions.length === 0) {
-            resultsContainer.innerHTML = '<p>No matches found</p>';
-            return;
-        }
-
-        const ul = document.createElement('ul');
-        ul.className = 'autocomplete-list';
-
-        suggestions.forEach(suggestion => {
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${suggestion.name}</strong> (${suggestion.ticker})`;
-            li.addEventListener('click', () => this.selectAutocompleteSuggestion(suggestion));
-            ul.appendChild(li);
-        });
-
-        resultsContainer.appendChild(ul);
-    },
-
-    selectAutocompleteSuggestion: function(suggestion) {
-        const searchInput = document.getElementById('search-input');
-        searchInput.value = suggestion.name;
-        document.getElementById('autocomplete-results').innerHTML = '';
-    },
 
     handleSubmit: function(event) {
         event.preventDefault();
@@ -124,3 +162,4 @@ const SearchModule = {
 
 // Expose the SearchModule globally
 window.SearchModule = SearchModule;
+

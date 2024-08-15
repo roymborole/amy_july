@@ -274,8 +274,8 @@ body {
 }
 
 #lottie-container {
-    width: 200px;
-    height: 200px;
+    width: 400px;
+    height: 400px;
     margin: 0 auto;
 }
 
@@ -799,8 +799,44 @@ body, h3 {
 
 #autocomplete-results {
     position: absolute;
-    width: 100%;
-    top: 100%;
+    width: 50%;
+    top: 50%;
     left: 0;
     z-index: 1000;
+}
+
+.comparison-container {
+    position: relative;
+    margin-top: 20px;
+}
+
+#comparison-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#comparison-results {
+    position: absolute;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.autocomplete-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.autocomplete-list li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-list li:hover {
+    background-color: #f0f0f0;
 }

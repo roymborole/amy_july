@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+{% endblock %}
 {% block content %}
 <div>
     <div class="header">
@@ -131,22 +135,46 @@
 {% endblock %}
 
 {% block scripts %}
+{{ super() }}
 <script>
-    function showPrediction(assetName) {
-        window.location.href = '/loading_prediction/' + encodeURIComponent(assetName);
+    let comparisonContainerAdded = false;
+
+function compareAsset() {
+    if (!comparisonContainerAdded) {
+        const comparisonContainer = document.createElement('div');
+        comparisonContainer.id = 'comparison-container';
+        comparisonContainer.innerHTML = `
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="comparison-input" placeholder="Enter asset to compare" required>
+                <div class="input-group-append">
+                    <button class="btn-compare" onclick="compareAssets()">Compare</button>
+                </div>
+            </div>
+            <div id="comparison-results"></div>
+        `;
+        document.querySelector('.button-container').appendChild(comparisonContainer);
+        
+        // Set up the autocomplete for the comparison input
+        SearchModule.setupComparisonAutocomplete('comparison-input', 'comparison-results');
+        
+        comparisonContainerAdded = true;
     }
-    
+}
+
+function compareAssets() {
+    const asset1 = '{{ asset_name }}';
+    const asset2 = document.getElementById('comparison-input').value.trim();
+    if (asset2) {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        window.location.href = `/compare/${encodeURIComponent(asset1)}/${encodeURIComponent(asset2)}`;
+    } else {
+        alert('Please enter an asset to compare with.');
+    }
+}
     function showNewsSummary(assetName) {
         window.location.href = '/loading_news/' + encodeURIComponent(assetName);
     }
 
-    function compareAsset() {
-        var compareWith = prompt("Enter the ticker symbol to compare with:");
-        if (compareWith) {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            window.location.href = "/comparison/{{ asset_name }}/" + encodeURIComponent(compareWith);
-        }
-    }
     function emailReport() {
         document.getElementById('emailOverlay').style.display = 'flex';
     }
@@ -185,45 +213,47 @@
             alert('Error sending email');
         });
     }
-
+    
+    function subscribeToReport(assetName) {
+        var email = prompt("Enter your email address to subscribe to weekly reports for " + assetName);
+        if (email) {
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    asset_name: assetName
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    
     
 document.addEventListener('DOMContentLoaded', function() {
-    const compareButton = document.getElementById('compareButton');
     const compareModal = document.getElementById('compareModal');
     const compareForm = document.getElementById('compareForm');
-
-    compareButton.addEventListener('click', function() {
-        compareModal.style.display = 'block';
+    SearchModule.setupComparisonAutocomplete('comparison-input', 'comparison-results');
     });
+
+
+        compareModal.style.display = 'block';
+ 
 
     compareForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const asset2 = document.getElementById('asset2Input').value;
         window.location.href = `/comparison/${currentAsset}/${asset2}`;
     });
-});
-function subscribeToReport(assetName) {
-    var email = prompt("Enter your email address to subscribe to weekly reports for " + assetName);
-    if (email) {
-        fetch('/api/subscribe', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                asset_name: assetName
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
-    }
+
 }
 </script>
 <style>
