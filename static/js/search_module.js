@@ -1,9 +1,9 @@
 const SearchModule = {
-    init: function(containerId) {
+    init: function(containerId, options = {}) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        container.innerHTML = `
+        const defaultHtml = `
             <form id="search-form">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" id="search-input" placeholder="Enter asset name or ticker" required>
@@ -19,9 +19,13 @@ const SearchModule = {
             </div>
         `;
 
+        container.innerHTML = options.customHtml || defaultHtml;
+
         this.setupEventListeners();
-        this.setupLottieAnimation();
-        this.setupAutocomplete();
+        if (!options.skipLottie) {
+            this.setupLottieAnimation();
+        }
+        this.setupAutocomplete(options.searchInputId, options.resultsContainerId);
     },
     
     setupComparisonAutocomplete: function(inputId, resultsId) {
@@ -112,9 +116,14 @@ const SearchModule = {
         });
     },
 
-    setupAutocomplete: function() {
-        const searchInput = document.getElementById('search-input');
-        const resultsContainer = document.getElementById('autocomplete-results');
+    setupAutocomplete: function(searchInputId = 'search-input', resultsContainerId = 'autocomplete-results') {
+        const searchInput = document.getElementById(searchInputId);
+        const resultsContainer = document.getElementById(resultsContainerId);
+        if (!searchInput || !resultsContainer) {
+            console.error('Search input or results container not found');
+            return;
+        }
+
         let debounceTimer;
 
         searchInput.addEventListener('input', () => {
@@ -122,7 +131,7 @@ const SearchModule = {
             debounceTimer = setTimeout(() => {
                 const prefix = searchInput.value.trim();
                 if (prefix.length >= 2) {
-                    this.fetchAutocompleteSuggestions(prefix);
+                    this.fetchAutocompleteSuggestions(prefix, resultsContainer);
                 } else {
                     resultsContainer.innerHTML = '';
                 }
@@ -136,7 +145,6 @@ const SearchModule = {
             }
         });
     },
-
 
     handleSubmit: function(event) {
         event.preventDefault();

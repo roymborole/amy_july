@@ -236,7 +236,48 @@ function compareAssets() {
                 alert('An error occurred. Please try again.');
             });
         }
-    
+
+            function searchDifferentCompany() {
+                const searchOverlay = document.createElement('div');
+                searchOverlay.id = 'searchOverlay';
+                searchOverlay.className = 'overlay';
+                searchOverlay.innerHTML = `
+                    <div class="popup">
+                        <h2>Search for a Different Company</h2>
+                        <div id="new-search-container">
+                            <input type="text" id="new-search-input" placeholder="Enter asset name or ticker">
+                            <div id="new-autocomplete-results"></div>
+                            <button onclick="performNewSearch()">Search</button>
+                        </div>
+                        <button onclick="closeSearchOverlay()">Cancel</button>
+                    </div>
+                `;
+                document.body.appendChild(searchOverlay);
+        
+                SearchModule.init('new-search-container', {
+                    customHtml: '',
+                    skipLottie: true,
+                    searchInputId: 'new-search-input',
+                    resultsContainerId: 'new-autocomplete-results'
+                });
+            }
+        
+            function performNewSearch() {
+                const newSearchInput = document.getElementById('new-search-input');
+                const name_or_ticker = newSearchInput.value.trim();
+                if (name_or_ticker) {
+                    window.location.href = `/loading/${encodeURIComponent(name_or_ticker)}`;
+                } else {
+                    alert('Please enter an asset name or ticker');
+                }
+            }
+        
+            function closeSearchOverlay() {
+                const searchOverlay = document.getElementById('searchOverlay');
+                if (searchOverlay) {
+                    searchOverlay.remove();
+                }
+            }
     
 document.addEventListener('DOMContentLoaded', function() {
     const compareModal = document.getElementById('compareModal');
