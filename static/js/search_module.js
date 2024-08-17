@@ -56,6 +56,18 @@ const SearchModule = {
                 resultsContainer.innerHTML = '';
             }
         });
+    
+        // Add this new event listener for handling clicks on suggestions
+        resultsContainer.addEventListener('click', (event) => {
+            const clickedElement = event.target.closest('li');
+            if (clickedElement) {
+                const suggestionText = clickedElement.textContent;
+                searchInput.value = suggestionText.split('(')[0].trim(); // Set the input value to the name part
+                resultsContainer.innerHTML = ''; // Clear suggestions
+                // You might want to trigger a comparison here or update some UI
+                // For example: this.compareAsset(searchInput.value);
+            }
+        });
     },
     
     fetchAutocompleteSuggestions: function(prefix, resultsContainer) {
@@ -84,7 +96,6 @@ const SearchModule = {
         suggestions.forEach(suggestion => {
             const li = document.createElement('li');
             li.innerHTML = `<strong>${suggestion.name}</strong> (${suggestion.ticker})`;
-            li.addEventListener('click', () => this.selectAutocompleteSuggestion(suggestion, resultsContainer.previousElementSibling));
             ul.appendChild(li);
         });
     
@@ -123,9 +134,9 @@ const SearchModule = {
             console.error('Search input or results container not found');
             return;
         }
-
+    
         let debounceTimer;
-
+    
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
@@ -137,8 +148,17 @@ const SearchModule = {
                 }
             }, 300);
         });
-
-        // Hide autocomplete results when clicking outside
+    
+        // Add this new event listener for handling clicks on suggestions
+        resultsContainer.addEventListener('click', (event) => {
+            const clickedElement = event.target.closest('li');
+            if (clickedElement) {
+                const suggestionText = clickedElement.textContent;
+                searchInput.value = suggestionText.split('(')[0].trim(); // Set the input value to the name part
+                resultsContainer.innerHTML = ''; // Clear suggestions
+            }
+        });
+    
         document.addEventListener('click', (event) => {
             if (!resultsContainer.contains(event.target) && event.target !== searchInput) {
                 resultsContainer.innerHTML = '';

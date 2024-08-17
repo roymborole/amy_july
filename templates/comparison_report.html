@@ -17,9 +17,9 @@
     <div class="container report-container">
         <h1 class="text-center">Comparison Report: {{ asset1 }} vs {{ asset2 }}</h1>
         <img src="{{ url_for('static', filename='Header6.png') }}" class="header-image" alt="Header">
-        
+
         <div class="button-container">
-            <button id="emailReportBtn" class="btn btn-primary">Email this Comparison Report</button>
+            <button id="emailComparisonReportBtn" class="btn btn-primary">Email this Comparison Report</button>
         </div>
 
         <div class="report-content">
@@ -96,29 +96,21 @@
     <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            SearchModule.init('search-container');
-            
-            const emailReportBtn = document.getElementById('emailReportBtn');
+            const emailBtn = document.getElementById('emailComparisonReportBtn');
             const emailOverlay = document.getElementById('emailOverlay');
             const sendingOverlay = document.getElementById('sendingOverlay');
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
-            const cancelEmailBtn = document.getElementById('cancelEmailBtn');
-            const emailInput = document.getElementById('emailInput');
 
-            emailReportBtn.addEventListener('click', function() {
+            emailBtn.addEventListener('click', function() {
                 emailOverlay.style.display = 'flex';
             });
 
-            cancelEmailBtn.addEventListener('click', function() {
-                emailOverlay.style.display = 'none';
-            });
-
-            sendEmailBtn.addEventListener('click', function() {
-                const email = emailInput.value;
+            emailOverlay.querySelector('button:first-of-type').addEventListener('click', function() {
+                const email = emailOverlay.querySelector('input').value;
                 if (email) {
                     emailOverlay.style.display = 'none';
                     sendingOverlay.style.display = 'flex';
-                    // Send email request to server
+
+                    // Send the comparison report
                     fetch('/send_comparison_report', {
                         method: 'POST',
                         headers: {
@@ -137,14 +129,20 @@
                         alert(data.message);
                     })
                     .catch((error) => {
+                        console.error('Error:', error);
                         sendingOverlay.style.display = 'none';
-                        alert('An error occurred while sending the email.');
+                        alert('An error occurred while sending the email. Please try again.');
                     });
                 } else {
                     alert('Please enter a valid email address.');
                 }
             });
+
+            emailOverlay.querySelector('button:last-of-type').addEventListener('click', function() {
+                emailOverlay.style.display = 'none';
+            });
         });
+       
     </script>
 {% endblock %}
 
