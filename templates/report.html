@@ -23,7 +23,7 @@
     <h1 class="text-center pink-heading">Technical Analysis for {{ asset_name }}</h1>
 
     <div class="button-container text-center">
-    <button onclick="emailReport()" class="btn btn-primary">Email this Report</button>
+    <button onclick="openEmailOverlay()" class="btn btn-primary">Email this Report</button>
     <button onclick="showNewsSummary('{{ asset_name }}')" class="btn btn-news">View News Summary</button>
     <button onclick="compareAsset()" class="btn btn-info">Compare with Another Asset</button>
     <button onclick="subscribeToReports()" class="btn btn-success">Subscribe to Weekly Reports</button>
@@ -106,9 +106,9 @@
 <div id="emailOverlay" class="overlay">
     <div class="popup">
         <h2>Enter your email address</h2>
-        <input type="email" id="emailInput" placeholder="your@email.com">
+        <input type="email" id="emailInput">
         <button onclick="sendEmail()">Send</button>
-        <button onclick="closeOverlay('emailOverlay')">Cancel</button>
+        <button onclick="closeEmailOverlay()">Cancel</button>
     </div>
 </div>
 
@@ -138,9 +138,39 @@
 {% block scripts %}
     {{ super() }}
     <script>
-    function emailReport() {
-        document.getElementById('emailOverlay').style.display = 'flex';
-    }
+        function openEmailOverlay() {
+            document.getElementById('emailOverlay').style.display = 'flex';
+        }
+        
+        function closeEmailOverlay() {
+            document.getElementById('emailOverlay').style.display = 'none';
+        }
+        
+        function sendEmail() {
+            var email = document.getElementById('emailInput').value;
+            var reportContent = document.querySelector('.report-content').innerHTML;
+        
+            fetch('/send_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    asset_name: '{{ asset_name }}',
+                    report_content: reportContent
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                closeEmailOverlay();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Failed to send email. Please try again.');
+            });
+        }
 
     function subscribeToReports() {
         document.getElementById('subscribeOverlay').style.display = 'flex';
