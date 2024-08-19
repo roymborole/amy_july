@@ -80,6 +80,7 @@ def get_financial_data(name_or_ticker):
         df['SMA200'] = df['Close'].rolling(window=200).mean()
         df['RSI'] = compute_rsi(df)
         df['SMA20'], df['UpperBand'], df['LowerBand'] = compute_bollinger_bands(df)
+        df['Percentage_Change'] = (df['Close'] / df['Close'].iloc[0] - 1) * 100
 
         print("Fetching financial data")
         financials = stock.financials
@@ -105,6 +106,14 @@ def get_financial_data(name_or_ticker):
             'UpperBand': df['UpperBand'].iloc[-1],
             'LowerBand': df['LowerBand'].iloc[-1],
             'SMA20': df['SMA20'].iloc[-1],
+            'previous_close': info.get('previousClose'),
+            'day_low': info.get('dayLow'),
+            'day_high': info.get('dayHigh'),
+            'year_low': info.get('fiftyTwoWeekLow'),
+            'year_high': info.get('fiftyTwoWeekHigh'),
+            'avg_volume': info.get('averageVolume'),
+            'pe_ratio': info.get('trailingPE'),
+            'dividend_yield': info.get('dividendYield'),
             'Diluted EPS': info.get('trailingEps'),
             'Total Revenue': format_financial_number(current_year.get('Total Revenue')),
             'Total Revenue_yoy_change': calculate_yoy_change(current_year.get('Total Revenue'), previous_year.get('Total Revenue')),
@@ -122,10 +131,13 @@ def get_financial_data(name_or_ticker):
             'Net Income_yoy_change': calculate_yoy_change(current_year.get('Net Income'), previous_year.get('Net Income')),
             'Normalized Income': format_financial_number(current_year.get('Net Income')),
             'Normalized Income_yoy_change': calculate_yoy_change(current_year.get('Net Income'), previous_year.get('Net Income')),
-            
-            'historical_data': df
-            
-    }
+            'historical_data': df,
+            'price_history': {
+            'dates': df.index.strftime('%Y-%m-%d').tolist(),
+                'percentage_changes': df['Percentage_Change'].tolist()
+                }
+        }
+
 
         print("Calculating performance data")
         today = datetime.now()

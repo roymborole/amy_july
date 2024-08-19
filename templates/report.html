@@ -2,6 +2,7 @@
 {% block head %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 {% block content %}
 <div>
@@ -33,6 +34,50 @@
 
     <div class="report-content">
         <h2 class="text-center pink-heading">Performance Overview</h2>
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+    <div class="additional-data">
+        <h2 class="text-center pink-heading">Key Statistics</h2>
+        <table class="data-table">
+            <tr>
+                <th>Previous Close</th>
+                <td>${{ "{:.2f}".format(raw_data.previous_close) if raw_data.previous_close is not none else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Day Range</th>
+                <td>
+                    {% if raw_data.day_low is not none and raw_data.day_high is not none %}
+                        ${{ "{:.2f}".format(raw_data.day_low) }} - ${{ "{:.2f}".format(raw_data.day_high) }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>52 Week Range</th>
+                <td>
+                    {% if raw_data.year_low is not none and raw_data.year_high is not none %}
+                        ${{ "{:.2f}".format(raw_data.year_low) }} - ${{ "{:.2f}".format(raw_data.year_high) }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Average Volume</th>
+                <td>{{ "{:,}".format(raw_data.avg_volume) if raw_data.avg_volume is not none else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>P/E Ratio</th>
+                <td>{{ "{:.2f}".format(raw_data.pe_ratio) if raw_data.pe_ratio is not none else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Dividend Yield</th>
+                <td>{{ "{:.2f}%".format(raw_data.dividend_yield * 100) if raw_data.dividend_yield is not none else 'N/A' }}</td>
+            </tr>
+        </table>
+    </div>
         <table class="table">
             <thead>
                 <tr>
@@ -136,7 +181,8 @@
 
 {% endblock %}
 {% block scripts %}
-    {{ super() }}
+    {{ super() }}    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function openEmailOverlay() {
             document.getElementById('emailOverlay').style.display = 'flex';
@@ -320,29 +366,85 @@
         }
     }
 
+    var priceHistoryDates = {{ raw_data.price_history.dates | tojson }};
+    var priceHistoryPercentages = {{ raw_data.price_history.percentage_changes | tojson }};
+    
     // DOM-ready event listener
     document.addEventListener('DOMContentLoaded', function() {
         // Setup event listeners for email and subscribe overlays
-        document.querySelectorAll('#emailOverlay button, #subscribeOverlay button').forEach(button => {
+        document.querySelectorAll('#emailOverlay button, #subscribeOverlay button').forEach(function(button) {
             button.addEventListener('click', function() {
                 this.closest('.overlay').style.display = 'none';
             });
         });
 
-        // Setup form submission for email and subscribe
-        document.querySelectorAll('#emailOverlay form, #subscribeOverlay form').forEach(form => {
+        document.querySelectorAll('#emailOverlay form, #subscribeOverlay form').forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const email = this.querySelector('input[type="email"]').value;
-                const action = this.closest('#emailOverlay') ? 'email' : 'subscribe';
-                // Here you would typically send this data to your server
-                console.log(`${action} report for ${email}`);
+                var email = this.querySelector('input[type="email"]').value;
+                var action = this.closest('#emailOverlay') ? 'email' : 'subscribe';
+              
+                console.log(action + ' report for ' + email);
                 this.closest('.overlay').style.display = 'none';
             });
         });
-    });
-    </script>
 
+        // Initialize the price history chart
+        var ctx = document.getElementById('priceChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: priceHistoryDates,
+                datasets: [{
+                    label: 'Percentage Gain/Loss',
+                    data: priceHistoryPercentages,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Price History (Percentage Change)'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Percentage Change'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
     <style>
         .pink-heading { color: #FF69B4; }
         .header-image { max-width: 100%; height: auto; margin: 0 auto; display: block; }

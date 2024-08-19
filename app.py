@@ -637,6 +637,7 @@ def display_report(name_or_ticker):
     if 'error' in report_data:
         return render_template('error.html', message=report_data['error'])
     
+    
     return render_template('report.html', 
                            asset_name=report_data['asset_name'],
                            raw_data=report_data['raw_data'],
