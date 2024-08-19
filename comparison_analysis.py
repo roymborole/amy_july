@@ -18,8 +18,137 @@ def compare_assets(asset1, asset2):
     }
     comparison_data['charts'] = generate_comparison_charts(data1, data2)
 
+    comparison_data['performance'] = {
+        'asset1': data1.get('performance', {}),
+        'asset2': data2.get('performance', {})
+    }
+
     return comparison_data
 
+def generate_performance_overview(comparison_data):
+    overview = "<h3>Performance Overview</h3>"
+    overview += '<table class="performance-table">'
+    overview += f'<tr><th>Return</th><th>{comparison_data["asset1"]["asset_name"]}</th><th>{comparison_data["asset2"]["asset_name"]}</th><th>S&P 500</th></tr>'
+
+    for period in ['YTD', '1-Year', '3-Year']:
+        overview += '<tr>'
+        overview += f'<td>{period}</td>'
+        for asset in ['asset1', 'asset2']:
+            if comparison_data['performance'][asset].get(period):
+                value = comparison_data['performance'][asset][period]['stock']
+                overview += f'<td>{format_value(value, "performance")}%</td>'
+            else:
+                overview += '<td>N/A</td>'
+        
+        # S&P 500 performance (using asset1's data, assuming it's the same for both)
+        if comparison_data['performance']['asset1'].get(period):
+            sp500_value = comparison_data['performance']['asset1'][period]['sp500']
+            overview += f'<td>{format_value(sp500_value, "performance")}%</td>'
+        else:
+            overview += '<td>N/A</td>'
+        
+        overview += '</tr>'
+
+    overview += '</table>'
+    return overview
+
+def generate_key_statistics_table(comparison_data):
+    table = "<h3>Key Statistics</h3>"
+    table += "<table>"
+    table += f"<tr><th>Metric</th><th>{comparison_data['asset1']['asset_name']}</th><th>{comparison_data['asset2']['asset_name']}</th></tr>"
+
+    metrics = [
+        ('previous_close', 'Previous Close'),
+        ('day_low', 'Day Range'),
+        ('year_low', '52 Week Range'),
+        ('avg_volume', 'Average Volume'),
+        ('pe_ratio', 'P/E Ratio'),
+        ('dividend_yield', 'Dividend Yield')
+    ]
+
+    for key, display_name in metrics:
+        table += "<tr>"
+        table += f"<td>{display_name}</td>"
+        for asset in ['asset1', 'asset2']:
+            if key == 'day_low':
+                value = f"{format_value(comparison_data[asset].get('day_low', 'N/A'), key)} - {format_value(comparison_data[asset].get('day_high', 'N/A'), key)}"
+            elif key == 'year_low':
+                value = f"{format_value(comparison_data[asset].get('year_low', 'N/A'), key)} - {format_value(comparison_data[asset].get('year_high', 'N/A'), key)}"
+            elif key == 'dividend_yield':
+                value = format_value(comparison_data[asset].get(key, 'N/A'), key, percentage=True)
+            else:
+                value = format_value(comparison_data[asset].get(key, 'N/A'), key)
+            table += f"<td>{value}</td>"
+        table += "</tr>"
+
+    table += "</table>"
+    return table
+
+def generate_performance_overview_chart(comparison_data):
+    plt.figure(figsize=(10, 6))
+    
+    periods = ['YTD', '1-Year', '3-Year']
+    asset1_returns = [comparison_data['performance']['asset1'].get(period, {}).get('stock', 0) for period in periods]
+    asset2_returns = [comparison_data['performance']['asset2'].get(period, {}).get('stock', 0) for period in periods]
+    sp500_returns = [comparison_data['performance']['asset1'].get(period, {}).get('sp500', 0) for period in periods]
+
+    x = range(len(periods))
+    width = 0.25
+
+    plt.bar([i - width for i in x], asset1_returns, width, label=comparison_data['asset1']['asset_name'])
+    plt.bar(x, asset2_returns, width, label=comparison_data['asset2']['asset_name'])
+    plt.bar([i + width for i in x], sp500_returns, width, label='S&P 500')
+
+    plt.xlabel('Time Period')
+    plt.ylabel('Return (%)')
+    plt.title('Performance Overview')
+    plt.xticks(x, periods)
+    plt.legend()
+
+    chart = f"""
+    <div class="chart-container">
+        <h4>Performance Overview</h4>
+        <img src='data:image/png;base64,{plt_to_base64()}' alt='Performance Overview' />
+    </div>
+    """
+    return chart
+
+def format_value(value, metric, percentage=False, color_code=False):
+    def format_large_number(num):
+        if num >= 1e12:  # Trillion
+            return f"${num/1e12:.2f}T"
+        elif num >= 1e9:  # Billion
+            return f"${num/1e9:.2f}B"
+        elif num >= 1e6:  # Million
+            return f"${num/1e6:.2f}M"
+        else:
+            return f"${num:,.2f}"
+
+    if value == 'N/A':
+        return 'N/A'
+
+    if isinstance(value, (int, float)):
+        if metric == 'market_cap':
+            return format_large_number(value)
+        elif metric in ['close_price', 'Total Revenue', 'Operating Revenue', 'Total Expenses',
+                        'Net Interest Income', 'Interest Expense', 'Interest Income', 'Net Income', 'Normalized Income']:
+            return format_large_number(value)
+        elif metric in ['change_percent', 'percentage'] or percentage:
+            formatted_value = f"{value:.2f}%"
+            if color_code:
+                color = 'green' if value > 0 else 'red' if value < 0 else 'black'
+                return f'<span style="color: {color};">{formatted_value}</span>'
+            return formatted_value
+        elif metric in ['Diluted EPS', 'Basic EPS', 'previous_close', 'day_low', 'day_high', 'year_low', 'year_high']:
+            return f"${value:.2f}"
+        elif metric == 'avg_volume':
+            return f"{value:,.0f}"
+        elif metric == 'pe_ratio':
+            return f"{value:.2f}"
+        else:
+            return f"{value:.2f}"
+    
+    return str(value)
 
 def generate_comparison_report(comparison_data):
     if not comparison_data:
@@ -62,6 +191,20 @@ def generate_comparison_report(comparison_data):
             max-width: 100%;
             height: auto;
         }}
+               .performance-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }}
+        .performance-table th, .performance-table td {{
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }}
+        .performance-table th {{
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }}
     </style>
     <div class="comparison-report">
         <h2>Comparison Report: {asset1_name} vs {asset2_name}</h2>
@@ -76,6 +219,10 @@ def generate_comparison_report(comparison_data):
     """
 
     # Performance Comparison
+
+    report += generate_performance_overview(comparison_data)
+    report += generate_performance_overview_chart(comparison_data)
+    report += generate_key_statistics_table(comparison_data)
     report += generate_performance_table(comparison_data)
 
     # Price Information
@@ -119,36 +266,6 @@ def generate_performance_table(comparison_data):
     table += "</table>"
     return table
 
-def format_value(value, metric, color_code=False):
-    def format_large_number(num):
-        if num >= 1e12:  # Trillion
-            return f"${num/1e12:.2f}T"
-        elif num >= 1e9:  # Billion
-            return f"${num/1e9:.2f}B"
-        elif num >= 1e6:  # Million
-            return f"${num/1e6:.2f}M"
-        else:
-            return f"${num:,.2f}"
-
-    if isinstance(value, (int, float)):
-        if metric == 'market_cap':
-            return format_large_number(value)
-        elif metric in ['close_price', 'Total Revenue', 'Operating Revenue', 'Total Expenses',
-                        'Net Interest Income', 'Interest Expense', 'Interest Income', 'Net Income', 'Normalized Income']:
-            return format_large_number(value)
-        elif metric in ['change_percent', 'percentage']:
-            formatted_value = f"{value:.2f}%"
-            if color_code:
-                color = 'green' if value > 0 else 'red' if value < 0 else 'black'
-                return f'<span style="color: {color};">{formatted_value}</span>'
-            return formatted_value
-        elif metric in ['Diluted EPS', 'Basic EPS']:
-            return f"${value:.2f}"
-        else:
-            return f"{value:.2f}"
-    elif value == 'N/A':
-        return value
-    return str(value)
 
 def generate_table(title, metrics, comparison_data):
     table = f"<h3>{title}</h3>"

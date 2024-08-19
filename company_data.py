@@ -582,6 +582,8 @@ COMPANIES = {
     "the mosaic company": "MOS",
     "the travelers companies": "TRV",
     "the walt disney company": "DIS",
+    "Disney": "DIS",
+    "Disney Plus": "DIS",
     "thermo fisher scientific": "TMO",
     "tiffany & co.": "TIF",
     "tjx companies": "TJX",
