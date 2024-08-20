@@ -3,6 +3,8 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tooltips.css') }}">
+<script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
 {% endblock %}
 {% block content %}
 <div>
@@ -40,44 +42,33 @@
     <div class="additional-data">
         <h2 class="text-center pink-heading">Key Statistics</h2>
         <table class="data-table">
-            <tr>
-                <th>Previous Close</th>
-                <td>${{ "{:.2f}".format(raw_data.previous_close) if raw_data.previous_close is not none else 'N/A' }}</td>
-            </tr>
-            <tr>
-                <th>Day Range</th>
-                <td>
-                    {% if raw_data.day_low is not none and raw_data.day_high is not none %}
-                        ${{ "{:.2f}".format(raw_data.day_low) }} - ${{ "{:.2f}".format(raw_data.day_high) }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>52 Week Range</th>
-                <td>
-                    {% if raw_data.year_low is not none and raw_data.year_high is not none %}
-                        ${{ "{:.2f}".format(raw_data.year_low) }} - ${{ "{:.2f}".format(raw_data.year_high) }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>Average Volume</th>
-                <td>{{ "{:,}".format(raw_data.avg_volume) if raw_data.avg_volume is not none else 'N/A' }}</td>
-            </tr>
-            <tr>
-                <th>P/E Ratio</th>
-                <td>{{ "{:.2f}".format(raw_data.pe_ratio) if raw_data.pe_ratio is not none else 'N/A' }}</td>
-            </tr>
-            <tr>
-                <th>Dividend Yield</th>
-                <td>{{ "{:.2f}%".format(raw_data.dividend_yield * 100) if raw_data.dividend_yield is not none else 'N/A' }}</td>
-            </tr>
-        </table>
-    </div>
+                    <table>
+                        <tr>
+                            <td><span data-tooltip="The stock's closing price from the previous trading day."><strong>Previous Close</strong></span></td>
+                            <td>${{ "{:.2f}".format(raw_data.previous_close) if raw_data.previous_close is not none else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tooltip="The lowest and highest prices at which the stock has traded during the current trading day."><strong>Day Range</strong></span></td>
+                            <td>{% if raw_data.day_low is not none and raw_data.day_high is not none %} ${{ "{:.2f}".format(raw_data.day_low) }} - ${{ "{:.2f}".format(raw_data.day_high) }} {% else %} N/A {% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tooltip="The lowest and highest prices at which the stock has traded over the past 52 weeks."><strong>52 Week Range</strong></span></td>
+                            <td>{% if raw_data.year_low is not none and raw_data.year_high is not none %} ${{ "{:.2f}".format(raw_data.year_low) }} - ${{ "{:.2f}".format(raw_data.year_high) }} {% else %} N/A {% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tooltip="The average number of shares traded daily over a specific period, typically 30 days."><strong>Average Volume</strong></span></td>
+                            <td>{{ "{:,}".format(raw_data.avg_volume) if raw_data.avg_volume is not none else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tooltip="Price-to-Earnings Ratio. A valuation ratio of a company's current share price compared to its earnings per share."><strong>P/E Ratio</strong></span></td>
+                            <td>{{ "{:.2f}".format(raw_data.pe_ratio) if raw_data.pe_ratio is not none else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tooltip="The annual dividend payment as a percentage of the stock's current price."><strong>Dividend Yield</strong></span></td>
+                            <td>{{ "{:.2f}%".format(raw_data.dividend_yield * 100) if raw_data.dividend_yield is not none else 'N/A' }}</td>
+                        </tr>
+                    </table>
+                </div>
         <table class="table">
             <thead>
                 <tr>
@@ -88,7 +79,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>YTD</td>
+                    <td><span data-tooltip="The percentage change in the stock's price since the beginning of the current calendar year."><strong>YTD Return</strong></span></td>
                     <td>{% if raw_data.performance and raw_data.performance.YTD %}
                         {{ "%.2f"|format(raw_data.performance.YTD.stock) }}%
                         {% else %}
@@ -103,7 +94,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>1-Year</td>
+                    <td><span data-tooltip="The percentage change in the stock's price over the last 12 months."><strong>1-Year</strong></span></td>
                     <td>{% if raw_data.performance and raw_data.performance['1-Year'] %}
                         {{ "%.2f"|format(raw_data.performance['1-Year'].stock) }}%
                         {% else %}
@@ -118,7 +109,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>3-Year</td>
+                    <td><span data-tooltip="The percentage change in the stock's price over the last 3 years."><strong>3-Year</strong></span></td>
                     <td>{% if raw_data.performance and raw_data.performance['3-Year'] %}
                         {{ "%.2f"|format(raw_data.performance['3-Year'].stock) }}%
                         {% else %}

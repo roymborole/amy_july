@@ -48,7 +48,6 @@ import os
 from extensions import db, celery, migrate, init_extensions, Migrate, init_celery, make_celery, Celery,redis_client, get_redis_url
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
-import logging
 from logging.handlers import RotatingFileHandler
 import sentry_sdk
 from flask import Flask
@@ -129,7 +128,11 @@ def create_app():
 
 app, celery = create_app()
 
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    filename='app.log')
 
+logger = logging.getLogger(__name__)
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(
@@ -281,6 +284,7 @@ def display_crypto_report(crypto_name):
         'price_sma': create_chart(raw_data['historical_data'], 'price_sma', crypto_name),
         'rsi': create_chart(raw_data['historical_data'], 'rsi', crypto_name),
         'bollinger': create_chart(raw_data['historical_data'], 'bollinger', crypto_name)
+        
     }
     
     return render_template('crypto_report.html', 
@@ -602,7 +606,7 @@ def generate_report_background(name_or_ticker):
         charts = {
             'price_sma': create_chart(raw_data['historical_data'], 'price_sma', name_or_ticker),
             'rsi': create_chart(raw_data['historical_data'], 'rsi', name_or_ticker),
-            'bollinger': create_chart(raw_data['historical_data'], 'bollinger', name_or_ticker)
+            'bollinger': create_chart(raw_data['historical_data'], 'bollinger', name_or_ticker),
         }
         
         for chart_type, chart_data in charts.items():
