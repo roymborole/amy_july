@@ -1,4 +1,11 @@
 {% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tooltips.css') }}">
+<script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+{% endblock %}
 {% block content %}
 <div>
     <div class="header">
@@ -20,6 +27,7 @@
 
         <div class="button-container">
             <button id="emailComparisonReportBtn" class="btn btn-primary">Email this Comparison Report</button>
+            <button onclick="newSearch()" class="btn btn-secondary">New Search</button>
         </div>
 
         <div class="report-content">
@@ -109,6 +117,87 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
     <script>
+        function newSearch() {
+            // Check if the overlay already exists
+            let searchOverlay = document.getElementById('searchOverlay');
+            
+            if (searchOverlay) {
+                // If it exists, just display it
+                searchOverlay.style.display = 'flex';
+            } else {
+                // If it doesn't exist, create it
+                searchOverlay = document.createElement('div');
+                searchOverlay.id = 'searchOverlay';
+                searchOverlay.className = 'overlay';
+                searchOverlay.innerHTML = `
+                    <div class="popup">
+                        <h2>Search for a Different Asset</h2>
+                        <form id="newSearchForm">
+                            <div id="new-search-container">
+                                <input type="text" id="new-search-input" placeholder="Enter asset name or ticker">
+                                <div id="new-autocomplete-results"></div>
+                            </div>
+                            <button type="submit">Search</button>
+                            <button type="button" onclick="closeSearchOverlay()">Cancel</button>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(searchOverlay);
+                searchOverlay.style.display = 'flex';
+                
+                if (typeof SearchModule !== 'undefined' && SearchModule.setupAutocomplete) {
+                    SearchModule.setupAutocomplete('new-search-input', 'new-autocomplete-results', handleNewSearchSelection);
+                } else {
+                    console.warn('SearchModule not available. Autocomplete will not work.');
+                }
+        
+                document.getElementById('newSearchForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    performNewSearch();
+                });
+            }
+        }
+    
+        
+        
+        function handleNewSearchSelection(selectedItem) {
+            const newSearchInput = document.getElementById('new-search-input');
+            if (newSearchInput) {
+                newSearchInput.value = selectedItem.name;
+                document.getElementById('new-autocomplete-results').innerHTML = '';
+            }
+        }
+        
+        function closeSearchOverlay() {
+            const searchOverlay = document.getElementById('searchOverlay');
+            if (searchOverlay) {
+                searchOverlay.style.display = 'none';  // Hide instead of remove
+            }
+        }
+        function performNewSearch() {
+            const newSearchInput = document.getElementById('new-search-input');
+            if (newSearchInput && newSearchInput.value) {
+                showLoadingOverlay();
+                window.location.href = `/loading/${encodeURIComponent(newSearchInput.value)}`;
+            } else {
+                alert('Please enter an asset name or ticker.');
+            }
+        }
+    
+        function closeSearchOverlay() {
+            const searchOverlay = document.getElementById('searchOverlay');
+            if (searchOverlay) {
+                searchOverlay.remove();
+            }
+        }
+    
+        function showLoadingOverlay() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'flex';
+            }
+        }
+    
         document.addEventListener('DOMContentLoaded', function() {
             const emailBtn = document.getElementById('emailComparisonReportBtn');
             const emailOverlay = document.getElementById('emailOverlay');
