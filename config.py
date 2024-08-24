@@ -48,4 +48,6 @@ class Config:
     # Celery configurations
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-    
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key'
+    API_KEY = os.environ.get('API_KEY') 
+    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', '/path/to/upload/folder')

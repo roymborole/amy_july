@@ -31,6 +31,8 @@
     <button onclick="compareAsset()" class="btn btn-info">Compare with Another Asset</button>
     <button onclick="subscribeToReports()" class="btn btn-success">Subscribe to Weekly Reports</button>
     <button onclick="newSearch()" class="btn btn-secondary">New Search</button>
+    <button onclick="exportToPDF()"class="btn btn-danger">Export to PDF</button>
+
 </div>
 
 
@@ -175,6 +177,40 @@
     {{ super() }}    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        function exportToPDF() {
+            // Get the current URL path
+            var path = window.location.pathname;
+            
+            // Determine which report we're exporting
+            var reportType = path.includes('comparison') ? 'comparison' : 'individual';
+            
+            // Make an AJAX request to the server
+            fetch('/export-pdf/' + reportType, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: window.location.href
+                })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create a link element and trigger download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = reportType + '_report.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+        
         function openEmailOverlay() {
             document.getElementById('emailOverlay').style.display = 'flex';
         }

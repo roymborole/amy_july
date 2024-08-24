@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Super Admin Dashboard</h1>
+<a href="{{ url_for('super_admin.upload_analysis') }}">Upload New Analysis</a>
+<h2>Existing Analyses</h2>
+<ul>
+{% for analysis in analyses %}
+    <li>{{ analysis.stock_ticker }} - {{ analysis.upload_date }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

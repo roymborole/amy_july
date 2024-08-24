@@ -16,11 +16,11 @@ from postmarker.core import PostmarkClient
 from rabbitmq_config import get_rabbitmq_connection, get_channel
 import smtplib
 from email.mime.text import MIMEText
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory
+from markupsafe import Markup
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory, current_app
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 from login import init_auth, auth_bp
 import warnings
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
@@ -31,11 +31,9 @@ from sklearn.preprocessing import MinMaxScaler
 from price_prediction import run_prediction
 import torch
 import json 
-from flask import request, jsonify
 from models import User, TempSubscription, Subscription
 import uuid
 from postmarker.core import PostmarkClient
-from flask import request, jsonify
 import threading
 from comparison_analysis import compare_assets, generate_comparison_report
 from datetime import datetime, timedelta
@@ -58,8 +56,6 @@ from models import PendingSubscription
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
-from flask import current_app
-from flask import Flask
 from sqlalchemy.exc import IntegrityError
 from weekly_reports import send_weekly_reports
 from subscription_management import create_subscription, confirm_subscription, unsubscribe, get_user_subscriptions
@@ -73,11 +69,23 @@ from celery import Celery
 from apscheduler.schedulers.background import BackgroundScheduler
 from extensions import init_extensions, init_celery, make_celery, get_redis_url
 from company_data import COMPANIES
+from flask import send_file, make_response, request, current_app
+import pdfkit
+import logging
+from werkzeug.utils import secure_filename
+import os
+import pandas as pd
+from macroeconomic_analysis import generate_macroeconomic_analysis, save_macroeconomic_analysis, get_available_macro_analyses
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 scheduler = BackgroundScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static', static_url_path='/static')
+
+    app.config['DEBUG'] = True
     app.config.from_object(Config)
 
     load_dotenv()
@@ -234,10 +242,6 @@ def autocomplete():
 def inject_ga_tracking_id():
     return dict(ga_tracking_id=app.config['GA_TRACKING_ID'])
 
-@app.route('/hello')
-def hello():
-    return "Hello, World!"
-
 @app.route('/crypto_predict/<crypto_name>')
 def crypto_predict(crypto_name):
     prediction_data = run_crypto_prediction(crypto_name)
@@ -252,17 +256,6 @@ def crypto_predict(crypto_name):
 def home():
     return render_template('index.html')
 
-@app.route('/montage')
-def montage():
-    comparisons = {
-        1: { 'stock1': 'AMD', 'stock2': 'NVDA' },
-        2: { 'stock1': 'AAPL', 'stock2': 'MSFT' },
-        3: { 'stock1': 'GOOGL', 'stock2': 'META' },
-        4: { 'stock1': 'TSLA', 'stock2': 'F' },
-        5: { 'stock1': 'AMZN', 'stock2': 'WMT' }
-    }
-    return render_template('montage.html', comparisons=comparisons)
-
 @app.route('/crypto_news/<crypto_name>')
 def display_crypto_news(crypto_name):
     news_summary = get_crypto_news_summary(crypto_name)
@@ -271,6 +264,10 @@ def display_crypto_news(crypto_name):
                            crypto_name=crypto_name, 
                            news_summary=news_summary,
                            detailed_news=detailed_news)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 @app.route('/crypto_report/<crypto_name>')
 def display_crypto_report(crypto_name):
@@ -296,6 +293,121 @@ def display_crypto_report(crypto_name):
 @app.route('/gym')
 def gym():
     return render_template('gym.html')
+
+@app.route('/upload_macro', methods=['GET', 'POST'])
+def upload_macro():
+    if request.method == 'POST':
+        ticker = request.form['ticker'].upper()
+        content = request.form['content']
+        files = request.files.getlist('files')
+
+        uploaded_files = []
+
+        if content:
+            save_macroeconomic_analysis(ticker, content)
+            uploaded_files.append(f"{ticker}_macro_analysis.txt")
+
+        if files:
+            for file in files:
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    file_ext = os.path.splitext(filename)[1]
+                    if file_ext not in ['.txt', '.pdf', '.doc', '.docx', '.rtf']:
+                        continue
+                    
+                    new_filename = f"{ticker}_{filename}"
+                    file_path = os.path.join('uploads', new_filename)
+                    file.save(file_path)
+                    uploaded_files.append(new_filename)
+
+        if uploaded_files:
+            message = f"Files uploaded successfully for {ticker}: {', '.join(uploaded_files)}"
+            return jsonify({'success': True, 'message': message})
+        else:
+            return jsonify({'success': False, 'message': 'No files were uploaded. Please enter text or upload files.'})
+
+    return render_template('upload_macro.html')
+
+@app.route('/macro_boomin')
+def macro_boomin():
+    companies = get_available_macro_analyses()
+    return render_template('macro_boomin.html', companies=companies)
+
+def handle_nan(obj):
+    if isinstance(obj, (np.float, np.integer)):
+        return None if np.isnan(obj) else obj
+    elif isinstance(obj, dict):
+        return {k: handle_nan(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [handle_nan(v) for v in obj]
+    return obj
+
+@app.route('/generate_macro_analysis/<ticker>')
+def generate_macro_analysis_route(ticker):
+    analysis, error = generate_macroeconomic_analysis(ticker)
+    if error:
+        return jsonify({'error': str(error)})
+    
+    financial_data = get_financial_data(ticker)
+    if not financial_data:
+        return jsonify({'error': 'Unable to fetch financial data', 'analysis': analysis})
+    
+    historical_data = financial_data.get('historical_data')
+    if isinstance(historical_data, pd.DataFrame) and not historical_data.empty:
+        historical_data = historical_data.reset_index().replace({np.nan: None}).to_dict('records')
+    else:
+        historical_data = []
+    
+    # Handle NaN values in the entire financial_data dictionary
+    financial_data = handle_nan(financial_data)
+    
+    return jsonify({
+        'analysis': analysis,
+        'historical_data': historical_data,
+        'financial_data': financial_data
+    })
+
+@app.route('/generate_macro', methods=['POST'])
+def generate_macro():
+    ticker = request.form['ticker'].upper()
+    app.logger.info(f"Generating macroeconomic analysis for ticker: {ticker}")
+
+    try:
+        # Get financial data
+        financial_data = get_financial_data(ticker)
+        if not financial_data:
+            app.logger.error(f"Failed to retrieve financial data for {ticker}")
+            return jsonify({'error': f"Unable to retrieve financial data for {ticker}"}), 400
+
+        # Generate macroeconomic analysis
+        analysis, error = generate_macroeconomic_analysis(ticker)
+        if error:
+            app.logger.error(f"Error generating macroeconomic analysis for {ticker}: {error}")
+            return jsonify({'error': error}), 400
+
+        # Get performance data and price history
+        performance_data = financial_data.get('performance', {})
+        price_history = financial_data.get('price_history', {})
+
+        app.logger.info(f"Successfully generated macroeconomic analysis for {ticker}")
+        return jsonify({
+            'analysis': analysis,
+            'performance': performance_data,
+            'price_history': price_history
+        })
+
+    except Exception as e:
+        app.logger.exception(f"Unexpected error during macro generation for {ticker}")
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/macroeconomic_analysis')
+def macroeconomic_analysis():
+    return render_template('macroeconomic_analysis.html')
+
+@app.route('/available_analyses')
+def available_analyses():
+    analyses = get_available_macro_analyses()
+    return render_template('available_analyses.html', analyses=analyses)
 
 @app.route('/crypto_compare', methods=['POST'])
 def crypto_compare():
@@ -822,6 +934,36 @@ def subscription_success():
 @app.route('/privacy_policy')
 def privacy_policy():
     return render_template('privacy_policy.html')
+
+@app.route('/export-pdf/<report_type>', methods=['POST'])
+def export_pdf(report_type):
+    try:
+        url = request.json['url']
+        
+        # Configure pdfkit options
+        options = {
+            'page-size': 'A4',
+            'margin-top': '0.75in',
+            'margin-right': '0.75in',
+            'margin-bottom': '0.75in',
+            'margin-left': '0.75in',
+            'encoding': "UTF-8",
+            'no-outline': None
+        }
+        
+        # Generate PDF
+        pdf = pdfkit.from_url(url, False, options=options)
+        
+        # Create a response
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename={report_type}_report.pdf'
+        
+        return response
+
+    except Exception as e:
+        current_app.logger.error(f"Error generating PDF: {str(e)}")
+        return make_response(jsonify({"error": "Failed to generate PDF"}), 500)
 
 @app.route('/terms_of_service')
 def terms_of_service():

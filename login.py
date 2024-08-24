@@ -3,11 +3,11 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 from models import User
+from flask import current_app
 from extensions import db
 import os
 
-auth_bp = Blueprint('auth_bp', __name__)  # Changed name to auth_bp
-
+auth_bp = Blueprint('auth_bp', __name__)  
 
 
 google_bp = make_google_blueprint(
@@ -44,7 +44,8 @@ def google_logged_in(blueprint, token):
         print(f"OAuth2Error: {str(e)}")
         return False
 
-@auth_bp.route('/login')  # Changed to auth_bp
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if not google.authorized:
         return redirect(url_for("google.login"))

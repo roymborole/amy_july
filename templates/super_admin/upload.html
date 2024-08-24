@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload Macroeconomic Analysis</h1>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".doc,.docx">
+    <input type="text" name="stock_ticker" placeholder="Stock Ticker">
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}

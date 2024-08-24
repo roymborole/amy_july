@@ -5,6 +5,15 @@ import base64
 import pandas as pd
 from comparison_ai_analysis import generate_comparison_summary
 
+def create_table_row_with_tooltip(label, value1, value2, tooltip):
+    return f"""
+    <tr>
+        <td><span data-tooltip="{tooltip}"><strong>{label}</strong></span></td>
+        <td>{value1}</td>
+        <td>{value2}</td>
+    </tr>
+    """
+
 def compare_assets(asset1, asset2):
     data1 = get_financial_data(asset1)
     data2 = get_financial_data(asset2)
@@ -58,28 +67,32 @@ def generate_key_statistics_table(comparison_data):
     table += f"<tr><th>Metric</th><th>{comparison_data['asset1']['asset_name']}</th><th>{comparison_data['asset2']['asset_name']}</th></tr>"
 
     metrics = [
-        ('previous_close', 'Previous Close'),
-        ('day_low', 'Day Range'),
-        ('year_low', '52 Week Range'),
-        ('avg_volume', 'Average Volume'),
-        ('pe_ratio', 'P/E Ratio'),
-        ('dividend_yield', 'Dividend Yield')
+        ('previous_close', 'Previous Close', "The stock's closing price from the previous trading day."),
+        ('day_low', 'Day Range', "The lowest and highest prices at which the stock has traded during the current trading day."),
+        ('year_low', '52 Week Range', "The lowest and highest prices at which the stock has traded over the past 52 weeks."),
+        ('avg_volume', 'Average Volume', "The average number of shares traded daily over a specific period, typically 30 days."),
+        ('pe_ratio', 'P/E Ratio', "Price-to-Earnings Ratio. A valuation ratio of a company's current share price compared to its earnings per share."),
+        ('dividend_yield', 'Dividend Yield', "The annual dividend payment as a percentage of the stock's current price.")
     ]
 
-    for key, display_name in metrics:
-        table += "<tr>"
-        table += f"<td>{display_name}</td>"
-        for asset in ['asset1', 'asset2']:
-            if key == 'day_low':
-                value = f"{format_value(comparison_data[asset].get('day_low', 'N/A'), key)} - {format_value(comparison_data[asset].get('day_high', 'N/A'), key)}"
-            elif key == 'year_low':
-                value = f"{format_value(comparison_data[asset].get('year_low', 'N/A'), key)} - {format_value(comparison_data[asset].get('year_high', 'N/A'), key)}"
-            elif key == 'dividend_yield':
-                value = format_value(comparison_data[asset].get(key, 'N/A'), key, percentage=True)
-            else:
-                value = format_value(comparison_data[asset].get(key, 'N/A'), key)
-            table += f"<td>{value}</td>"
-        table += "</tr>"
+    for key, display_name, tooltip in metrics:
+        value1 = comparison_data['asset1'].get(key, 'N/A')
+        value2 = comparison_data['asset2'].get(key, 'N/A')
+        
+        if key == 'day_low':
+            value1 = f"{format_value(comparison_data['asset1'].get('day_low', 'N/A'), key)} - {format_value(comparison_data['asset1'].get('day_high', 'N/A'), key)}"
+            value2 = f"{format_value(comparison_data['asset2'].get('day_low', 'N/A'), key)} - {format_value(comparison_data['asset2'].get('day_high', 'N/A'), key)}"
+        elif key == 'year_low':
+            value1 = f"{format_value(comparison_data['asset1'].get('year_low', 'N/A'), key)} - {format_value(comparison_data['asset1'].get('year_high', 'N/A'), key)}"
+            value2 = f"{format_value(comparison_data['asset2'].get('year_low', 'N/A'), key)} - {format_value(comparison_data['asset2'].get('year_high', 'N/A'), key)}"
+        elif key == 'dividend_yield':
+            value1 = format_value(value1, key, percentage=True)
+            value2 = format_value(value2, key, percentage=True)
+        else:
+            value1 = format_value(value1, key)
+            value2 = format_value(value2, key)
+        
+        table += create_table_row_with_tooltip(display_name, value1, value2, tooltip)
 
     table += "</table>"
     return table
@@ -266,7 +279,6 @@ def generate_performance_table(comparison_data):
     table += "</table>"
     return table
 
-
 def generate_table(title, metrics, comparison_data):
     table = f"<h3>{title}</h3>"
     table += "<table>"
@@ -275,15 +287,39 @@ def generate_table(title, metrics, comparison_data):
     else:
         table += f"<tr><th>Metric</th><th>{comparison_data['asset1']['asset_name']}</th><th>{comparison_data['asset2']['asset_name']}</th></tr>"
 
+    tooltips = {
+        'close_price': "The most recent closing price of the stock.",
+        'change_percent': "The percentage change in the stock's price since the previous trading day.",
+        'market_cap': "The total market value of a company's outstanding shares.",
+        'RSI': "Relative Strength Index: A momentum indicator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions.",
+        'SMA50': "50-day Simple Moving Average: The average closing price over the last 50 trading days.",
+        'SMA200': "200-day Simple Moving Average: The average closing price over the last 200 trading days.",
+        'UpperBand': "Upper Bollinger Band: Two standard deviations above the 20-day SMA.",
+        'LowerBand': "Lower Bollinger Band: Two standard deviations below the 20-day SMA.",
+        'SMA20': "20-day Simple Moving Average: The average closing price over the last 20 trading days.",
+        'Diluted EPS': "Diluted Earnings Per Share: A company's profit divided by its number of common shares outstanding.",
+        'Total Revenue': "The total amount of income generated by the sale of goods or services related to the company's primary operations.",
+        'Operating Revenue': "Revenue generated from a company's core business operations.",
+        'Basic EPS': "Basic Earnings Per Share: The portion of a company's profit allocated to each outstanding share of common stock.",
+        'Total Expenses': "The total costs incurred by a company in its operations.",
+        'Net Interest Income': "The difference between the revenue generated from a bank's assets and the expenses associated with paying its liabilities.",
+        'Interest Expense': "The cost incurred by a company for borrowed funds.",
+        'Interest Income': "The amount earned by an entity's investments in interest-bearing assets.",
+        'Net Income': "The company's total earnings or profit.",
+        'Normalized Income': "A company's economic performance adjusted for unusual, non-recurring or one-time influences."
+    }
+
     for metric in metrics:
         if isinstance(metric, tuple):
             key, display_name = metric
         else:
             key = display_name = metric
         
+        tooltip = tooltips.get(key, "")
+        
         if key in comparison_data['asset1'] and key in comparison_data['asset2']:
             table += "<tr>"
-            table += f"<td>{display_name}</td>"
+            table += f'<td><span data-tooltip="{tooltip}"><strong>{display_name}</strong></span></td>'
             value1 = comparison_data['asset1'][key]
             value2 = comparison_data['asset2'][key]
             table += f"<td>{format_value(value1, key)}</td>"

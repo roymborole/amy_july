@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Generate Macroeconomic Analysis</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="ticker">Enter Ticker:</label>
+            <input type="text" class="form-control" id="ticker" name="ticker" required pattern="[A-Z]+" title="Please enter the ticker in uppercase letters">
+        </div>
+        <button type="submit" class="btn btn-primary">Generate Analysis</button>
+    </form>
+</div>
+{% endblock %}

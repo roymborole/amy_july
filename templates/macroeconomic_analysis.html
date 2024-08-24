@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macroeconomic Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    </head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #FF69B4;
+            text-align: center;
+        }
+        #ticker-input {
+            margin-bottom: 10px;
+        }
+        #generate-button {
+            padding: 10px 20px;
+            background-color: #FF69B4;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #analysis-result {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+            }
+        
+            .modal-content {
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                max-width: 500px;
+                text-align: center;
+            }
+        
+            .loader {
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #FF69B4;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+                margin: 20px auto;
+            }
+        
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    </style>
+</head>
+<body>
+    <h1>Macroeconomic Analysis</h1>
+    
+    <input type="text" id="ticker-input" placeholder="Enter ticker symbol">
+    <button id="generate-button">Generate Analysis</button>
+    <ul id="company-list" class="text-center">
+    <h2> Companies you can search for - Please do not clikc on company name, please enter company name in box above </h2>
+        <li><a href="#" class="company-link" data-ticker="AIV">AIV (Apartment Investment & Management)</a></li>
+        <li><a href="#" class="company-link" data-ticker="APA">APA</a></li>
+        <li><a href="#" class="company-link" data-ticker="LCID">LCID</a></li>
+        <li><a href="#" class="company-link" data-ticker="LMT">LMT (Lockheed Martin)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MAR">MAR (Marriott)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MAT">MAT (Mattel)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MA">MA (Mastercard)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MCHP">MCHP (Microchip Technology)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MGM">MGM</a></li>
+        <li><a href="#" class="company-link" data-ticker="MNST">MNST (Monster Beverage)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MSFT">MSFT (Microsoft)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MS">MS (Morgan Stanley)</a></li>
+        <li><a href="#" class="company-link" data-ticker="MTB">MTB (M&T Bank)</a></li>
+        <li><a href="#" class="company-link" data-ticker="NFLX">NFLX (Netflix)</a></li>
+        <li><a href="#" class="company-link" data-ticker="SPOT">SPOT (Spotify)</a></li>
+        <li><a href="#" class="company-link" data-ticker="T">T (AT&T)</a></li>
+    </ul>
+
+
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+    </div>
+
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <h2>Generating Analysis</h2>
+            <p>Please wait while we crunch the numbers...</p>
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <div id="analysis-result"></div>
+
+    <script>
+        let performanceChart = null;
+        let priceChart = null;
+    
+        document.getElementById('generate-button').addEventListener('click', function() {
+            var ticker = document.getElementById('ticker-input').value;
+            if (!ticker) {
+                alert('Please enter a ticker symbol');
+                return;
+            }
+            document.getElementById('loadingModal').style.display = 'block';
+    
+            // Make AJAX request to generate macro analysis
+            fetch('/generate_macro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'ticker=' + encodeURIComponent(ticker)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading modal
+                document.getElementById('loadingModal').style.display = 'none';
+    
+                // Update the result div with the analysis
+                document.getElementById('analysis-result').innerHTML = data.analysis;
+    
+                // Create the performance chart
+                createPerformanceChart(data.performance);
+    
+                // Create the price chart
+                createPriceChart(data.price_history);
+            })
+            .catch(error => {
+                // Hide loading modal
+                document.getElementById('loadingModal').style.display = 'none';
+    
+                console.error('Error:', error);
+                document.getElementById('analysis-result').innerHTML = 'An error occurred while generating the analysis.';
+            });
+        });
+    
+        function createPerformanceChart(performanceData) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+    
+            const labels = Object.keys(performanceData);
+            const stockData = labels.map(key => performanceData[key].stock);
+            const sp500Data = labels.map(key => performanceData[key].sp500);
+    
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Stock',
+                            data: stockData,
+                            borderColor: 'rgba(255, 105, 180, 1)',
+                            backgroundColor: 'rgba(255, 105, 180, 0.2)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(255, 105, 180, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 105, 180, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'S&P 500',
+                            data: sp500Data,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Return (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Performance Overview'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    }
+                }
+            });
+        }
+    
+        function createPriceChart(priceData) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (priceChart) {
+                priceChart.destroy();
+            }
+    
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: priceData.dates,
+                    datasets: [{
+                        label: 'Price Change (%)',
+                        data: priceData.percentage_changes,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price Change (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Price History'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

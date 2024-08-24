@@ -861,3 +861,13 @@ body, h3 {
         max-width: 800px;
         margin: 0 auto 30px auto;
     }
+    .analysis-content {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }

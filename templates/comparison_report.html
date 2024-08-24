@@ -199,6 +199,7 @@
         }
     
         document.addEventListener('DOMContentLoaded', function() {
+            initializeTooltips();
             const emailBtn = document.getElementById('emailComparisonReportBtn');
             const emailOverlay = document.getElementById('emailOverlay');
             const sendingOverlay = document.getElementById('sendingOverlay');
@@ -245,6 +246,7 @@
                 emailOverlay.style.display = 'none';
             });
         });
+    
        
     </script>
 {% endblock %}
