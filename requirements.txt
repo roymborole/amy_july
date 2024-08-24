@@ -176,5 +176,4 @@ celery==5.2.7
 Pdfkit
 PyPDF2
 Pandas
-Pythondocx
 redis==4.5.5
