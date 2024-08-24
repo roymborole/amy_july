@@ -2,4 +2,4 @@ echo ".env" >> .gitignore
 echo ".DS_Store" >> .gitignore
 __pycache__/
 *.pyc
-echo ".env" >> .gitignore
+echo ".env" >> .gitignorevenv/
