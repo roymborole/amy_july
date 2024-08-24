@@ -1,0 +1,93 @@
+Here is the macroeconomic analysis for Marriott International Inc. for the second quarter of 2024:
+
+{2024 Q2} Macroeconomic Analysis for Marriott International Inc.  
+Date: July 31, 2024
+
+Revenue figures:
+- Total revenues: $6,439 million 
+- Base management fees: $330 million
+- Franchise fees: $818 million  
+- Incentive management fees: $195 million
+- Owned, leased and other revenue: $395 million
+- Cost reimbursement revenue: $4,728 million
+
+Earnings per Share (EPS):  
+- Basic EPS: $2.70
+- Diluted EPS: $2.69
+
+Gross Profit and Gross Margin:
+- Gross profit: $1,498 million (revenues of $6,439 million - owned/leased direct expenses of $296 million - reimbursed expenses of $4,645 million)
+- Gross margin: 23.3% (gross profit of $1,498 million / revenues of $6,439 million)  
+
+Operating Income/Loss: 
+- Operating income: $1,195 million
+
+Net Income/Loss:
+- Net income: $772 million  
+
+Cash Flow Statement:
+- Net cash provided by operating activities: $1,551 million
+- Net cash used in investing activities: $225 million
+- Net cash used in financing activities: $1,322 million
+
+Balance Sheet items:
+- Cash and equivalents: $349 million
+- Accounts receivable, net: $2,847 million  
+- Property and equipment, net: $1,558 million
+- Goodwill: $8,783 million
+- Accounts payable: $826 million
+- Accrued expenses and other current liabilities: $7,457 million 
+- Long-term debt (including current portion): $13,143 million
+
+Accounts Receivable and Payable:
+- Accounts receivable, net: $2,847 million
+- Accounts payable: $826 million
+
+Inventory levels: Not provided (Marriott is a service company)
+
+Capital Expenditures (CapEx): $234 million for the first half of 2024
+
+Research and Development (R&D) expenses: Not provided
+
+Selling, General and Administrative (SG&A) expenses: 
+- General, administrative and other: $248 million
+
+Debt levels and changes:
+- Total long-term debt, including current portion: $13,143 million
+- Increase of $1,270 million from year-end 2023, primarily due to new debt issuances
+
+Guidance/Forward-Looking Statements:
+- Expected full year 2024 net rooms growth of 5.5% to 6.0%
+- Expected 2024 capital expenditures of $1.0 billion to $1.2 billion
+
+Segment Information: Provided for U.S. & Canada, EMEA, Greater China, APEC reportable segments
+
+Share Repurchases/Issuances:  
+- Repurchased 4.1 million shares for $1.0 billion in Q2 2024
+- Year-to-date through July 29, 2024, repurchased 10.4 million shares for $2.5 billion
+
+Dividend Information:
+- Declared quarterly cash dividends of $0.52 per share paid on March 29, 2024
+- Declared quarterly cash dividend of $0.63 per share paid on June 28, 2024
+
+Management Discussion & Analysis:
+- Solid global RevPAR growth of 4.9% in Q2 2024 vs Q2 2023, driven by ADR growth and occupancy improvement
+- Increase in revenues driven by higher RevPAR, unit growth, and higher non-RevPAR franchise fees
+- General and administrative expenses increased due to higher compensation costs
+- Interest expense increased due to higher debt balances from new issuances
+- Continuing legal expenses related to 2018 data security incident
+
+Key highlights:
+- Revenue increased 6% driven by RevPAR growth and unit expansion 
+- EPS increased to $2.69 from $2.38 in Q2 2023
+- Net income grew 6% to $772 million
+- Global RevPAR increased 4.9% with ADR up 2.6% and occupancy up 1.6 pts
+- Added 61,300 net rooms in first half of 2024
+- Repurchased $2.5 billion in shares year-to-date
+- Increased quarterly dividend to $0.63 per share
+
+I did not find any clear signs of illegal or irregular behavior mentioned in the report. The company is facing some ongoing legal proceedings related to a 2018 data security incident, but it is managing and disclosing those appropriately.
+
+There does seem to be a correlation between the company's performance metrics like RevPAR, revenues, net income, and its stock price/valuation, though the stock price is not explicitly provided. The solid operating results and earnings growth likely supported the stock price.
+
+Let me know if you need any clarification or have additional questions!
