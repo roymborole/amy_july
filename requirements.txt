@@ -3,7 +3,7 @@ aiohttp==3.9.5
 aiohttp-retry==2.8.3
 aiosignal==1.3.1
 alembic==1.13.2
-alpha-vantage==2.3.1
+alpha-vantage
 altair==5.3.0
 amqp==5.2.0
 annotated-types==0.7.0
@@ -245,7 +245,7 @@ referencing==0.35.1
 regex==2024.5.15
 render==1.0.0
 replit==4.0.0
-requests==2.26.0
+requests>=2.31.0
 requests-file==2.1.0
 requests-html==0.10.0
 requests-oauthlib==2.0.0
