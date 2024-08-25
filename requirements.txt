@@ -178,3 +178,4 @@ PyPDF2
 Pandas
 Docx
 redis==4.5.5
+python-docx==0.8.11
