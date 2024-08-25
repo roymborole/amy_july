@@ -3,3 +3,4 @@ echo ".DS_Store" >> .gitignore
 __pycache__/
 *.pyc
 echo ".env" >> .gitignorevenv/
+venv/
