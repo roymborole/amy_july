@@ -4,7 +4,7 @@ from financial_analysis import get_financial_data
 from crypto_analysis import get_crypto_data, crypto_mapping
 from ai_analysis import get_analysis_report
 from visualization import create_chart
-from flask import Flask, request, render_template, jsonify, redirect, url_for, send_from_directory
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory, current_app
 from crypto_prediction import run_crypto_prediction
 from crypto_analysis import get_crypto_data, crypto_mapping
 from crypto_ai_analysis import get_crypto_analysis_report
@@ -17,7 +17,6 @@ from rabbitmq_config import get_rabbitmq_connection, get_channel
 import smtplib
 from email.mime.text import MIMEText
 from markupsafe import Markup
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory, current_app
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from werkzeug.middleware.proxy_fix import ProxyFix
