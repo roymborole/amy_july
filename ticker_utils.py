@@ -1,4 +1,3 @@
-# ticker_utils.py
 
 import yfinance as yf
 from fuzzywuzzy import process

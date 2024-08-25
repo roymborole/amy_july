@@ -21,6 +21,7 @@ astunparse==1.6.3
 async-lru==2.0.4
 attrs==23.2.0
 Automat==22.10.0
+PyPDF2
 aws==0.2.5
 Babel==2.15.0
 bcrypt==4.1.3
