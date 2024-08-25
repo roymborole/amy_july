@@ -98,14 +98,13 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
     app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['result_backend'] = 'redis://:**@redis-10027.c328.europe-west3-1.gce.redns.redis-cloud.com:10027/0'
 
 
     redis_url = get_redis_url()
     
     app.config.update(
         CELERY_BROKER_URL=redis_url,
-        CELERY_RESULT_BACKEND=redis_url,
         broker_url=redis_url,
         result_backend=redis_url
     )
@@ -367,21 +366,30 @@ def generate_macro_analysis_route(ticker):
 
 @app.route('/generate_macro', methods=['POST'])
 def generate_macro():
-    ticker = request.form['ticker'].upper()
-    app.logger.info(f"Generating macroeconomic analysis for ticker: {ticker}")
-
     try:
+        # Check if the request is JSON or form data
+        if request.is_json:
+            ticker = request.json.get('ticker', '').upper()
+        else:
+            ticker = request.form.get('ticker', '').upper()
+
+        if not ticker:
+            app.logger.error("No ticker provided")
+            return jsonify({'error': "No ticker provided"}), 400
+
+        app.logger.info(f"Generating macroeconomic analysis for ticker: {ticker}")
+
         # Get financial data
         financial_data = get_financial_data(ticker)
         if not financial_data:
             app.logger.error(f"Failed to retrieve financial data for {ticker}")
-            return jsonify({'error': f"Unable to retrieve financial data for {ticker}"}), 400
+            return jsonify({'error': f"Unable to retrieve financial data for {ticker}"}), 404
 
         # Generate macroeconomic analysis
         analysis, error = generate_macroeconomic_analysis(ticker)
         if error:
             app.logger.error(f"Error generating macroeconomic analysis for {ticker}: {error}")
-            return jsonify({'error': error}), 400
+            return jsonify({'error': error}), 500
 
         # Get performance data and price history
         performance_data = financial_data.get('performance', {})
