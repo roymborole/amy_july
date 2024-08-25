@@ -71,7 +71,6 @@ from extensions import init_extensions, init_celery, make_celery, get_redis_url
 from company_data import COMPANIES
 from flask import send_file, make_response, request, current_app
 import pdfkit
-import logging
 from werkzeug.utils import secure_filename
 import os
 import pandas as pd
