@@ -101,7 +101,9 @@ def create_app():
     app.config['result_backend'] = 'redis://:**@redis-10027.c328.europe-west3-1.gce.redns.redis-cloud.com:10027/0'
 
 
-    redis_url = get_redis_url()
+
+    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+    celery = Celery('tasks', broker=redis_url, backend=redis_url)
     
     app.config.update(
         CELERY_BROKER_URL=redis_url,
