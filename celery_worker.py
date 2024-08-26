@@ -1,11 +1,12 @@
+
 from extensions import celery
 from weekly_reports import process_weekly_reports
 
 @celery.task
 def send_weekly_reports():
     process_weekly_reports()
+pass
 
-# If you want to schedule the task periodically, add this:
 from celery.schedules import crontab
 
 @celery.on_after_configure.connect
@@ -15,3 +16,4 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour=7, minute=30, day_of_week=1),
         send_weekly_reports.s(),
     )
+

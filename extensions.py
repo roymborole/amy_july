@@ -7,6 +7,7 @@ from celery import Celery
 
 db = SQLAlchemy()
 migrate = Migrate()
+celery = Celery()
 
 # Redis connection
 redis_host = os.getenv('REDIS_HOST', 'localhost')
@@ -36,6 +37,8 @@ def init_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
 
+celery = Celery(__name__)
+
 def init_celery(app):
     celery.conf.update(app.config)
 
@@ -45,6 +48,21 @@ def init_celery(app):
                 return self.run(*args, **kwargs)
 
     celery.Task = ContextTask
+    return celery
+
+redis_client = None
+
+def init_redis(app):
+    global redis_client
+    redis_url = app.config.get('REDIS_URL')
+    if redis_url:
+        redis_client = redis.from_url(redis_url)
+    else:
+        raise ValueError("REDIS_URL not set in configuration")
+
+def create_celery_app(app):
+    celery.main = app.import_name
+    return celery
 
 def make_celery(app):
     celery = Celery(

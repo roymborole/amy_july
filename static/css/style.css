@@ -419,6 +419,16 @@ body, h3 {
 .compare-btn {
     margin-top: 10px;
 }
+
+.white-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .modal-backdrop {
     z-index: 1040 !important;
 }

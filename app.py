@@ -4,7 +4,7 @@ from financial_analysis import get_financial_data
 from crypto_analysis import get_crypto_data, crypto_mapping
 from ai_analysis import get_analysis_report
 from visualization import create_chart
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory, current_app
+from flask import Flask, request, render_template, jsonify, redirect, url_for, send_from_directory
 from crypto_prediction import run_crypto_prediction
 from crypto_analysis import get_crypto_data, crypto_mapping
 from crypto_ai_analysis import get_crypto_analysis_report
@@ -17,6 +17,7 @@ from rabbitmq_config import get_rabbitmq_connection, get_channel
 import smtplib
 from email.mime.text import MIMEText
 from markupsafe import Markup
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory, current_app
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -70,10 +71,12 @@ from extensions import init_extensions, init_celery, make_celery, get_redis_url
 from company_data import COMPANIES
 from flask import send_file, make_response, request, current_app
 import pdfkit
+import logging
 from werkzeug.utils import secure_filename
 import os
 import pandas as pd
 from macroeconomic_analysis import generate_macroeconomic_analysis, save_macroeconomic_analysis, get_available_macro_analyses
+import traceback
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -98,15 +101,14 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
     app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    app.config['result_backend'] = 'redis://:**@redis-10027.c328.europe-west3-1.gce.redns.redis-cloud.com:10027/0'
+    app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
 
-
-    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
-    celery = Celery('tasks', broker=redis_url, backend=redis_url)
+    redis_url = get_redis_url()
     
     app.config.update(
         CELERY_BROKER_URL=redis_url,
+        CELERY_RESULT_BACKEND=redis_url,
         broker_url=redis_url,
         result_backend=redis_url
     )
@@ -365,33 +367,27 @@ def generate_macro_analysis_route(ticker):
         'historical_data': historical_data,
         'financial_data': financial_data
     })
-
 @app.route('/generate_macro', methods=['POST'])
 def generate_macro():
+    ticker = request.form['ticker'].upper()
+    app.logger.info(f"Generating macroeconomic analysis for ticker: {ticker}")
+
     try:
-        # Check if the request is JSON or form data
-        if request.is_json:
-            ticker = request.json.get('ticker', '').upper()
-        else:
-            ticker = request.form.get('ticker', '').upper()
-
-        if not ticker:
-            app.logger.error("No ticker provided")
-            return jsonify({'error': "No ticker provided"}), 400
-
-        app.logger.info(f"Generating macroeconomic analysis for ticker: {ticker}")
-
         # Get financial data
         financial_data = get_financial_data(ticker)
+        app.logger.info(f"Financial data retrieved: {financial_data}")
+
         if not financial_data:
             app.logger.error(f"Failed to retrieve financial data for {ticker}")
-            return jsonify({'error': f"Unable to retrieve financial data for {ticker}"}), 404
+            return jsonify({'error': f"Unable to retrieve financial data for {ticker}"}), 400
 
         # Generate macroeconomic analysis
         analysis, error = generate_macroeconomic_analysis(ticker)
+        app.logger.info(f"Analysis generated: {analysis[:100]}...")  # Log first 100 chars of analysis
+
         if error:
             app.logger.error(f"Error generating macroeconomic analysis for {ticker}: {error}")
-            return jsonify({'error': error}), 500
+            return jsonify({'error': error}), 400
 
         # Get performance data and price history
         performance_data = financial_data.get('performance', {})
@@ -406,7 +402,7 @@ def generate_macro():
 
     except Exception as e:
         app.logger.exception(f"Unexpected error during macro generation for {ticker}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
     
 @app.route('/macroeconomic_analysis')
 def macroeconomic_analysis():
