@@ -329,4 +329,6 @@ yarl==1.9.4
 yfinance==0.2.40
 zipp==3.19.2
 zope.interface==7.0.1
+aiofiles
+flask[async]
 Hypercorn==0.17.3

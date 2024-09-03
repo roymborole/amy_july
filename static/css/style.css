@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Anton:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Agdisma:wght@300;400;700&display=swap');
 @keyframes rotate {
     0% {
         transform: rotate(0deg);
@@ -34,8 +35,12 @@
     }
 }
 
+.left-justified {
+    text-align: left;
+}
+
 body {
-    font-family: Roboto, sans-serif;
+    font-family: Agdisma, sans-serif;
     margin: 0;
     padding: 0;
     background-color: rgba(0, 0, 0, 0.408);
@@ -81,7 +86,20 @@ nav a {
     color: #ffffff;
 }
 
+H1 {
+    font-family: 'Anton', sans-serif;
 
+}
+
+H3 {
+    font-family: 'Anton', sans-serif;
+
+}
+
+H2 {
+    font-family: 'Anton', sans-serif;
+
+}
 
 .main-content {
     display: flex;
@@ -197,32 +215,42 @@ body {
     white-space: nowrap; /* Prevent text from wrapping inside the button */
 }
 .btn-email {
-    background-color: #FF69B4; /* Bright pink */
+    background-color: #FF69B4; 
     color: white;
 }
 .btn-prediction {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50; 
     color: white;
 }
 .btn-news {
-    background-color: #FFC0CB; /* Light pink */
+    background-color: #FFC0CB; 
     color: black;
 }
 .btn-subscribe {
-    background-color: #800080; /* Purple */
+    background-color: #800080; 
     color: white;
 }
 .btn:hover {
     opacity: 0.8;
 }
-/* Add these new styles */
+
 .report-container {
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgb(238, 238, 238);
     color: #2b2626;
     border-radius: 10px;
+    text-align: left;
+ 
+}
+
+.ai-analysis {
+    text-align: left;
+}
+
+.ai_generated_content{
+    text-align: left;
 }
 
 .report-content {
@@ -231,6 +259,10 @@ body {
 
 .text-center {
     text-align: center;
+}
+
+.left-justified .text-center:not(.button-container):not(.pink-heading) {
+    text-align: left;
 }
 
 .performance-table {
@@ -274,8 +306,8 @@ body {
 }
 
 #lottie-container {
-    width: 400px;
-    height: 400px;
+    width: 700px;
+    height: 700px;
     margin: 0 auto;
 }
 
@@ -294,7 +326,7 @@ body {
     background-color: #f2f2f2;
 }
 .text-center {
-    text-align: center;
+    text-align: left;
 }.chart {
     max-width: 100%;
     height: auto;
@@ -328,7 +360,7 @@ body {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
-    justify-content: center;
+    justify-content:left;
     align-items: center;
     z-index: 1000;
 }
@@ -370,7 +402,7 @@ body {
 }
 
 body, h3 {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Agdasima', sans-serif;
 }
 
 
@@ -507,7 +539,7 @@ body, h3 {
     margin: 0 auto;
 }
 .report-container {
-    text-align: center;
+    text-align: left;
 }
 .news-summary {
     text-align: left;

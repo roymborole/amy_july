@@ -77,6 +77,8 @@ import os
 import pandas as pd
 from macroeconomic_analysis import generate_macroeconomic_analysis, save_macroeconomic_analysis, get_available_macro_analyses
 import traceback
+import asyncio
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -329,44 +331,65 @@ def upload_macro():
 
     return render_template('upload_macro.html')
 
+@app.route('/stock_reports')
+def stock_reports():
+    return render_template('netflix_style.html')
+
+@app.route('/netflix_style')
+def netflix_style():
+    stocks = [
+        {'name': 'Facebook', 'ticker': 'FB', 'image': 'facebook_logo.png'},
+        {'name': 'Tesla', 'ticker': 'TSLA', 'image': 'tesla_logo.png'},
+        {'name': 'Spotify', 'ticker': 'SPOT', 'image': 'spotify_logo.png'},
+        {'name': 'Microsoft', 'ticker': 'MSFT', 'image': 'microsoft_logo.png'},
+        {'name': 'Amazon', 'ticker': 'AMZN', 'image': 'amazon_logo.png'},
+        {'name': 'Apple', 'ticker': 'AAPL', 'image': 'apple_logo.png'},
+    ]
+    return render_template('netflix_style.html', stocks=stocks)
+
 @app.route('/macro_boomin')
 def macro_boomin():
     companies = get_available_macro_analyses()
     return render_template('macro_boomin.html', companies=companies)
 
-def handle_nan(obj):
-    if isinstance(obj, (np.float, np.integer)):
-        return None if np.isnan(obj) else obj
-    elif isinstance(obj, dict):
-        return {k: handle_nan(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [handle_nan(v) for v in obj]
-    return obj
-
+def handle_nan(data):
+    if isinstance(data, dict):
+        return {k: handle_nan(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [handle_nan(v) for v in data]
+    elif isinstance(data, float) and np.isnan(data):
+        return None
+    else:
+        return data
 @app.route('/generate_macro_analysis/<ticker>')
 def generate_macro_analysis_route(ticker):
-    analysis, error = generate_macroeconomic_analysis(ticker)
-    if error:
-        return jsonify({'error': str(error)})
-    
-    financial_data = get_financial_data(ticker)
-    if not financial_data:
-        return jsonify({'error': 'Unable to fetch financial data', 'analysis': analysis})
-    
-    historical_data = financial_data.get('historical_data')
-    if isinstance(historical_data, pd.DataFrame) and not historical_data.empty:
-        historical_data = historical_data.reset_index().replace({np.nan: None}).to_dict('records')
-    else:
-        historical_data = []
-    
-    # Handle NaN values in the entire financial_data dictionary
-    financial_data = handle_nan(financial_data)
-    
-    return jsonify({
-        'analysis': analysis,
-        'historical_data': historical_data,
-        'financial_data': financial_data
-    })
+    try:
+        analysis, error = generate_macroeconomic_analysis(ticker)
+        if error:
+            return jsonify({'error': str(error)})
+        
+        financial_data = get_financial_data(ticker)
+        if not financial_data:
+            return jsonify({'error': 'Unable to fetch financial data', 'analysis': analysis})
+        
+        historical_data = financial_data.get('historical_data')
+        if isinstance(historical_data, pd.DataFrame) and not historical_data.empty:
+            historical_data = historical_data.reset_index().replace({np.nan: None}).to_dict('records')
+        else:
+            historical_data = []
+        
+        # Handle NaN values in the entire financial_data dictionary
+        financial_data = handle_nan(financial_data)
+        
+        return jsonify({
+            'analysis': analysis,
+            'historical_data': historical_data,
+            'financial_data': financial_data
+        })
+    except Exception as e:
+        app.logger.exception(f"Unexpected error during macro analysis for {ticker}")
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
 @app.route('/generate_macro', methods=['POST'])
 def generate_macro():
     ticker = request.form['ticker'].upper()
@@ -750,19 +773,40 @@ def check_report(name_or_ticker):
 
 @app.route('/report/<name_or_ticker>')
 def display_report(name_or_ticker):
-    if name_or_ticker not in generated_reports:
-        return render_template('error.html', message=f"Report for {name_or_ticker} not found. Please try generating the report again.")
-    
-    report_data = generated_reports[name_or_ticker]
-    if 'error' in report_data:
-        return render_template('error.html', message=report_data['error'])
-    
-    
+    if name_or_ticker.lower() in crypto_mapping:
+        raw_data = get_crypto_data(name_or_ticker)
+    else:
+        raw_data = get_financial_data(name_or_ticker)
+
+    if not raw_data:
+        return render_template('error.html', message=f"Unable to fetch data for {name_or_ticker}. Please check the input and try again.")
+
+    charts = {}
+    if 'historical_data' in raw_data:
+        charts = {
+            'price_sma': create_chart(raw_data['historical_data'], 'price_sma', name_or_ticker),
+            'rsi': create_chart(raw_data['historical_data'], 'rsi', name_or_ticker),
+            'bollinger': create_chart(raw_data['historical_data'], 'bollinger', name_or_ticker)
+        }
+    else:
+        print("No historical data available for charts")
+
+    report_content = get_analysis_report(raw_data, raw_data['asset_name'])
+
+    for chart_type, chart_data in charts.items():
+        placeholder = f'[{chart_type.upper()}_CHART]'
+        chart_html = f'<img src="data:image/png;base64,{chart_data}" alt="{chart_type} chart" class="chart">'
+        report_content = report_content.replace(placeholder, chart_html)
+
+   
+    header2_url = url_for('static', filename='Header2.png')
+    report_content += f'\n<img src="{header2_url}" alt="Header 2" class="header-image">'
+
     return render_template('report.html', 
-                           asset_name=report_data['asset_name'],
-                           raw_data=report_data['raw_data'],
-                           charts=report_data['charts'],
-                           report_content=report_data['report_content'])
+                           asset_name=raw_data['asset_name'],
+                           raw_data=raw_data,
+                           charts=charts,
+                           report_content=report_content)
     
 @app.route('/process_report/<name_or_ticker>')
 def process_report(name_or_ticker):

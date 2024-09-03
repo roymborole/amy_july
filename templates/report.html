@@ -4,6 +4,8 @@
 <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/tooltips.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Anton:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css">
 <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
 {% endblock %}
 {% block content %}
@@ -31,7 +33,6 @@
     <button onclick="compareAsset()" class="btn btn-info">Compare with Another Asset</button>
     <button onclick="subscribeToReports()" class="btn btn-success">Subscribe to Weekly Reports</button>
     <button onclick="newSearch()" class="btn btn-secondary">New Search</button>
-    <button onclick="exportToPDF()"class="btn btn-danger">Export to PDF</button>
 
 </div>
 
@@ -47,15 +48,15 @@
                     <table>
                         <tr>
                             <td><span data-tooltip="The stock's closing price from the previous trading day."><strong>Previous Close</strong></span></td>
-                            <td>${{ "{:.2f}".format(raw_data.previous_close) if raw_data.previous_close is not none else 'N/A' }}</td>
+                            <td>{{ raw_data.previous_close if raw_data.previous_close is not none else 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td><span data-tooltip="The lowest and highest prices at which the stock has traded during the current trading day."><strong>Day Range</strong></span></td>
-                            <td>{% if raw_data.day_low is not none and raw_data.day_high is not none %} ${{ "{:.2f}".format(raw_data.day_low) }} - ${{ "{:.2f}".format(raw_data.day_high) }} {% else %} N/A {% endif %}</td>
+                            <td>{{ raw_data.day_low if raw_data.day_low is not none else 'N/A' }}</td><td>{{ raw_data.day_high if raw_data.day_high is not none else 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td><span data-tooltip="The lowest and highest prices at which the stock has traded over the past 52 weeks."><strong>52 Week Range</strong></span></td>
-                            <td>{% if raw_data.year_low is not none and raw_data.year_high is not none %} ${{ "{:.2f}".format(raw_data.year_low) }} - ${{ "{:.2f}".format(raw_data.year_high) }} {% else %} N/A {% endif %}</td>
+                            <td>{{ raw_data.year_low if raw_data.year_low is not none else 'N/A' }}</td><td>{{ raw_data.year_high if raw_data.year_high is not none else 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td><span data-tooltip="The average number of shares traded daily over a specific period, typically 30 days."><strong>Average Volume</strong></span></td>
@@ -178,37 +179,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function exportToPDF() {
-            // Get the current URL path
-            var path = window.location.pathname;
+            const htmlContent = document.documentElement.outerHTML;
+            const baseUrl = window.location.origin;
             
-            // Determine which report we're exporting
-            var reportType = path.includes('comparison') ? 'comparison' : 'individual';
-            
-            // Make an AJAX request to the server
-            fetch('/export-pdf/' + reportType, {
+            fetch('/export-pdf', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    url: window.location.href
-                })
+                body: JSON.stringify({ html: htmlContent }),
             })
             .then(response => response.blob())
             .then(blob => {
-                // Create a link element and trigger download
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = reportType + '_report.pdf';
+                a.download = 'report.pdf';
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
             })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+            .catch(error => console.error('Error:', error));
         }
         
         function openEmailOverlay() {

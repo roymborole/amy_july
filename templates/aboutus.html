@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - 100x</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
 </head> 
 {% endblock %}
 {% block styles %}
@@ -13,7 +14,6 @@
 </style>
 {% endblock %}
 {% block content %}
-
 <div>
     <div class="header">
         <div class="logo logo-mini">
@@ -31,7 +31,7 @@
 <div class="container report-container" style="text-align: center;">
     <h1>Welcome to 100x</h1>
 
-    <div id="lottie-container" style="width: 400px; height: 400px;"></div>
+    <div id="lottie-container"></div>
 
     <div class="container">
 
@@ -49,25 +49,7 @@
         <a href="#"><img src="{{ url_for('static', filename='images/medium-logo.png') }}" alt="Medium"></a>
     </div>
 </div>
-
-{% endblock %}
-{% block footer %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <p>© 2024 100x Club. All rights reserved - Made with code and ♥️ in Kingdom of Mapungubwe</p>
-            <p><a href="{{ url_for('privacy_policy') }}" class="text-muted">Privacy Policy</a> | <a href="{{ url_for('terms_of_service') }}" class="text-muted">Terms of Service</a></p>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-    {{ super() }}
     <script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
-    <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
-       
     document.addEventListener('DOMContentLoaded', function() {
             SearchModule.init('search-container');
         });
@@ -82,5 +64,14 @@
             });
         });
     </script>
-
+{% endblock %}
+{% block footer %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p>© 2024 100x Club. All rights reserved - Made with code and ♥️ in Kingdom of Mapungubwe</p>
+            <p><a href="{{ url_for('privacy_policy') }}" class="text-muted">Privacy Policy</a> | <a href="{{ url_for('terms_of_service') }}" class="text-muted">Terms of Service</a></p>
+        </div>
+    </div>
+</div>
 {% endblock %}

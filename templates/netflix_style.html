@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="contain">
+    <div class="slider">
+        <h3>Stock Reports</h3>
+        <div class="handle handlePrev active" onmouseover="scrollEsquerda()" onmouseout="clearScroll()">
+            <i class="fa fa-chevron-left"></i>
+        </div>
+        <div id="scroller" class="row">
+            <div class="row__inner">
+                <!-- Facebook -->
+                <div class="gui-card" onclick="window.location.href='{{ url_for('display_report', name_or_ticker='FB') }}';">
+                    <div class="gui-card__media">
+                        <img class="gui-card__img" src="{{ url_for('static', filename='images/facebook.jpg') }}" alt="Facebook">
+                    </div>
+                    <div class="gui-card__details">
+                        <div class="gui-card__title">
+                            Facebook (FB)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tesla -->
+                <div class="gui-card" onclick="window.location.href='{{ url_for('display_report', name_or_ticker='TSLA') }}';">
+                    <div class="gui-card__media">
+                        <img class="gui-card__img" src="{{ url_for('static', filename='images/tesla.jpg') }}" alt="Tesla">
+                    </div>
+                    <div class="gui-card__details">
+                        <div class="gui-card__title">
+                            Tesla (TSLA)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spotify -->
+                <div class="gui-card" onclick="window.location.href='{{ url_for('display_report', name_or_ticker='SPOT') }}';">
+                    <div class="gui-card__media">
+                        <img class="gui-card__img" src="{{ url_for('static', filename='images/spotify.jpg') }}" alt="Spotify">
+                    </div>
+                    <div class="gui-card__details">
+                        <div class="gui-card__title">
+                            Spotify (SPOT)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Microsoft -->
+                <div class="gui-card" onclick="window.location.href='{{ url_for('display_report', name_or_ticker='MSFT') }}';">
+                    <div class="gui-card__media">
+                        <img class="gui-card__img" src="{{ url_for('static', filename='images/microsoft.jpg') }}" alt="Microsoft">
+                    </div>
+                    <div class="gui-card__details">
+                        <div class="gui-card__title">
+                            Microsoft (MSFT)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amazon -->
+                <div class="gui-card" onclick="window.location.href='{{ url_for('display_report', name_or_ticker='AMZN') }}';">
+                    <div class="gui-card__media">
+                        <img class="gui-card__img" src="{{ url_for('static', filename='images/amazon.jpg') }}" alt="Amazon">
+                    </div>
+                    <div class="gui-card__details">
+                        <div class="gui-card__title">
+                            Amazon (AMZN)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apple -->
+                <div class="gui-card" onclick="window.location.href='{{ url_for('display_report', name_or_ticker='AAPL') }}';">
+                    <div class="gui-card__media">
+                        <img class="gui-card__img" src="{{ url_for('static', filename='images/apple.jpg') }}" alt="Apple">
+                    </div>
+                    <div class="gui-card__details">
+                        <div class="gui-card__title">
+                            Apple (AAPL)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="handle handleNext active" onmouseover="scrollDireita()" onmouseout="clearScroll()">
+            <i class="fa fa-chevron-right"></i>
+        </div>
+    </div>
+</div>
+{% endblock %}
