@@ -30,7 +30,7 @@
             <button onclick="newSearch()" class="btn btn-secondary">New Search</button>
         </div>
 
-        <div class="report-content">
+        <div class="report-content left-justified">
             {{ report_content|safe }}
         </div>
     </div>
@@ -66,7 +66,9 @@
 <style>
     .report-container h1, .report-container h2, .report-container h3, .report-container h4 {
         color: #FF69B4;
+        text-align: left;
     }
+
     .button-container {
         margin-bottom: 20px;
     }

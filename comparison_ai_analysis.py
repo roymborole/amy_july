@@ -42,6 +42,9 @@ def generate_comparison_summary(comparison_data):
     human_prompt = f"""Take a deep breath and carefully consider my request. Compare the following two stocks: {asset1['asset_name']} and {asset2['asset_name']}.
     Provide an insightful and analytical summary of the comparison, focusing on highlighting the differences in performance between the two stocks. The summary should not exceed 900 words. Do not start the analysis with the text "Here is a comparison" rather open with a casual but witty tone.
 
+Please create the following headings for the analysis: Technical Analysis, Financial Analysis, and Investment Outlook. Highlight performance differences, technical indicators, and how they compare to the S&P 500. Include insights on potential reasons for any significant differences and what these differences might indicate about the stocks' future performance.
+
+  
     {asset1['asset_name']} Data:
     Close Price: {asset1['close_price']}
     Change Percent: {asset1['change_percent']}%
@@ -69,7 +72,20 @@ def generate_comparison_summary(comparison_data):
     1-Year Return: {asset1['performance']['1-Year']['sp500']}%
     3-Year Return: {asset1['performance']['3-Year']['sp500']}%
 
-    Highlight performance differences, technical indicators, and how they compare to the S&P 500. Include insights on potential reasons for any significant differences and what these differences might indicate about the stocks' future performance. Lastly, do not use jargon, and explain complex concepts when they appear."""
+    Include the following sections:
+    Overview: Introduce the stock and provide a brief background on the company. (Do not Print Heading)
+    Technical Analysis: (Do not Print Heading)
+       - Simple Moving Averages (50-day and 200-day)
+       - Relative Strength Index (RSI)
+       - Bollinger Bands
+    Financial Analysis: Discuss the provided financial indicators: Market Cap, Operating Revenue, Total Expenses, Interest Expense, Interest Income, Basic EPS, Net Income
+    Summary: Synthesize insights from all indicators.
+    Investment Outlook: Based on the technical and financial analysis.
+
+    Format the report with appropriate HTML structure.
+
+    
+Please ensure that the content under each heading is substantive and relevant to that section. Lastly, do not use jargon, and explain complex concepts when they appear.Highlight performance differences, technical indicators, and how they compare to the S&P 500. Include insights on potential reasons for any significant differences and what these differences might indicate about the stocks' future performance. Lastly, do not use jargon, and explain complex concepts when they appear."""
 
     try:
         message = client.messages.create(

@@ -98,7 +98,7 @@ H3 {
 
 H2 {
     font-family: 'Anton', sans-serif;
-
+    text-align: left;
 }
 
 .main-content {
@@ -249,9 +249,25 @@ body {
     text-align: left;
 }
 
+.ai-summary {
+    text-align: left;
+}
+
 .ai_generated_content{
     text-align: left;
 }
+
+.left-justified {
+    text-align: left;
+}
+
+.report-content h2 {
+    color: #FF69B4; 
+    margin-top: 30px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
 
 .report-content {
     text-align: left;
