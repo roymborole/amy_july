@@ -8,7 +8,9 @@ from io import BytesIO
 import pandas as pd
 
 def create_chart(data, chart_type, ticker):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6), facecolor='none')
+    ax = plt.axes()
+    ax.set_facecolor('none')
     
     if isinstance(data, pd.DataFrame):
         df = data
@@ -42,18 +44,23 @@ def create_chart(data, chart_type, ticker):
         plt.title(f'{ticker} Bollinger Bands')
     
     plt.legend()
-    plt.xlabel('Date')
-    plt.ylabel('Price' if chart_type != 'rsi' else 'RSI')
+
+    plt.grid(color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+    plt.tick_params(colors='gray')
+    plt.xlabel('Date', color='gray')
+    plt.ylabel('Price' if chart_type != 'rsi' else 'RSI', color='gray')
     
     img = BytesIO()
-    plt.savefig(img, format='png')
+    plt.savefig(img, format='png', transparent=True)
     img.seek(0)
     plt.close()
     return base64.b64encode(img.getvalue()).decode()
 
 def create_comparison_chart(data1, data2, column, name1, name2):
     if isinstance(data1.get(column), pd.Series) and isinstance(data2.get(column), pd.Series):
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10, 6), facecolor='none')
+        ax = plt.axes()
+        ax.set_facecolor('none')
         plt.plot(data1[column].index, data1[column], label=name1)
         plt.plot(data2[column].index, data2[column], label=name2)
         plt.title(f'{column} Comparison')
@@ -61,8 +68,11 @@ def create_comparison_chart(data1, data2, column, name1, name2):
         plt.ylabel(column)
         plt.legend()
         
+        plt.grid(color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+        plt.tick_params(colors='gray')
+        
         img = BytesIO()
-        plt.savefig(img, format='png')
+        plt.savefig(img, format='png', transparent=True)
         img.seek(0)
         chart = base64.b64encode(img.getvalue()).decode()
         plt.close()

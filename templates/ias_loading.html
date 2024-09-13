@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div id="ia-loading">
+        <div id="ia-lottie-container"></div>
+        Generating report for {{ ticker }}... Please wait.
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/ia_search_module.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    IASearchModule.setupLottieAnimation();
+    IASearchModule.generateReport('{{ ticker }}');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block styles %}
+{{ super() }}
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/technical_analysis.css') }}">
+<style>
+    .ta-report-container {
+        padding: 20px;
+        background-color: #333;
+        color: #f0f0f0;
+    }
+    .ta-report-content {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+    .ta-report-text-column {
+        flex: 1;
+        padding-right: 20px;
+    }
+    .ta-report-image-column {
+        flex: 0 0 auto;
+        margin-left: 20px;
+    }
+
+    .ta-report-image {
+        max-width: 300px;
+        height: auto;
+    }
+
+    #ia-report-search-container {
+        margin-top: 20px;
+    }
+    .ta-report-subtitle {
+        text-align: left;
+        margin-bottom: 20px;
+        font-size: 1.2em;
+    }
+
+    h1b {
+        font-family: 'League Spartan', sans-serif;
+        font-size: 80px;
+        color: #F4F3C6;
+        text-align: left;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+  
+    .za-report-container {
+      max-width: 80%;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem 2rem; /* Increased bottom padding */
+      background-color: #404040;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="za-report-container" role="main">
+<div class="ta-report-content">
+    <div class="ta-report-text-column">
+       <h1b>Professional Investment Reports </h1b>
+        
+        <p class="ta-report-subtitle">Invest smarter with AI-powered, easy-to-understand analysis and advice.</p>
+        
+        <h2 id="make-smart-financial-choices" class="ta-report-advantages">Make Smart Financial Choices</h2>
+        <ul class="ta-report-advantages-list">
+            <li><strong>Informed Decisions:</strong> Choose better investments by understanding a company's health, growth potential, and risks.</li>
+            <li><strong>Long-term Planning:</strong> Build stronger portfolios for clients by focusing on investments that align with their goals and risk tolerance.</li>
+            <li><strong>Diverse Strategies:</strong> Combine different types of investments to balance risk and potential returns for clients.</li>
+        </ul>
+        
+        <div id="ia-report-search-container">
+            <div id="ia-search-module"></div>
+        </div>
+    </div>
+    
+    <div class="ta-report-image-column">
+        <img src="{{ url_for('static', filename='images/Investment_analysis-100-x-netflix.png') }}" alt="Investment Analysis Report" class="ta-report-image">
+    </div>
+</div>
+
+<div id="ia-loading" style="display:none;">
+    <div id="ia-lottie-container"></div>
+    <p>Generating report... Please wait.</p>
+</div>
+
+<div id="ia-analysis-result"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script src="{{ url_for('static', filename='js/ia_search_module.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            IASearchModule.init('ia-search-module', {
+                customHtml: `
+                    <form id="ia-search-form" action="/loading" method="POST">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="ia-search-input" name="ticker" placeholder="Enter company name" required>
+                            <div class="input-group-append">
+                                <button class="btn-analyze" type="submit">Analyze</button>
+                            </div>
+                        </div>
+                        <div id="ia-autocomplete-results"></div>
+                    </form>
+                `
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-logo {
+            height: 40px;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            background-color: #D9D9D9;
+            border-radius: 20px;
+            padding: 5px;
+            border: 2px solid white;
+            position: relative; /* Added for autocomplete positioning */
+        }
+        #search-input {
+            border: none;
+            background-color: transparent;
+            padding: 5px 10px;
+            font-size: 14px;
+            width: 200px;
+            outline: none;
+        }
+        .btn-analyze {
+            background-color: #FFBD59;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            border: 2px solid white;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: black;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .btn-get-started {
+            background-color: #7ED957;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+        }
+        #autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: transparent;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            z-index: 1000;
+        }
+        .autocomplete-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .autocomplete-list li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-list li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}">
+            <img src="/static/images/nav-logo-main.png" alt="Logo" class="nav-logo">
+        </a>        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Enter asset name or ticker">
+            <button class="btn-analyze" onclick="SearchModule.handleSubmit(event)">Analyze</button>
+            <div id="autocomplete-results"></div>
+        </div>
+<div class="nav-links">
+    <a href="{{ url_for('technical_analysis') }}">Technical Analysis</a>
+    <a href="{{ url_for('investment_analysis') }}">Investment Analysis</a>
+    <a href="{{ url_for('about') }}">About us</a>
+    <a href="#">Pricing</a>
+</div>
+        <button class="btn-get-started">Get Started</button>
+    </nav>
+    <script>
+        const SearchModule = {
+            init: function() {
+                this.setupAutocomplete();
+            },
+            
+            setupAutocomplete: function() {
+                const searchInput = document.getElementById('search-input');
+                const resultsContainer = document.getElementById('autocomplete-results');
+                
+                let debounceTimer;
+            
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        const prefix = searchInput.value.trim();
+                        if (prefix.length >= 2) {
+                            this.fetchAutocompleteSuggestions(prefix, resultsContainer);
+                        } else {
+                            resultsContainer.innerHTML = '';
+                        }
+                    }, 300);
+                });
+            
+                document.addEventListener('click', (event) => {
+                    if (!resultsContainer.contains(event.target) && event.target !== searchInput) {
+                        resultsContainer.innerHTML = '';
+                    }
+                });
+            
+                resultsContainer.addEventListener('click', (event) => {
+                    const clickedElement = event.target.closest('li');
+                    if (clickedElement) {
+                        const suggestionText = clickedElement.textContent;
+                        searchInput.value = suggestionText.split('(')[0].trim();
+                        resultsContainer.innerHTML = '';
+                    }
+                });
+            },
+            
+            fetchAutocompleteSuggestions: function(prefix, resultsContainer) {
+                fetch(`/api/autocomplete?prefix=${encodeURIComponent(prefix)}`)
+                    .then(response => response.json())
+                    .then(data => this.displayAutocompleteSuggestions(data, resultsContainer))
+                    .catch(error => console.error('Error fetching autocomplete suggestions:', error));
+            },
+            
+            displayAutocompleteSuggestions: function(suggestions, resultsContainer) {
+                resultsContainer.innerHTML = '';
+            
+                if (suggestions.length === 0) {
+                    resultsContainer.innerHTML = '<p>No matches found</p>';
+                    return;
+                }
+            
+                const ul = document.createElement('ul');
+                ul.className = 'autocomplete-list';
+            
+                suggestions.forEach(suggestion => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${suggestion.name}</strong> (${suggestion.ticker})`;
+                    ul.appendChild(li);
+                });
+            
+                resultsContainer.appendChild(ul);
+            },
+
+            handleSubmit: function(event) {
+                event.preventDefault();
+                const searchInput = document.getElementById('search-input');
+                const name_or_ticker = searchInput.value.trim();
+
+                if (!name_or_ticker) {
+                    alert('Please enter an asset name or ticker');
+                    return;
+                }
+
+                this.generateReport(name_or_ticker);
+            },
+
+            generateReport: function(name_or_ticker) {
+                console.log(`Generating report for ${name_or_ticker}`);
+                document.body.classList.add('loading');
+                window.location.href = `/loading/${encodeURIComponent(name_or_ticker)}`;
+            }
+        };
+
+        // Initialize the SearchModule
+        document.addEventListener('DOMContentLoaded', function() {
+            SearchModule.init();
+        });
+    </script>
+</body>
+</html>

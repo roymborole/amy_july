@@ -1,5 +1,3 @@
-#config.py
-
 import os
 import yfinance as yf
 import pandas as pd
@@ -15,6 +13,8 @@ from postmarker.core import PostmarkClient
 from pyngrok import ngrok
 import json
 from flask import Flask, request, render_template, jsonify, redirect, url_for
+from flask import Blueprint, render_template
+from flask_security import login_required
 
 try:
     from pyngrok import ngrok
@@ -44,6 +44,7 @@ END_DATE = '2024-07-16'
 class Config:
    
     SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
+    WTF_CSRF_ENABLED = True
     
     # Celery configurations
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL') or 'redis://localhost:6379/0'
@@ -55,3 +56,15 @@ class Config:
     API_KEY = os.environ.get('API_KEY') 
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', '/path/to/upload/folder')
     
+
+
+main = Blueprint('main', __name__)
+
+@main.route('/')
+def index():
+    return render_template('index.html')
+
+@main.route('/protected')
+@login_required
+def protected():
+    return "This is a protected page"

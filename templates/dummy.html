@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Analysis - Design Sample</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="/path/to/search_module.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: white;
+            background-color: #000000;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-family: 'Anton', sans-serif;
+            color: white;
+            text-align: left;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-size: 80px;
+        }
+        .subtitle {
+            text-align: left;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .email-button {
+            background-color: #EFD22A;
+        }
+        .search-button {
+            background-color: #FFBD59;
+        }
+
+        .technical-button {
+            background-color: #EB5A00;
+        }
+        h2 {
+            color: white;
+            font-family: 'Roboto', sans-serif;
+        }
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: nowrap; /* Prevent wrapping */
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+        }
+        .stat-box {
+            background-color: #C1FF72;
+            border-radius: 10px;
+            padding: 5px;
+            margin-right: 5px; /* Add small margin between boxes */
+            flex: 1; /* Allow boxes to grow and shrink */
+            min-width: 100px; /* Minimum width to prevent excessive shrinking */
+            text-align: center;
+            font-size: 0.7em; /* Further reduced font size */
+        }
+        .stat-value {
+            font-size: 1em;
+            font-weight: bold;
+            color: black;
+        }
+        .stat-label {
+            color: black;
+        }
+        .chart-container {
+            margin: 20px auto;
+            width: 75%;
+        }
+        .ytd-data-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            font-family: 'Roboto', sans-serif;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: 1px solid white;
+            font-family: 'Roboto', sans-serif;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+            color: black;
+            border: 1px solid white;
+            font-size: 0.9em;
+        }
+        th {
+            background-color: #C1FF72;
+        }
+        td {
+            background-color: #D9D9D9;
+        }
+        .report-container {
+            background-color: #393939;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            border-radius: 8px;
+        }
+        .report-title {
+            font-family: 'Anton', sans-serif;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .report-title::before,
+        .report-title::after {
+            content: "📊";
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+        }
+        .report-title::before {
+            left: 20px;
+        }
+        .report-title::after {
+            right: 20px;
+        }
+        .report-divider {
+            border: none;
+            border-top: 2px solid #C1FF72;
+            margin: 10px 0;
+        }
+        .report-content {
+            color: white;
+            font-family: 'Roboto', sans-serif;
+        }
+
+    header {
+        background-color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .logo img {
+        height: 40px;
+        width: auto;
+    }
+    .search-container {
+        flex-grow: 1;
+        margin: 0 20px;
+        max-width: 400px;
+    }
+    #search-input {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 20px;
+        background-color: #D9D9D9;
+        font-size: 16px;
+    }
+    nav {
+        display: flex;
+        align-items: center;
+    }
+    nav a {
+        color: black;
+        text-decoration: none;
+        margin: 0 15px;
+        font-size: 16px;
+    }
+    .get-started {
+        background-color: #7ED957;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="/static/mini-logo.png" alt="100x Club Mini Logo">
+        </div>
+        <div class="search-container" id="search-module-container"></div>
+        <nav>
+            <a href="#">Investment Analysis</a>
+             <a href="#"Technical Analysis</a>
+            <a href="#" Contact Us </a>
+            <a href="#">About Us</a>
+            <a href="#">Pricing</a>
+            <a href="#">Login</a>
+            <button class="get-started">Get Started</button>
+        </nav>
+    </header>
+    <div class="report-container">
+    <h1>Investment Analysis of ACME Corporation</h1>
+    <p class="subtitle">Investment analysis is a broad approach to evaluating potential investments by looking at various factors like company performance, industry trends, and economic conditions.</p>
+    
+    <div class="button-container">
+        <button class="button email-button">Email this report</button>
+        <button class="button search-button">New Search</button>
+        <button class="button technical-button"> Technical Analysis</button>
+    </div>
+
+    <h2>Key Statistics</h2>
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-value">$20.13</div>
+            <div class="stat-label">Previous Close</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">$19.5B</div>
+            <div class="stat-label">Market Cap</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">18.5</div>
+            <div class="stat-label">P/E Ratio</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">2.1%</div>
+            <div class="stat-label">Dividend Yield</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">5.2M</div>
+            <div class="stat-label">Average Volume</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">$15.30 - $25.75</div>
+            <div class="stat-label">52 Week Range</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">$19.80 - $20.45</div>
+            <div class="stat-label">Day Range</div>
+        </div>
+    </div>
+
+    <h2>Performance Overview</h2>
+    <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+    </div>
+
+    <h2>YTD Data</h2>
+    <div class="ytd-data-container">
+        <table>
+            <tr>
+                <th>Return</th>
+                <th>Asset name</th>
+                <th>S&P 500</th>
+            </tr>
+            <tr>
+                <td>YTD Return</td>
+                <td>-53.89%</td>
+                <td>19.09%</td>
+            </tr>
+            <tr>
+                <td>1-Year</td>
+                <td>-39.96%</td>
+                <td>25.61%</td>
+            </tr>
+            <tr>
+                <td>3-Year</td>
+                <td>-58.81%</td>
+                <td>42.82%</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="report-container">
+        <h2 class="report-title">Investment Analysis Report for: ACME Corporation</h2>
+        <hr class="report-divider">
+        <div class="report-content">
+            <p>ACME Corporation (ACME) is well-positioned in the current macroeconomic environment, with strong fundamentals and positive technical indicators. The company's recent performance aligns with broader economic trends, suggesting potential for continued growth.</p>
+            <p>Technical indicators show an upward trend in ACME's stock price, with the 50-day SMA ($45.67) above the 200-day SMA ($42.33), signaling bullish momentum. This aligns with strong fundamental data, including a P/E ratio of 18.5 and an EPS of $2.75, both above industry averages.</p>
+            <p>The current economic landscape features moderate GDP growth (2.3% annually), low unemployment (3.6%), and controlled inflation (2.1%). These factors create a favorable environment for ACME's operations and expansion plans.</p>
+            <!-- Add more paragraphs as needed -->
+        </div>
+    </div>
+</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            SearchModule.init('search-module-container', {
+                customHtml: `
+                    <input type="text" id="search-input" placeholder="Search assets...">
+                    <div id="autocomplete-results"></div>
+                `,
+                skipLottie: true
+            });
+        });
+        var ctx = document.getElementById('performanceChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Stock Price',
+                    data: [20, 22, 25, 23, 26, 28],
+                    borderColor: '#C1FF72',
+                    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'white'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'white'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

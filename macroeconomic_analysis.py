@@ -12,6 +12,21 @@ import io
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from ia_company_data import COMPANIES
+
+def get_ticker_from_name(input_str):
+    # Check if input is already a ticker
+    if input_str.upper() in COMPANIES.values():
+        return input_str.upper()
+    
+    # Check if input is a full company name
+    for name, ticker in COMPANIES.items():
+        if name.lower() == input_str.lower():
+            return ticker
+    
+    # If not found, return the input as is
+    return input_str
+
 def generate_macroeconomic_analysis(ticker):
     try:
         ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
@@ -41,7 +56,7 @@ def generate_macroeconomic_analysis(ticker):
             model="claude-3-opus-20240229",
             max_tokens=4000,
             temperature=0,
-            system="You are a financial analyst specializing in macroeconomic trends and their impact on individual stocks. Provide your insight in a comprehensive analysis report.",
+            system="You are a financial analyst specializing in macroeconomic trends and their impact on individual stocks. Provide your insight in an investment analysis report.",
             messages=[
                 {
                     "role": "user",
@@ -116,49 +131,51 @@ def generate_prompt(ticker, macro_analysis, summarized_data):
     return f"""
     Given the technical analysis document and the quarterly results summary for {ticker}, please generate a comprehensive macroeconomic analysis that incorporates the following elements:
 
+    
+    Summarized Financial Data:
+    {json.dumps(summarized_data, indent=2)}
+
     Macroeconomic Analysis:
     {macro_analysis}
 
-    Summarized Financial Data:
-    {json.dumps(summarized_data, indent=2)}
 
     Provide a comprehensive report that combines insights from both the macroeconomic analysis and the financial data. 
     Format your response in HTML with the following structure:
 
-    <div style="color: black;">
-        <h2>1. Executive Summary</h2>
+    <div style="color: white;">
+        <h2> Executive Summary</h2>
         [Provide a concise overview of key findings and highlight significant macroeconomic implications]
 
-        <h2>2. Integration of Technical and Fundamental Analysis</h2>
+        <h2> Integration of Technical and Fundamental Analysis</h2>
         [Analyze alignment or divergence of technical indicators and fundamental data, discuss discrepancies]
 
-        <h2>3. Macroeconomic Context</h2>
+        <h2> Macroeconomic Context</h2>
         [Place findings in broader economic landscape, discuss relevant economic indicators]
 
-        <h2>4. Industry-Specific Trends</h2>
+        <h2> Industry-Specific Trends</h2>
         [Identify and analyze industry trends, compare to overall macroeconomic conditions]
 
-        <h2>5. Global Economic Factors</h2>
+        <h2> Global Economic Factors</h2>
         [Examine global economic events, geopolitical factors, trade relations, and market dynamics]
 
-        <h2>6. Forward-Looking Analysis</h2>
+        <h2> Forward-Looking Analysis</h2>
         [Provide projections for future economic conditions and discuss potential scenarios]
 
-        <h2>7. Risk Assessment</h2>
+        <h2> Risk Assessment</h2>
         [Identify and assess key economic risks]
 
-        <h2>8. Policy Implications</h2>
+        <h2> Policy Implications</h2>
         [Discuss impact of current or potential economic policies]
 
-        <h2>9. Comparative Analysis</h2>
+        <h2> Comparative Analysis</h2>
         [Compare findings to historical data, highlight unique aspects of current situation]
 
-        <h2>10. Actionable Insights</h2>
+        <h2> Actionable Insights</h2>
         [Provide specific, data-driven recommendations and suggest areas for further research]
 
     </div>
 
-    Ensure that all text is in black color and subheadings use h2 tags for bold formatting. The analysis should be comprehensive, insightful, and provide a unique perspective that goes beyond a simple combination of the input documents. The goal is to deliver actionable intelligence that gives analysts a competitive edge in understanding the macroeconomic landscape.
+    Ensure that all text is in white color and subheadings use h2 tags for bold formatting. The analysis should be comprehensive, insightful, and provide a unique perspective that goes beyond a simple combination of the input documents. The goal is to deliver actionable intelligence that gives analysts a competitive edge in understanding the macroeconomic landscape. Do no not start the output with the words "Here's a comprehensive....."
     """
 
 def format_response(response, summarized_data):
@@ -169,8 +186,7 @@ def format_response(response, summarized_data):
 
     analysis = analysis.replace("Here is a comprehensive macroeconomic analysis report for", "")
     analysis = analysis.replace("that integrates the provided financial data and macroeconomic analysis:", "")
-    analysis = f'<h1>Comprehensive Macroeconomic Analysis for {summarized_data["asset_name"]}</h1>\n' + analysis.strip()
-    
+
     return analysis
 
 def save_macroeconomic_analysis(ticker, content):

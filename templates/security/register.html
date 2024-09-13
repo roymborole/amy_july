@@ -1,0 +1,131 @@
+{% from "security/_macros.html" import render_field_with_errors, render_field %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - 100X Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #333333;
+            font-family: 'Roboto', sans-serif;
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+            height: auto;
+        }
+        .register-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-family: 'League Spartan', sans-serif;
+            font-size: 48px;
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        p {
+            font-size: 28px;
+            color: #D9D9D9;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        form {
+            width: 100%;
+            max-width: 400px;
+        }
+        label {
+            display: block;
+            text-align: left;
+            font-size: 21px;
+            color: #D9D9D9;
+            margin-bottom: 5px;
+        }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #C1FF72;
+            border-radius: 5px;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            background-color: #C1FF72;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .terms {
+            font-size: 14px;
+            color: #D9D9D9;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .terms a {
+            color: #C1FF72;
+            text-decoration: none;
+        }
+        .terms a:hover {
+            text-decoration: underline;
+        }
+        .footer-terms {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 16px;
+            color: #D9D9D9;
+        }
+        .footer-terms a {
+            color: #D9D9D9;
+            text-decoration: none;
+        }
+        .footer-terms a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='images/nav-logo-main.png') }}" alt="100X Club Logo" class="logo">
+    <div class="register-container">
+        <h1>You're one click away from knowing, EVERYTHING!</h1>
+        <form action="{{ url_for_security('register') }}" method="POST" name="register_user_form">
+            {{ register_user_form.hidden_tag() }}
+            {{ render_field_with_errors(register_user_form.email, class='form-control', placeholder='Email address') }}
+            {{ render_field_with_errors(register_user_form.password, class='form-control', placeholder='Password') }}
+            {% if register_user_form.password_confirm %}
+                {{ render_field_with_errors(register_user_form.password_confirm, class='form-control', placeholder='Confirm Password') }}
+            {% endif %}
+            <div class="terms">
+                By signing up, I agree to the 100-x <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> and <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>.
+            </div>
+            {{ render_field(register_user_form.submit, class='btn btn-primary', value='Continue') }}
+        </form>
+    </div>
+    <div class="footer-terms">
+        <a href="{{ url_for('terms_of_service') }}">Terms</a> & <a href="{{ url_for('privacy_policy') }}">Privacy</a>
+    </div>
+</body>
+</html>

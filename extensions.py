@@ -4,10 +4,14 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from celery import Celery
+from flask_mail import Mail
+from flask_security import Security
 
 db = SQLAlchemy()
+security = Security()
 migrate = Migrate()
 celery = Celery()
+mail = Mail()
 
 # Redis connection
 redis_host = os.getenv('REDIS_HOST', 'localhost')

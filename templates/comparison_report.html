@@ -7,30 +7,17 @@
 <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
 {% endblock %}
 {% block content %}
-<div>
-    <div class="header">
-        <div class="logo logo-mini">
-            <a href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='mini-logo.png') }}" alt="100x Club Logo">
-            </a>
-        </div>
-        <div class="nav-buttons">
-            <a href="{{ url_for('about') }}"><strong>About Us</strong></a>
-            <a href="{{ url_for('contact') }}"><strong>Contact Us</strong></a>
-            <div id="search-container"></div>
-        </div>
-    </div>
-
-    <div class="container report-container">
+<body>
+    <div class="report-container">
         <h1 class="text-center">Comparison Report: {{ asset1 }} vs {{ asset2 }}</h1>
-        <img src="{{ url_for('static', filename='Header6.png') }}" class="header-image" alt="Header">
-
+        <p class="description">Technical analysis is a method used in financial markets to evaluate and predict price movements based on historical data, chart patterns, and statistical indicators.</p>
+    
         <div class="button-container">
-            <button id="emailComparisonReportBtn" class="btn btn-primary">Email this Comparison Report</button>
-            <button onclick="newSearch()" class="btn btn-secondary">New Search</button>
+            <button id="emailComparisonReportBtn" class="btn btn-email">Email this Comparison Report</button>
+            <button onclick="newSearch()" class="btn btn-compare">New Search</button>
         </div>
 
-        <div class="report-content left-justified">
+        <div class="report-container">
             {{ report_content|safe }}
         </div>
     </div>
@@ -58,28 +45,85 @@
         </div>
     </div>    
 </div>
+</body>
 {% endblock %}
 
 {% block styles %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <style>
-    .report-container h1, .report-container h2, .report-container h3, .report-container h4 {
-        color: #FF69B4;
+    .chart-container {
+        background-color: #393939;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+    
+    .chart-container img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+    .ai-summary {
+        text-align: center;
+        font-family: 'Roboto', sans-serif;
+        color: #ffffff;
+        background color: #393939;
+    
+    }
+    .report-container {
+        width:100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #393939;
+        box-sizing: border-box;
+        color: #ffffff;
+        border-radius: 10px;
         text-align: left;
+        padding-top: 60px; 
+    }
+
+    .report-container h1 {
+        font-family: 'Anton', sans-serif;
+        text-align: center;
+        font-size: 60px;
+        text-align: center;
+        text-transform: uppercase;
+        color: white;
+        background color: #3939393
+    }
+
+    report-container h2 {
+        font-size: 20px;
+        margin-top: 30px;
+        text-align: center;
+        color: white;
+
+    }
+
+    report-container h3 {
+        font-family: 'Anton', sans-serif;
+        font-size: 30px;
+        text-align: center;
+        font-weight: bold;
+        color: white 
+    }
+    .description {
+        font-family: 'Roboto', sans-serif;
+        font-size: 15px;
+        text-align: center;
     }
 
     .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
         margin-bottom: 20px;
+        margin: 30px 0;
     }
-    .pink-heading {
-        color: #FF69B4;  /* Bright pink color */
-    }
-    .header-image {
-        max-width: 100%;
-        height: auto;
-        margin: 0 auto;
-    }
+ 
     .overlay {
         position: fixed;
         top: 0;
@@ -96,20 +140,150 @@
         padding: 20px;
         border-radius: 5px;
         text-align: center;
+        color: black;
+
+    }|
+    .btn {
+        font-family: 'Roboto', sans-serif;
+        color: white;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 18px;  
+        transition: all 0.3s ease;  
     }
-    .performance-table {
+  
+    .btn-email {
+        background-color: #E2C100;
+        color: white;
+    }
+    
+    .btn-news {
+        background-color: #FFBD59;
+        color: white;
+    }
+    
+    .btn-compare {
+        background-color: #FF9A00;
+        color: white;
+    }
+    
+    .btn-subscribe {
+        background-color: #FF5757;
+        color: white;
+    }
+    
+    .btn:hover {
+        opacity: 0.8;
+        transform: scale(1.05); 
+    }
+    
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
-        border-collapse: collapse;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .popup {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+        color: black;
+    }
+
+    .stat-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
         margin-bottom: 20px;
     }
-    .performance-table th, .performance-table td {
-        padding: 12px;
+
+    
+    .stat-box {
+        flex: 1 1 calc(33.333% - 20px);
+        margin: 10px;
+        min-width: 200px;
+        background-color: #C1FF72;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        color: black;
+        }
+    .stat-label {
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+        margin-top: 5px;
+    }
+    .stat-value {
+        font-family: 'Roboto', sans-serif;
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .table-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .custom-table {
+        border-collapse: collapse;
+        width: 80%;
+        max-width: 800px;
+        margin: 20px 0;
+    }
+    .custom-table th, .custom-table td {
+        border: 1px solid white;
+        padding: 10px;
         text-align: left;
-        border-bottom: 1px solid #ddd;
+        font-family: 'Roboto', sans-serif;
+        color: white;
+    }
+    .custom-table th, .custom-table td:first-child {
+        background-color: #C1FF72;
+    }
+    .custom-table tr:not(:first-child) td:not(:first-child) {
+        background-color: #D9D9D9;
+    }
+
+    .performance-table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        width: 80%;
+    }
+    .performance-table th, .performance-table td {
+        border: 1px solid white;
+        padding: 10px;
+        text-align: left;
+        font-family: 'Roboto', sans-serif;
+        color: black;
     }
     .performance-table th {
-        background-color: #f2f2f2;
-        font-weight: bold;
+        background-color: #C1FF72;
+    }
+    .performance-table tr:not(:first-child) {
+        background-color: #D9D9D9;
+    }
+    .chart {
+        max-width: 100%;
+        height: auto;
+        margin: 20px 0;
+        border-radius: 10px;
     }
 </style>
 {% endblock %}

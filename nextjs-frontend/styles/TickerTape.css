@@ -1,0 +1,23 @@
+@keyframes ticker {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .ticker-tape {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  .ticker-tape-content {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+  
+  .ticker-tape-content:hover {
+    animation-play-state: paused;
+  }

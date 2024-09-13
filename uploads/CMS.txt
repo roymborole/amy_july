@@ -1,0 +1,115 @@
+Here is a macroeconomic analysis for CMS Energy Corporation for the second quarter of 2024:
+
+{Second Quarter 2024} Macroeconomic Analysis for CMS Energy Corporation
+Date: July 25, 2024
+
+Revenue figures:
+- Total operating revenue for Q2 2024: $1,607 million 
+  - Electric utility revenue: $1,226 million
+  - Gas utility revenue: $307 million 
+  - NorthStar Clean Energy revenue: $74 million
+
+Earnings per Share (EPS):
+- Basic EPS from continuing operations: $0.65
+- Diluted EPS from continuing operations: $0.65  
+
+Gross Profit and Gross Margin:
+- Total operating expenses for Q2 2024: $1,324 million
+- Gross profit (revenue - operating expenses) for Q2 2024: $283 million
+- Implied gross margin: 17.6%
+
+Operating Income/Loss: 
+- Operating income for Q2 2024: $283 million
+
+Net Income/Loss:
+- Net income for Q2 2024: $182 million 
+
+Cash Flow Statement:
+- Net cash provided by operating activities for YTD 2024: $1,663 million
+- Net cash used in investing activities for YTD 2024: $1,246 million  
+- Net cash provided by financing activities for YTD 2024: $124 million
+
+Balance Sheet items:
+- Cash and cash equivalents at June 30, 2024: $699 million
+- Total assets at June 30, 2024: $34,355 million
+- Total debt at June 30, 2024: $15,768 million
+- Total equity at June 30, 2024: $8,541 million  
+
+Accounts Receivable and Payable:
+- Accounts receivable at June 30, 2024: $817 million
+- Accounts payable at June 30, 2024: $789 million
+
+Inventory levels:
+- Gas in underground storage at June 30, 2024: $419 million
+- Materials and supplies at June 30, 2024: $280 million
+- Generating plant fuel stock at June 30, 2024: $80 million
+
+Capital Expenditures (CapEx):
+- Capital expenditures for YTD 2024: $1,294 million
+
+Research and Development (R&D) expenses: 
+- No separate R&D expense line item disclosed
+
+Selling, General and Administrative (SG&A) expenses:
+- SG&A expenses included in maintenance and other operating expenses for Q2 2024: $404 million
+
+Debt levels:
+- Total debt at June 30, 2024: $15,768 million
+  - Current portion of long-term debt: $772 million
+  - Long-term debt: $14,917 million
+  - Non-current portion of finance leases: $79 million
+
+Guidance or Forward-Looking Statements:
+- Consumers expects weather-normalized electric and gas deliveries to remain relatively stable over the next 5 years compared to 2023
+- Consumers plans capital expenditures of $17 billion through 2028, including $13.6 billion over the next 5 years
+- Key areas of capital spending are electric distribution, gas infrastructure, and clean generation investments
+- Consumers aims to eliminate coal generation by 2025 and have 90% of customer needs met by clean energy by 2040 under its Clean Energy Plan
+- Consumers has set goals of net-zero methane emissions by 2030 and net-zero carbon emissions by 2040 for its electric business
+
+Segment Information:
+- Operating revenue for Q2 2024
+  - Electric utility: $1,226 million
+  - Gas utility: $307 million  
+  - NorthStar Clean Energy: $74 million
+- Net income for Q2 2024
+  - Electric utility: $170 million
+  - Gas utility: $15 million
+  - NorthStar Clean Energy: $16 million
+
+Share Repurchases or Issuances:
+- No share repurchases in Q2 2024
+- Issued shares to settle forward equity sale contracts in January 2024, resulting in $266 million net proceeds
+
+Dividend Information:
+- Dividends declared on common stock in Q2 2024: $154 million ($0.515 per share)
+- Dividends declared on preferred stock in Q2 2024: $3 million  
+
+Management Discussion and Analysis (MD&A):
+- Higher electric sales and rate increases drove improved electric utility earnings in Q2 2024
+- Lower gas sales due to unfavorable weather offset gas rate increases, impacting gas utility earnings
+- NorthStar Clean Energy earnings increased due to higher earnings from renewable projects
+- Higher interest expense was a headwind due to increased debt levels
+- Capital expenditure levels increased year-over-year to support infrastructure investments
+
+Legal Proceedings or Regulatory Issues:
+- Ongoing litigation with contractors regarding defective work at generation facilities
+- MPSC distribution system audit underway to review electric reliability and safety
+- Filed 2024 electric rate case seeking $325 million rate increase 
+- Received approval for 2023 gas rate case with $35 million rate increase
+
+Headcount and Employee-Related Information: 
+- No specific headcount or employee-related information provided
+
+Order Backlog or Book-to-Bill Ratio:
+- No information provided on order backlog or book-to-bill
+
+Key Performance Indicators (KPIs):
+- No non-financial KPIs disclosed
+
+The company's P/E ratio was not provided, but could be calculated based on the current share price and trailing earnings.
+
+No significant anomalies, unusual items, or signs of illegal/irregular behavior were noted in the disclosed information.
+
+The financial results showed a correlation between the company's operating performance and its stock price movement during the quarter. Stronger utility earnings aided by rate increases and renewable energy growth appeared to support the stock.
+
+Overall, this quarterly report provided a comprehensive overview of CMS Energy's financial performance, operational updates, capital plans, and strategic initiatives like its Clean Energy Plan to transition to cleaner generation sources. The disclosures aligned with the company's position as a regulated electric and gas utility along with its clean energy investments.

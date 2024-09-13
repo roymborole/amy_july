@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+
+{% block title %} Glossary{% endblock %}
+
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #393939;
+        color: #e0e0e0;
+    }
+    .accordion-button {
+        background-color: #4a4a4a;
+        color: #e0e0e0;
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: #5a5a5a;
+        color: #ffffff;
+    }
+    .accordion-button::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e0e0e0'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+    .accordion-body {
+        background-color: #444444;
+    }
+    dt {
+        font-weight: bold;
+        color: #ffffff;
+    }
+    dd {
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div id="ticker-tape-root" class="ticker-tape"></div>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Comprehensive Glossary of Financial and Technical Analysis Terms</h1>
+
+    <div class="accordion" id="glossaryAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingA">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseA" aria-expanded="true" aria-controls="collapseA">
+                    A
+                </button>
+            </h2>
+            <div id="collapseA" class="accordion-collapse collapse show" aria-labelledby="headingA" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Annual Report</dt>
+                        <dd>A comprehensive report on a company's activities and financial performance throughout the preceding year.</dd>
+                        
+                        <dt>Asset</dt>
+                        <dd>Any item of economic value owned by an individual or corporation.</dd>
+                        
+                        <dt>Ask Price</dt>
+                        <dd>The lowest price at which a seller is willing to sell a security.</dd>
+                        
+                        <dt>Average Volume</dt>
+                        <dd>The average number of shares traded daily over a specific period, typically 30 days or 3 months. It's an indicator of a stock's liquidity and trading activity.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingB">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseB" aria-expanded="false" aria-controls="collapseB">
+                    B
+                </button>
+            </h2>
+            <div id="collapseB" class="accordion-collapse collapse" aria-labelledby="headingB" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Balance Sheet</dt>
+                        <dd>A financial statement that reports a company's assets, liabilities, and shareholders' equity at a specific point in time.</dd>
+                        
+                        <dt>Bear Market</dt>
+                        <dd>A market condition in which stock prices fall 20% or more from recent highs amid widespread pessimism and negative investor sentiment.</dd>
+                        
+                        <dt>Bid Price</dt>
+                        <dd>The highest price a buyer is willing to pay for a security.</dd>
+                        
+                        <dt>Blue Chip Stocks</dt>
+                        <dd>Stocks of well-established and financially sound companies that have demonstrated reliable profitability over time.</dd>
+                        
+                        <dt>Bollinger Bands</dt>
+                        <dd>A technical analysis tool defined by a set of trendlines plotted two standard deviations away from a simple moving average of a security's price.</dd>
+                        
+                        <dt>Book Value</dt>
+                        <dd>The net asset value of a company, calculated by total assets minus intangible assets and liabilities.</dd>
+                        
+                        <dt>Bull Market</dt>
+                        <dd>A market condition in which stock prices are rising or are expected to rise.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingC">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseC" aria-expanded="false" aria-controls="collapseC">
+                    C
+                </button>
+            </h2>
+            <div id="collapseC" class="accordion-collapse collapse" aria-labelledby="headingC" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Capital Gain</dt>
+                        <dd>The profit earned on the sale of an asset like stocks, bonds, or real estate.</dd>
+                        
+                        <dt>Cash Flow</dt>
+                        <dd>The net amount of cash and cash-equivalents being transferred into and out of a business.</dd>
+                        
+                        <dt>Compound Annual Growth Rate (CAGR)</dt>
+                        <dd>The rate of return that would be required for an investment to grow from its beginning balance to its ending balance, assuming the profits were reinvested at the end of each year of the investment's lifespan.</dd>
+                        
+                        <dt>Correlation</dt>
+                        <dd>A statistic that measures the degree to which two securities move in relation to each other.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingD">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseD" aria-expanded="false" aria-controls="collapseD">
+                    D
+                </button>
+            </h2>
+            <div id="collapseD" class="accordion-collapse collapse" aria-labelledby="headingD" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Debt-to-Equity Ratio</dt>
+                        <dd>A measure of a company's financial leverage calculated by dividing its total liabilities by stockholders' equity.</dd>
+                        
+                        <dt>Dividend</dt>
+                        <dd>A distribution of a portion of a company's earnings, decided by the board of directors, to a class of its shareholders.</dd>
+                        
+                        <dt>Diversification</dt>
+                        <dd>A risk management technique that mixes a wide variety of investments within a portfolio.</dd>
+                        
+                        <dt>Double Bottom</dt>
+                        <dd>A technical analysis charting pattern describing a change in trend and a momentum reversal from prior leading price action.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingE">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE" aria-expanded="false" aria-controls="collapseE">
+                    E
+                </button>
+            </h2>
+            <div id="collapseE" class="accordion-collapse collapse" aria-labelledby="headingE" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Earnings Per Share (EPS)</dt>
+                        <dd>The portion of a company's profit allocated to each outstanding share of common stock.</dd>
+                        
+                        <dt>EBITDA</dt>
+                        <dd>Earnings Before Interest, Taxes, Depreciation, and Amortization; a measure of a company's overall financial performance.</dd>
+                        
+                        <dt>Efficient Market Hypothesis (EMH)</dt>
+                        <dd>A theory stating that share prices reflect all information and consistent alpha generation is impossible.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingF">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseF" aria-expanded="false" aria-controls="collapseF">
+                    F
+                </button>
+            </h2>
+            <div id="collapseF" class="accordion-collapse collapse" aria-labelledby="headingF" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Fibonacci Retracement</dt>
+                        <dd>A method of technical analysis for determining support and resistance levels based on the Fibonacci sequence.</dd>
+                        
+                        <dt>Fundamental Analysis</dt>
+                        <dd>A method of evaluating a security in an attempt to measure its intrinsic value, by examining related economic, financial, and other qualitative and quantitative factors.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingG">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseG" aria-expanded="false" aria-controls="collapseG">
+                    G
+                </button>
+            </h2>
+            <div id="collapseG" class="accordion-collapse collapse" aria-labelledby="headingG" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Gross Domestic Product (GDP)</dt>
+                        <dd>The total monetary or market value of all the finished goods and services produced within a country's borders in a specific time period.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingH">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseH" aria-expanded="false" aria-controls="collapseH">
+                    H
+                </button>
+            </h2>
+            <div id="collapseH" class="accordion-collapse collapse" aria-labelledby="headingH" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Head and Shoulders</dt>
+                        <dd>A chart formation in technical analysis used to predict trend reversals.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingI">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseI" aria-expanded="false" aria-controls="collapseI">
+                    I
+                </button>
+            </h2>
+            <div id="collapseI" class="accordion-collapse collapse" aria-labelledby="headingI" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Income Statement</dt>
+                        <dd>A financial statement that reports a company's financial performance over a specific accounting period.</dd>
+                        
+                        <dt>Index</dt>
+                        <dd>A statistical measure of change in an economy or a securities market.</dd>
+                        
+                        <dt>Inflation</dt>
+                        <dd>A general increase in prices and fall in the purchasing value of money.</dd>
+                        
+                        <dt>Intrinsic Value</dt>
+                        <dd>The perceived or calculated value of a company, including tangible and intangible factors, using fundamental analysis.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingL">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseL" aria-expanded="false" aria-controls="collapseL">
+                    L
+                </button>
+            </h2>
+            <div id="collapseL" class="accordion-collapse collapse" aria-labelledby="headingL" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Leverage</dt>
+                        <dd>The use of borrowed capital to increase the potential return of an investment.</dd>
+                        
+                        <dt>Liquidity</dt>
+                        <dd>The degree to which an asset or security can be quickly bought or sold in the market without affecting the asset's price.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingM">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseM" aria-expanded="false" aria-controls="collapseM">
+                    M
+                </button>
+            </h2>
+            <div id="collapseM" class="accordion-collapse collapse" aria-labelledby="headingM" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Market Capitalization</dt>
+                        <dd>The total dollar market value of a company's outstanding shares.</dd>
+                        
+                        <dt>Moving Average</dt>
+                        <dd>A widely used indicator in technical analysis that helps smooth out price action by filtering out the "noise" from random price fluctuations.</dd>
+                        
+                        <dt>Moving Average Convergence Divergence (MACD)</dt>
+                        <dd>A trend-following momentum indicator that shows the relationship between two moving averages of a security's price.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingP">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseP" aria-expanded="false" aria-controls="collapseP">
+                    P
+                </button>
+            </h2>
+            <div id="collapseP" class="accordion-collapse collapse" aria-labelledby="headingP" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>P/E Ratio (Price-to-Earnings Ratio)</dt>
+                        <dd>A ratio for valuing a company that measures its current share price relative to its per-share earnings. It's calculated by dividing the market value per share by earnings per share.</dd>
+                        
+                        <dt>Portfolio</dt>
+                        <dd>A collection of financial investments like stocks, bonds, commodities, cash, and cash equivalents.</dd>
+                        
+                        <dt>Previous Close</dt>
+                        <dd>The final price at which a security is traded on a given trading day. The next day's opening price can be quite different from the previous close due to after-hours trading and significant events or news announcements.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingQ">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQ" aria-expanded="false" aria-controls="collapseQ">
+                    Q
+                </button>
+            </h2>
+            <div id="collapseQ" class="accordion-collapse collapse" aria-labelledby="headingQ" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Quantitative Analysis</dt>
+                        <dd>The use of mathematical and statistical modeling, measurement, and research to understand behavior.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingR">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseR" aria-expanded="false" aria-controls="collapseR">
+                    R
+                </button>
+            </h2>
+            <div id="collapseR" class="accordion-collapse collapse" aria-labelledby="headingR" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Relative Strength Index (RSI)</dt>
+                        <dd>A momentum indicator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.</dd>
+                        
+                        <dt>Return on Equity (ROE)</dt>
+                        <dd>A measure of financial performance calculated by dividing net income by shareholders' equity.</dd>
+                        
+                        <dt>Risk</dt>
+                        <dd>The chance that an investment's actual return will be different than expected.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingS">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseS" aria-expanded="false" aria-controls="collapseS">
+                    S
+                </button>
+            </h2>
+            <div id="collapseS" class="accordion-collapse collapse" aria-labelledby="headingS" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Sharpe Ratio</dt>
+                        <dd>A measure that indicates the average return minus the risk-free return divided by the standard deviation of return on an investment.</dd>
+                        
+                        <dt>Short Selling</dt>
+                        <dd>The sale of a security that is not owned by the seller or that the seller has borrowed.</dd>
+                        
+                        <dt>Simple Moving Average (SMA)</dt>
+                        <dd>A calculation that takes the arithmetic mean of a given set of prices over a specific number of days in the past. For example, a 20-day SMA is the mean of the closing prices for the past 20 days. SMAs are used to identify trend direction and can act as support or resistance.</dd>
+                        
+                        <dt>Stochastic Oscillator</dt>
+                        <dd>A momentum indicator comparing a particular closing price of a security to a range of its prices over a certain period of time.</dd>
+                        
+                        <dt>Support and Resistance</dt>
+                        <dd>Concepts in technical analysis that refer to price levels on charts that tend to act as barriers, preventing the price of an asset from getting pushed in a certain direction.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingT">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT" aria-expanded="false" aria-controls="collapseT">
+                    T
+                </button>
+            </h2>
+            <div id="collapseT" class="accordion-collapse collapse" aria-labelledby="headingT" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Technical Analysis</dt>
+                        <dd>A trading discipline employed to evaluate investments and identify trading opportunities by analyzing statistical trends gathered from trading activity, such as price movement and volume.</dd>
+                        
+                        <dt>Trend</dt>
+                        <dd>The general direction of a market or of the price of an asset.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingV">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseV" aria-expanded="false" aria-controls="collapseV">
+                    V
+                </button>
+            </h2>
+            <div id="collapseV" class="accordion-collapse collapse" aria-labelledby="headingV" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Volatility</dt>
+                        <dd>A statistical measure of the dispersion of returns for a given security or market index.</dd>
+                        
+                        <dt>Volume</dt>
+                        <dd>The number of shares or contracts traded in a security or an entire market during a given period of time.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingY">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseY" aria-expanded="false" aria-controls="collapseY">
+                    Y
+                </button>
+            </h2>
+            <div id="collapseY" class="accordion-collapse collapse" aria-labelledby="headingY" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>Yield</dt>
+                        <dd>The income return on an investment, such as the interest or dividends received from holding a particular security.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAdditional">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdditional" aria-expanded="false" aria-controls="collapseAdditional">
+                    Additional Terms
+                </button>
+            </h2>
+            <div id="collapseAdditional" class="accordion-collapse collapse" aria-labelledby="headingAdditional" data-bs-parent="#glossaryAccordion">
+                <div class="accordion-body">
+                    <dl>
+                        <dt>52 Week Range</dt>
+                        <dd>The highest and lowest prices at which a stock has traded over the past 52 weeks (one year). This range helps investors to see how the current price compares to the stock's performance over the past year.</dd>
+                        
+                        <dt>Day Range</dt>
+                        <dd>The highest and lowest prices at which a stock has traded during the current day's trading session. It gives investors an idea of the stock's intraday volatility.</dd>
+                        
+                        <dt>Dividend Yield</dt>
+                        <dd>A financial ratio that shows how much a company pays out in dividends each year relative to its stock price. It's calculated by dividing the annual dividends per share by the price per share, expressed as a percentage.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var accordionButtons = document.querySelectorAll('.accordion-button');
+        accordionButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var target = document.querySelector(this.getAttribute('data-bs-target'));
+                if (target) {
+                    target.classList.toggle('show');
+                    this.classList.toggle('collapsed');
+                    var isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !isExpanded);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

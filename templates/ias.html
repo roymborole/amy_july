@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Search Module Test</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .logo-search-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 100px;
+        }
+        .search-container {
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+        .main-nav {
+            background-color: #f4f4f4;
+            padding: 10px 0;
+        }
+        .main-nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .main-nav ul li {
+            margin: 0 10px;
+        }
+        .main-nav ul li a {
+            text-decoration: none;
+            color: #333;
+        }
+        #ia-search-form input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #ia-search-form button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #ia-autocomplete-results {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        #ia-autocomplete-results ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #ia-autocomplete-results li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        #ia-autocomplete-results li:hover {
+            background-color: #f0f0f0;
+        }
+        #ia-loading {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #ia-analysis-result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-search-container">
+            <div class="logo">
+                <img src="/static/mini-logo.png" alt="100x Club Mini Logo">
+            </div>
+            <div id="ia-search-module" class="search-container">
+            </div>
+        </div>
+        <div id="ia-loading" style="display:none;">
+            <div id="ia-lottie-container"></div>
+            <p>Generating report... Please wait.</p>
+        </div>
+        <div id="ia-analysis-result"></div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#">Investment Analysis</a></li>
+                <li><a href="#">Technical Analysis</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Pricing</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script src="{{ url_for('static', filename='js/ia_search_module.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            IASearchModule.init('ia-search-module', {
+                customHtml: `
+                    <form id="ia-search-form" action="/loading" method="POST">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="ia-search-input" name="ticker" placeholder="Enter company name" required>
+                            <div class="input-group-append">
+                                <button class="btn-analyze" type="submit">Analyze</button>
+                            </div>
+                        </div>
+                        <div id="ia-autocomplete-results"></div>
+                    </form>
+                `
+            });
+        });
+    </script>
+</body>
+</html>

@@ -65,6 +65,7 @@ from config import Config
 from functools import partial
 from celery_worker import send_weekly_reports
 from trie import Trie
+import time
 from celery import Celery
 from apscheduler.schedulers.background import BackgroundScheduler
 from extensions import init_extensions, init_celery, make_celery, get_redis_url
@@ -78,6 +79,18 @@ import pandas as pd
 from macroeconomic_analysis import generate_macroeconomic_analysis, save_macroeconomic_analysis, get_available_macro_analyses
 import traceback
 import asyncio
+from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
+from flask_mail import Mail
+from flask_wtf import CSRFProtect
+from models import User, Role
+from flask_security import Security, SQLAlchemyUserDatastore
+from flask_wtf.csrf import CSRFProtect
+from contentful_utils import get_top_stories
+
+
+
+
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -91,6 +104,8 @@ def create_app():
     app.config['DEBUG'] = True
     app.config.from_object(Config)
 
+    csrf = CSRFProtect(app)
+
     load_dotenv()
 
     database_url = os.environ.get('DATABASE_URL')
@@ -101,9 +116,25 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
+    app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
     app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     app.config['CELERY_RESULT_BACKEND'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['MAIL_SERVER'] = 'smtp.postmarkapp.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = os.environ.get('POSTMARK_API_TOKEN')
+    app.config['MAIL_PASSWORD'] = os.environ.get('POSTMARK_API_TOKEN')
+    app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
+    app.config['SECURITY_LOGIN_USER_TEMPLATE'] = 'security/login.html'
+    app.config['SECURITY_REGISTER_USER_TEMPLATE'] = 'security/register.html'
+
+    # Flask-Security settings
+    app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
+    app.config['SECURITY_REGISTERABLE'] = True
+    app.config['SECURITY_CONFIRMABLE'] = True
+    app.config['SECURITY_RECOVERABLE'] = True
+    app.config['SECURITY_CHANGEABLE'] = True
 
 
     redis_url = get_redis_url()
@@ -130,6 +161,13 @@ def create_app():
             setup_done = True
             
     init_extensions(app)
+    mail = Mail(app)
+    csrf = CSRFProtect(app)
+
+    security = Security(app, user_datastore)
+    
+    
+
 
     # Start the scheduler
     if not scheduler.running:
@@ -162,6 +200,7 @@ scheduler.start()
 
 from celery_worker import send_weekly_reports
 
+
 if __name__ == '__main__':
     app.run()
 
@@ -189,7 +228,6 @@ setup_logging(app)
 
 load_dotenv()
 
-mail = Mail(app)
 
 generated_reports = {}
 
@@ -205,7 +243,11 @@ os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 warnings.filterwarnings('ignore', category=Warning)
 
 with app.app_context():
+    db.drop_all()
     db.create_all()
+    if not user_datastore.find_user(email="admin@example.com"):
+        user_datastore.create_user(email="admin@example.com", password="password", fs_uniquifier=str(uuid.uuid4()))
+    db.session.commit()
 
 file_handler = FileHandler("app.log")
 file_handler.setLevel(logging.INFO)
@@ -224,10 +266,38 @@ def publish_to_queue(queue_name, message):
     connection.close()
 
 
-company_trie = Trie()
+company_trie = Trie()  #what the fuck is this?
 for company, ticker in COMPANIES.items():
     company_trie.insert(company, ticker)
 
+
+HEADLINE_CACHE = [
+    "The Spotify Paradox: When Soaring Growth Meets Shaky Foundations",
+    "Bulletproof Profits: Rheinmetall's Explosive 3-Year Surge",
+    "Western Dominance: How Paarl's Rugby Factory is Colonizing the Springboks",
+    "SAAB Fundamental Analysis: A Deep Dive into Defense Industry Dynamics"
+]
+
+@app.route('/api/headlines')
+def get_headlines():
+    time.sleep(0.1)  # Add a small delay
+    return jsonify(HEADLINE_CACHE)
+
+#for backward compatibility if needed
+@app.route('/api/top-stories')
+def get_top_stories():
+    return jsonify([{"title": headline} for headline in HEADLINE_CACHE])
+
+# Add this function to update headlines (you can call this when you publish new stories)
+def update_headlines(new_headlines):
+    global HEADLINE_CACHE
+    HEADLINE_CACHE = new_headlines
+
+@app.route('/admin/update_headlines', methods=['POST'])
+def admin_update_headlines():
+    new_headlines = request.json.get('headlines', [])
+    update_headlines(new_headlines)
+    return jsonify({"message": "Headlines updated successfully"}), 200
 
 @app.route('/favicon.ico')
 def favicon():
@@ -256,9 +326,20 @@ def crypto_predict(crypto_name):
                            prediction_data=prediction_data)
 
 @app.route('/')
+@login_required
 def home():
     return render_template('index.html')
 
+@app.route('/scrib')
+def scrib():
+    return render_template('scrib.html')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    # Your signup logic here
+    return render_template('signup.html')
+    
 @app.route('/crypto_news/<crypto_name>')
 def display_crypto_news(crypto_name):
     news_summary = get_crypto_news_summary(crypto_name)
@@ -271,6 +352,10 @@ def display_crypto_news(crypto_name):
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
+@app.route('/_next/static/<path:path>')
+def serve_static(path):
+    return send_from_directory('static', path)
 
 @app.route('/crypto_report/<crypto_name>')
 def display_crypto_report(crypto_name):
@@ -296,6 +381,58 @@ def display_crypto_report(crypto_name):
 @app.route('/gym')
 def gym():
     return render_template('gym.html')
+
+@app.route('/dummy')
+def dummy():
+    return render_template('dummy.html')
+
+@app.route('/ias')
+def ias():
+    return render_template('ias.html')
+
+@app.route('/scusy')
+def scusy():
+    return render_template('scusy.html')
+
+@app.route('/technical_analysis')
+def technical_analysis():
+    return render_template('technical_analysis.html')
+
+@app.route('/investment_analysis')
+def investment_analysis():
+    return render_template('investment_analysis.html')
+
+@app.route('/ias_loading/<ticker>')
+def ias_loading(ticker):
+    return render_template('ias_loading.html', ticker=ticker)
+
+@app.route('/ias_report/<name_or_ticker>')
+def ias_report(name_or_ticker):
+     return render_template('ias_report.html', ticker=ticker)
+
+@app.route('/glossary')
+def glossary():
+    return render_template('glossary.html')
+
+import os
+from flask import Flask, send_from_directory
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/blog')
+def blog():
+    return send_from_directory(app.static_folder, 'index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 @app.route('/upload_macro', methods=['GET', 'POST'])
 def upload_macro():
@@ -389,11 +526,26 @@ def generate_macro_analysis_route(ticker):
     except Exception as e:
         app.logger.exception(f"Unexpected error during macro analysis for {ticker}")
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+    
+
+def get_ticker_from_name(input_str):
+    # Check if input is already a ticker
+    if input_str.upper() in COMPANIES.values():
+        return input_str.upper()
+    
+    # Check if input is a full company name
+    for name, ticker in COMPANIES.items():
+        if name.lower() == input_str.lower():
+            return ticker
+    
+    # If not found, return the input as is
+    return input_str
 
 @app.route('/generate_macro', methods=['POST'])
 def generate_macro():
-    ticker = request.form['ticker'].upper()
-    app.logger.info(f"Generating macroeconomic analysis for ticker: {ticker}")
+    input_str = request.form['ticker']
+    ticker = get_ticker_from_name(input_str)
+    app.logger.info(f"Generating macroeconomic analysis for input: {input_str}, resolved ticker: {ticker}")
 
     try:
         # Get financial data
@@ -406,17 +558,22 @@ def generate_macro():
 
         # Generate macroeconomic analysis
         analysis, error = generate_macroeconomic_analysis(ticker)
-        app.logger.info(f"Analysis generated: {analysis[:100]}...")  # Log first 100 chars of analysis
-
+        
         if error:
             app.logger.error(f"Error generating macroeconomic analysis for {ticker}: {error}")
             return jsonify({'error': error}), 400
+
+        if analysis is None:
+            app.logger.warning(f"No macroeconomic analysis generated for {ticker}")
+            analysis = "No macroeconomic analysis available for this asset."
+        else:
+            app.logger.info(f"Analysis generated: {analysis[:100]}...")  # Log first 100 chars of analysis
 
         # Get performance data and price history
         performance_data = financial_data.get('performance', {})
         price_history = financial_data.get('price_history', {})
 
-        app.logger.info(f"Successfully generated macroeconomic analysis for {ticker}")
+        app.logger.info(f"Successfully processed macroeconomic data for {ticker}")
         return jsonify({
             'analysis': analysis,
             'performance': performance_data,
@@ -505,40 +662,7 @@ def search():
 
     return jsonify({'results': search_results})
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        name = request.form.get('name')
 
-        # Check if user already exists
-        user = User.query.filter_by(email=email).first()
-        if user:
-            flash('Email address already exists')
-            return redirect(url_for('signup'))
-
-        # Create new user
-        new_user = User(
-            email=email,
-            name=name,
-            password=generate_password_hash(password, method='sha256')
-        )
-
-        # Add the new user to the database
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Log the user in
-        login_user(new_user)
-
-    
-
-        flash('Account created successfully')
-        return redirect(url_for('index'))
-
-    # If it's a GET request, just render the signup form
-    return render_template('signup.html')
 
 @app.route('/logout')
 def logout():
@@ -798,10 +922,6 @@ def display_report(name_or_ticker):
         chart_html = f'<img src="data:image/png;base64,{chart_data}" alt="{chart_type} chart" class="chart">'
         report_content = report_content.replace(placeholder, chart_html)
 
-   
-    header2_url = url_for('static', filename='Header2.png')
-    report_content += f'\n<img src="{header2_url}" alt="Header 2" class="header-image">'
-
     return render_template('report.html', 
                            asset_name=raw_data['asset_name'],
                            raw_data=raw_data,
@@ -903,14 +1023,26 @@ def display_prediction(name_or_ticker):
                            asset_name=name_or_ticker,
                            prediction_data=prediction_data)
 
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    return send_from_directory(app.static_folder, filename)
 
 @app.route('/about')
 def about():
     return render_template('aboutus.html')
 
+@app.route('/ns')
+def ns():
+    return render_template('ns.html') #test file
+
+@app.route('/works')
+def works():
+    return render_template('works.html') #How it works route 
+
+@app.route('/horse')
+def horse():
+    return render_template('horse.html') #Test file for index
+
+@app.route('/_next/<path:path>')
+def next_static(path):
+    return send_from_directory(os.path.join(app.static_folder, '_next'), path)
 
 @app.route('/send_comparison_report', methods=['POST'])
 def send_comparison_report():
@@ -978,6 +1110,18 @@ def test_weekly_reports():
 def subscription_success():
     return render_template('subscription_success.html')
 
+@app.route('/jodi')
+def jodi():
+    return render_template('jodi.html')
+
+@app.route('/aaa')
+def aaa():
+    return render_template('aaa.html')
+
+
+@app.route('/ta_staging')
+def ta_staging():
+    return render_template('ta_staging.html')
 
 @app.route('/privacy_policy')
 def privacy_policy():

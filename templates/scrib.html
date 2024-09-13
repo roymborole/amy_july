@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+
+{% block title %} 100x Club - Demystifying Finance{% endblock %}
+
+{% block content %}
+    <style>
+        html, body {
+            min-height: 100%;
+       }
+       
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    
+        }
+    
+        #logo-carousel-container {
+            width: 100%;
+            overflow: hidden;  // Hide overflow
+        }
+        
+        @media (max-width: 768px) {
+            .ta-report-content, .ta-report-fortune-text {
+                width: 90%;  
+            }
+        }
+        #new-search-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #new-search-btn:hover {
+            background-color: #0056b3;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        #search-container {
+            margin-top: 20px;
+        }
+        #search-input {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #analyze-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        #analyze-btn:hover {
+            background-color: #218838;
+        }
+        #autocomplete-results {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .autocomplete-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .autocomplete-list li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-list li:hover {
+            background-color: #f0f0f0;
+        }
+        .full-width-carousel {
+            width: 130vw;
+            margin-left: calc(-30vw + 30%);
+            margin-top: 2rem;
+            padding: 0 2rem;
+            box-sizing: border-box;
+            background-color: transparent;
+        }
+        
+        .logo-carousel {
+            position: relative;
+            width: 100%;
+            max-width: none;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .carousel-container {
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .carousel-track {
+            display: flex;
+            animation: scroll 40s linear infinite;
+        }
+        
+        .carousel-slide {
+            flex: 0 0 10%; /* Adjust this value to fit more or fewer logos */
+            min-width: 10%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: transparent
+            color: #ffffff;
+            width: 400px;
+        }
+        
+        h1 {
+            font-family: 'League Spartan', sans-serif;
+            font-size: 95px;
+            color: #F4F3C6;
+            text-align: left;
+        }
+        
+        h2b {
+            font-family: 'Roboto', sans-serif;
+            font-size: 42px;
+            color: #ffffff;
+            text-align: left;
+        }
+        
+        .main-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: le;
+            padding: 50px;
+            margin-top: 20px;
+        }
+        
+        .content {
+            max-width: 1200px;
+            background color: transparent;
+        }
+        
+        .buttons {
+            margin-top: 20px;
+        }
+        
+        .btn {
+            text-decoration: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+        }
+        
+        .btn-green {
+            background-color: #7ED957;
+            color: #ffffff;
+            border: none;
+        }
+        
+        .btn-outline-green {
+            background-color: transparent;
+            color: #7ED957;
+            border: 2px solid #ffffff;
+            margin-left: 10px;
+        }
+        
+        .abstract-image img {
+            width: 400px; /* Adjust as needed */
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                text-align: center;
+            }
+        
+            .abstract-image img {
+                width: 100%;
+                max-width: 300px;
+                margin-top: 20px;
+            }
+        }   
+        
+        .ta-report-container {
+            padding: 20px;
+            background-color: #333;
+            color: #f0f0f0;
+        }
+        .ta-report-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .ta-report-text-column {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .ta-report-image-column {
+            flex: 0 0 auto;
+            margin-left: 20px;
+        }
+    
+        .ta-report-image {
+            max-width: 300px;
+            height: auto;
+        }
+    
+        #ia-report-search-container {
+            margin-top: 20px;
+        }
+        .ta-report-subtitle {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        body {
+            background-color: #393939;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+        }
+        .header {
+            background-color: #F1F1F1;
+            padding: 10px 20px;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo img {
+            max-height: 40px;
+        }
+        .main-nav {
+            display: flex;
+            align-items: center;
+        }
+        .main-nav a {
+            color: #000000;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .main-nav .get-started {
+            background-color: #7ED957;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .green-rectangle {
+            background-color: #7ED957;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .green-rectangle h1 {
+            font-size: 8px;
+            margin-bottom: 10px;
+        }
+        .green-rectangle h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        .green-rectangle p {
+            font-size: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .logo-large {
+            display: block;
+            margin: 0 auto 40px;
+            max-width: 200px;
+        }
+        .motto {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .content img {
+            max-width: 22.5%; /* Reduced by 50% from 45% */
+            height: auto;
+        }
+        .content p {
+            font-size: 18px;
+            max-width: 45%;
+        }
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .social-icons img {
+            width: 30px;
+            height: 30px;
+        }
+        .ta-report-container {
+            max-width: 80%;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem 2rem; /* Increased bottom padding */
+            background-color: #393939;
+            min-height: 100vh; 
+            margin-top: 20px; 
+            
+        }
+    
+        h2 {
+            font-family: 'Anton', sans-serif;
+            text-align: center;
+            font-size: 70px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Horse Section -->
+    <section id="home" class="section">
+        <div class="container">
+            <h1>Demystifying Finance, One Click at a Time</h1>
+            <p>Invest smarter with AI-powered, easy-to-understand analysis and advice.</p>
+            <div class="buttons">
+                <a href="#" class="btn btn-green">Get Started</a>
+                <a href="#" class="btn btn-outline-green">How it works</a>
+            </div>
+            <img src="/api/placeholder/600/400" alt="100X Abstract" class="ta-report-image">
+        </div>
+    </section>
+
+    <!-- Technical Analysis Section -->
+    <section id="technical-analysis" class="section">
+        <div class="container">
+            <h2>Professional Technical Analysis Reports</h2>
+            <p>Invest smarter with AI-powered, easy-to-understand analysis and advice.</p>
+            <h3>Use Technical Analysis to gain an edge</h3>
+            <ul>
+                <li><strong>Spot Opportunities:</strong> Find good times to buy or sell stocks by seeing patterns in price charts.</li>
+                <li><strong>Manage Risk:</strong> Set smart buy and sell points to protect investments from big losses.</li>
+                <li><strong>Timing the Market:</strong> Make better decisions on when to invest by understanding market mood and momentum.</li>
+            </ul>
+            <img src="/api/placeholder/600/400" alt="Technical Analysis Report" class="ta-report-image">
+        </div>
+    </section>
+
+    <!-- Investment Analysis Section -->
+    <section id="investment-analysis" class="section">
+        <div class="container">
+            <h2>Professional Investment Reports</h2>
+            <p>Invest smarter with AI-powered, easy-to-understand analysis and advice.</p>
+            <h3>Make Smart Financial Choices</h3>
+            <ul>
+                <li><strong>Informed Decisions:</strong> Choose better investments by understanding a company's health, growth potential, and risks.</li>
+                <li><strong>Long-term Planning:</strong> Build stronger portfolios for clients by focusing on investments that align with their goals and risk tolerance.</li>
+                <li><strong>Diverse Strategies:</strong> Combine different types of investments to balance risk and potential returns for clients.</li>
+            </ul>
+            <img src="/api/placeholder/600/400" alt="Investment Analysis Report" class="ta-report-image">
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about-us" class="section">
+        <div class="container">
+            <h2>ABOUT US</h2>
+            <h3>We're here to simplify Finance and Investing</h3>
+            <p>100X helps businesses, analysts and investors make smarter more informed decisions all geared towards helping them generate better than market returns. Join 100's and 1000's of organisations and investors worldwide who use 100X to gain an edge and understand markets better.</p>
+            <img src="/api/placeholder/200/100" alt="100X Logo" class="ta-report-image">
+            <p>Our story is your story. You want to understand the markets and finance better. You want to spot orthogonal opportunities. You want to win. We want the same thing.</p>
+            <img src="/api/placeholder/600/400" alt="About 100X" class="ta-report-image">
+            <p>100x was started and is run and maintained by Roy Mathieu Borole. The 100x was started to help me build financial models and help me better understand financial markets and how we can use predictive algorithms to better understand the stock market - or at least throw up cool charts on our screen when a hot guy walks past. #FINANCE I've been working on this since mid 2023 and hope to continue working on it for the next 5 years. If you like what we're doing please hit us up with a message on any of the platforms below.</p>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/profile.php?id=61565441469872" target="_blank" rel="noopener noreferrer"><img src="/api/placeholder/32/32" alt="Facebook"></a>
+                <a href="https://x.com/100_x_Club" target="_blank" rel="noopener noreferrer"><img src="/api/placeholder/32/32" alt="Twitter"></a>
+                <a href="https://www.linkedin.com/company/100-x-club" target="_blank" rel="noopener noreferrer"><img src="/api/placeholder/32/32" alt="LinkedIn"></a>
+                <a href="#"><img src="/api/placeholder/32/32" alt="Instagram"></a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 100x Club. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
+{% endblock %}

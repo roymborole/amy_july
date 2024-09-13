@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block styles %}
+{{ super() }}
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/technical_analysis.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+<script src="{{ url_for('static', filename='js/ta_search_module.js') }}"></script>
+<style>
+
+    html, body {
+        min-height: 100%;
+   }
+   
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    }
+
+    #logo-carousel-container {
+        width: 100%;
+        overflow: hidden;  // Hide overflow
+    }
+    
+    @media (max-width: 768px) {
+        .ta-report-content, .ta-report-fortune-text {
+            width: 90%;  
+        }
+    }
+    #new-search-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    #new-search-btn:hover {
+        background-color: #0056b3;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 8px;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close:hover {
+        color: #000;
+    }
+    #search-container {
+        margin-top: 20px;
+    }
+    #search-input {
+        width: 70%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    #analyze-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+    #analyze-btn:hover {
+        background-color: #218838;
+    }
+    #autocomplete-results {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .autocomplete-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        border: 1px solid #ddd;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .autocomplete-list li {
+        padding: 10px;
+        cursor: pointer;
+    }
+    .autocomplete-list li:hover {
+        background-color: #f0f0f0;
+    }
+    .full-width-carousel {
+        width: 130vw;
+        margin-left: calc(-30vw + 30%);
+        margin-top: 2rem;
+        padding: 0 2rem;
+        box-sizing: border-box;
+        background-color: transparent;
+    }
+    
+    .logo-carousel {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+    
+    .carousel-container {
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .carousel-track {
+        display: flex;
+        animation: scroll 40s linear infinite;
+    }
+    
+    .carousel-slide {
+        flex: 0 0 10%; /* Adjust this value to fit more or fewer logos */
+        min-width: 10%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+
+    h1bz {
+      font-family: 'League Spartan', sans-serif;
+      font-size: 90px;
+      color: #F4F3C6;
+      text-align: left;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+  }
+
+  .ka-report-container {
+    max-width: 80%;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem 2rem; /* Increased bottom padding */
+    background-color: #404040;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ka-report-container">
+    <div class="ta-report-content">
+      <div class="ta-report-text-column">
+        <h1bz>Professional Technical Analysis Reports </h1bz>
+        <p class="ta-report-subtitle">Invest smarter with AI-powered, easy-to-understand analysis and advice.</p>
+        <p class="ta-report-advantages">Use Technical Analysis to gain an edge</p>
+        <ul class="ta-report-advantages-list">
+          <li><strong>Spot Opportunities:</strong> Find good times to buy or sell stocks by seeing patterns in price charts.</li>
+          <li><strong>Manage Risk:</strong> Set smart buy and sell points to protect investments from big losses.</li>
+          <li><strong>Timing the Market:</strong> Make better decisions on when to invest by understanding market mood and momentum.</li>
+    </div>
+      <div class="ta-report-image-column">
+        <img src="{{ url_for('static', filename='images/100x-tecnical-analysis.png') }}" alt="Technical Analysis Report" class="ta-report-image">
+    </div>
+    </div>
+        <div id="fortune-carousel-container" class="full-width-carousel">
+            <h2 class="ta-report-fortune-text">Fortune 500 Companies</h2>
+            <div id="logo-carousel-container"></div>
+
+<footer class="footer mt-auto py-3 bg-dark text-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <h5>Resources</h5> 
+          <ul class="list-unstyled">
+            <li><a href="{{ url_for('blog') }}">Blog</a></li>
+            <li><a href="{{ url_for('glossary') }}">Glossary</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-3">
+          <h5>Get in Touch</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted">Suggest a feature</a></li>
+            <li><a href="#" class="text-muted">Partnerships</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-3">
+          <h5>100-X</h5>
+          <ul class="list-unstyled">
+            <li> <a href="{{ url_for('about') }}">About us</a></li>
+            <li><a href="#" class="text-muted">Editorial Guidelines</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-3">
+          <h5>Legal</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted">Imprint</a></li>
+            <li> <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a></li>
+            <li> <a href="{{ url_for('terms_of_service') }}">Terms</a></li>
+            <li><a href="#" class="text-muted">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-6">
+          <p class="text-muted">&copy; 2024 100x Club. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <ul class="list-inline">
+            <li class="list-inline-item"><a href="https://www.facebook.com/profile.php?id=61565441469872" class="text-muted" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+            <li class="list-inline-item"><a href="https://x.com/100_x_Club" class="text-muted" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+            <li class="list-inline-item"><a href="https://www.linkedin.com/company/100-x-club" class="text-muted" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
+</div>
+  </footer>
+<script src="{{ url_for('static', filename='js/carousel-script.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        createCarousel('fortune-carousel-container');
+    });
+</script>
+{% endblock %}

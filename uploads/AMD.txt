@@ -1,0 +1,59 @@
+Here is the macroeconomic analysis for Advanced Micro Devices, Inc. for the second quarter of 2024:
+
+Q2 2024 Macroeconomic Analysis for Advanced Micro Devices, Inc.
+Date: July 31, 2024
+
+Revenue:
+- Net revenue for Q2 2024 was $5.835 billion, up 9% from $5.359 billion in Q2 2023
+- Data Center revenue was $2.834 billion, up 115% year-over-year, driven by strong AMD Instinct GPU and 4th Gen EPYC CPU sales
+- Client revenue was $1.492 billion, up 49% year-over-year, driven by higher Ryzen mobile and desktop processor sales 
+- Gaming revenue was $648 million, down 59% year-over-year, due to lower semi-custom revenue
+- Embedded revenue was $861 million, down 41% year-over-year, as customers normalized inventory levels
+
+Revenue growth appears driven primarily by volume increases in Data Center and Client segments from new product ramps, offset by declines in Gaming and Embedded as those markets cooled.
+
+Profitability:
+- Gross margin was 49%, up from 46% in Q2 2023, driven by higher Data Center revenue
+- Operating income was $269 million versus $20 million operating loss in Q2 2023
+- Net income was $265 million versus $27 million in Q2 2023
+
+Profit margins expanded significantly year-over-year due to the revenue mix shift towards higher margin Data Center sales and operating leverage on higher revenue.
+
+Operating Expenses:
+- Research and development expense was $1.583 billion, up 10% year-over-year 
+- Marketing/G&A expense was $650 million, up 19% year-over-year
+- Amortization of acquisition-related intangibles was $603 million, down 13% year-over-year
+
+Opex increased to support new product development and go-to-market activities, though amortization expense declined.
+
+Other Metrics:
+- EPS was $0.16, up from $0.02 in Q2 2023
+- Operating cash flow was $593 million 
+- Free cash flow was $297 million after $296 million in capex
+- Ended quarter with $5.3 billion in cash/investments
+- Repurchased $352 million in stock
+- Debt was $1.719 billion, down $748 million sequentially after repaying $750 million notes
+
+AMD generated strong cash flow and earnings leverage in the quarter from Data Center/Client strength. It returned cash to shareholders through buybacks while paying down debt.
+
+The results show AMD successfully capitalizing on AI/data center demand trends with its newest products, offsetting weakness in client PC and gaming markets. Profitability expanded significantly. However, the outlook depends on sustained Data Center momentum amid economic uncertainty. Management's guidance and commentary on demand indicators will be important.
+
+Revenue Details:
+Data Center: $2,834M 
+Client: $1,492M
+Gaming: $648M  
+Embedded: $861M
+
+Earnings Details:  
+Gross Profit: $2,864M (49% margin)
+Operating Income: $269M 
+Net Income: $265M
+EPS: $0.16 (diluted)
+
+Other Key Figures:
+Operating Cash Flow: $593M
+Capital Expenditures: $296M  
+Cash/Investments: $5.3B
+Debt: $1.719B
+
+Let me know if you need any clarification or have additional questions!

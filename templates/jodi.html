@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .green-box {
+        background-color: #7ED957;
+        color: white;
+        padding: 40px 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .form-wrapper {
+        background-color: #424242;
+        padding: 30px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .form-wrapper form {
+      width: 80%;
+      justify-content: center;
+  }
+    
+    .form-control {
+        background-color: #616161;
+        border: none;
+        color: white;
+        margin-bottom: 15px;
+        justify-content: center;
+    }
+    
+    .form-control::placeholder {
+        color: #fffffff;
+    }
+    
+    .btn-primary {
+        background-color: #7ED957;
+        border: none;
+        padding: 10px 30px;
+    }
+    
+    .btn-primary:hover {
+        background-color: #7CB342;
+    }
+    
+    .text-muted {
+        color: #BDBDBD !important;
+    }
+    
+    .form-check-label {
+        color: #BDBDBD;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="green-box col-12">
+            <h1 id="talk-with-our-sales-team" style="font-size: 51px;">Talk with our sales team</h1>
+            <p>Fill out your information and a 100x representative will reach out to you. Have a simple question? Check out our FAQ.</p>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="form-wrapper">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="First Name*" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Last Name*" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" class="form-control" placeholder="Company E-mail*" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" class="form-control" placeholder="Phone Number:">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Company Size">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="3" placeholder="What would you like to discuss?"></textarea>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="privacyCheck">
+                        <label class="form-check-label" for="privacyCheck">By checking the box and clicking "Submit", you are agreeing to 100x's Privacy Statement.</label>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-get-started ">Submit</button>
+                    </div>
+                    <p class="text-muted text-center mt-2">Fields marked with an asterisk (*) are required.</p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

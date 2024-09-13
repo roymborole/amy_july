@@ -1,164 +1,295 @@
 {% extends "base.html" %}
 {% block head %}
 {{ super() }}
+<head>
 <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+<title>Technical Analysis Report - {{ asset_name }}</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/tooltips.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Anton:wght@300;400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/styles.css">
 <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</head>
+<style>
+    h1, h2 {
+        font-family: 'Anton', sans-serif;
+        text-align: center;
+    }
+
+    h1x {
+        font-family: 'Anton', sans-serif;
+        font-size: 90px;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-top: 30px;
+        text-align: center;
+
+    }
+
+    h3 {
+        font-family: 'Anton', sans-serif;
+        font-size: 30px;
+        text-align: center;
+        font-weight: bold;
+    }
+    .description {
+        font-family: 'Roboto', sans-serif;
+        font-size: 15px;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        margin: 30px 0;
+    }
+
+    .btn {
+        font-family: 'Roboto', sans-serif;
+        color: white;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 18px;  
+        transition: all 0.3s ease;  
+    }
+  
+    .btn-email {
+        background-color: #E2C100;
+        color: white;
+    }
+    
+    .btn-news {
+        background-color: #FFBD59;
+        color: white;
+    }
+    
+    .btn-compare {
+        background-color: #FF9A00;
+        color: white;
+    }
+    
+    .btn-subscribe {
+        background-color: #FF5757;
+        color: white;
+    }
+    
+    .btn:hover {
+        opacity: 0.8;
+        transform: scale(1.05); 
+    }
+    
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .popup {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .stat-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    
+    .stat-box {
+        flex: 1 1 calc(33.333% - 20px);
+        margin: 10px;
+        min-width: 200px;
+        background-color: #C1FF72;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        color: black;
+        }
+    .stat-label {
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+        margin-top: 5px;
+    }
+    .stat-value {
+        font-family: 'Roboto', sans-serif;
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .table-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .custom-table {
+        border-collapse: collapse;
+        width: 80%;
+        max-width: 800px;
+        margin: 20px 0;
+    }
+    .custom-table th, .custom-table td {
+        border: 1px solid white;
+        padding: 10px;
+        text-align: left;
+        font-family: 'Roboto', sans-serif;
+        color: black;
+    }
+    .custom-table th, .custom-table td:first-child {
+        background-color: #C1FF72;
+    }
+    .custom-table tr:not(:first-child) td:not(:first-child) {
+        background-color: #D9D9D9;
+    }
+
+    .performance-table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        width: 80%;
+    }
+    .performance-table th, .performance-table td {
+        border: 1px solid white;
+        padding: 10px;
+        text-align: left;
+        font-family: 'Roboto', sans-serif;
+        color: black;
+    }
+    .performance-table th {
+        background-color: #C1FF72;
+    }
+    .performance-table tr:not(:first-child) {
+        background-color: #D9D9D9;
+    }
+    .chart {
+        max-width: 100%;
+        height: auto;
+        margin: 20px 0;
+        border-radius: 10px;
+    }
+</style>
 {% endblock %}
 {% block content %}
-<div>
-    <div class="header">
-        <div class="logo logo-mini">
-            <a href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='mini-logo.png') }}" alt="100x Club Logo">
-            </a>
+<body>
+    <div class="report-container">
+        <div style="font-family: 'Roboto', sans-serif; font-size: 14px; text-align: center; margin-bottom: 10px;">100-x.club</div>
+        <h1x>Technical analysis of {{ asset_name }}</h1x>
+        <p class="description">Technical analysis is a method used in financial markets to evaluate and predict price movements based on historical data, chart patterns, and statistical indicators.</p>
+        <div class="button-container">
+            <div class="button-container">
+                <button class="btn btn-email" onclick="openEmailOverlay()">Email</button>
+                <button onclick="showNewsSummary('{{ asset_name }}')" class="btn btn-news">View News</button>
+                <button class="btn btn-compare" onclick="compareAsset()">Compare</button>
+                <button class="btn btn-subscribe" onclick="subscribeToReports()">Subscribe</button>
+            </div>
         </div>
-        <div class="nav-buttons">
-           <a href="{{ url_for('about') }}"><strong>About Us</strong></a>
-            <a href="{{ url_for('contact') }}"><strong>Contact Us</strong></a>
-    </div>
-</div>
-
-<div class="report-container">
-    <img src="{{ url_for('static', filename='Header1.png') }}" alt="Header" class="header-image">
-
-    <h1 class="text-center pink-heading">Technical Analysis for {{ asset_name }}</h1>
-
-    <div class="button-container text-center">
-    <button onclick="openEmailOverlay()" class="btn btn-primary">Email this Report</button>
-    <button onclick="showNewsSummary('{{ asset_name }}')" class="btn btn-news">View News Summary</button>
-    <button onclick="compareAsset()" class="btn btn-info">Compare with Another Asset</button>
-    <button onclick="subscribeToReports()" class="btn btn-success">Subscribe to Weekly Reports</button>
-    <button onclick="newSearch()" class="btn btn-secondary">New Search</button>
-
-</div>
-
-
-    <div class="report-content">
-        <h2 class="text-center pink-heading">Performance Overview</h2>
-        <div class="chart-container">
-            <canvas id="priceChart"></canvas>
+        <h3>Key Statistics</h3>
+        <div class="stat-container">
+            <div class="stat-box">
+                <td><span data-tooltip="The stock's closing price from the previous trading day."><strong>Previous Close</strong></span></td>
+                <div class="stat-value">{{ raw_data.previous_close if raw_data.previous_close is not none else 'N/A' }}</div>
+            </div>
+            <div class="stat-box">
+                <td><span data-tooltip="The lowest and highest prices at which the stock has traded during the current trading day."><strong>Day Range</strong></span></td>
+                <div class="stat-value">{{ raw_data.day_low if raw_data.day_low is not none else 'N/A' }} - {{ raw_data.day_high if raw_data.day_high is not none else 'N/A' }}</div>
+            </div>
+            <div class="stat-box">
+                <td><span data-tooltip="The lowest and highest prices at which the stock has traded over the past 52 weeks."><strong>52 Week Range</strong></span></td>
+                <div class="stat-value">{{ raw_data.year_low if raw_data.year_low is not none else 'N/A' }} - {{ raw_data.year_high if raw_data.year_high is not none else 'N/A' }}</div>
+            </div>
+            <div class="stat-box">
+                <td><span data-tooltip="The average number of shares traded daily over a specific period, typically 30 days."><strong>Average Volume</strong></span></td>
+                <div class="stat-value">{{ "{:,}".format(raw_data.avg_volume) if raw_data.avg_volume is not none else 'N/A' }}</div>
+            </div>
+            <div class="stat-box">
+                <td><span data-tooltip="Price-to-Earnings Ratio. A valuation ratio of a company's current share price compared to its earnings per share."><strong>P/E Ratio</strong></span></td>
+                <div class="stat-value">{{ "{:.2f}".format(raw_data.pe_ratio) if raw_data.pe_ratio is not none else 'N/A' }}</div>
+            </div>
+            <div class="stat-box">
+                <td><span data-tooltip="The annual dividend payment as a percentage of the stock's current price."><strong>Dividend Yield</strong></span></td>
+                <div class="stat-value">{{ "{:.2f}%".format(raw_data.dividend_yield * 100) if raw_data.dividend_yield is not none else 'N/A' }}</div>
+            </div>
         </div>
-    <div class="additional-data">
-        <h2 class="text-center pink-heading">Key Statistics</h2>
-        <table class="data-table">
-                    <table>
-                        <tr>
-                            <td><span data-tooltip="The stock's closing price from the previous trading day."><strong>Previous Close</strong></span></td>
-                            <td>{{ raw_data.previous_close if raw_data.previous_close is not none else 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td><span data-tooltip="The lowest and highest prices at which the stock has traded during the current trading day."><strong>Day Range</strong></span></td>
-                            <td>{{ raw_data.day_low if raw_data.day_low is not none else 'N/A' }}</td><td>{{ raw_data.day_high if raw_data.day_high is not none else 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td><span data-tooltip="The lowest and highest prices at which the stock has traded over the past 52 weeks."><strong>52 Week Range</strong></span></td>
-                            <td>{{ raw_data.year_low if raw_data.year_low is not none else 'N/A' }}</td><td>{{ raw_data.year_high if raw_data.year_high is not none else 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td><span data-tooltip="The average number of shares traded daily over a specific period, typically 30 days."><strong>Average Volume</strong></span></td>
-                            <td>{{ "{:,}".format(raw_data.avg_volume) if raw_data.avg_volume is not none else 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td><span data-tooltip="Price-to-Earnings Ratio. A valuation ratio of a company's current share price compared to its earnings per share."><strong>P/E Ratio</strong></span></td>
-                            <td>{{ "{:.2f}".format(raw_data.pe_ratio) if raw_data.pe_ratio is not none else 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td><span data-tooltip="The annual dividend payment as a percentage of the stock's current price."><strong>Dividend Yield</strong></span></td>
-                            <td>{{ "{:.2f}%".format(raw_data.dividend_yield * 100) if raw_data.dividend_yield is not none else 'N/A' }}</td>
-                        </tr>
-                    </table>
-                </div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Return</th>
-                    <th>{{ asset_name }}</th>
-                    <th>S&P 500</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><span data-tooltip="The percentage change in the stock's price since the beginning of the current calendar year."><strong>YTD Return</strong></span></td>
-                    <td>{% if raw_data.performance and raw_data.performance.YTD %}
-                        {{ "%.2f"|format(raw_data.performance.YTD.stock) }}%
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                    <td>{% if raw_data.performance and raw_data.performance.YTD and raw_data.performance.YTD.sp500 is defined %}
-                        {{ "%.2f"|format(raw_data.performance.YTD.sp500) }}%
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td><span data-tooltip="The percentage change in the stock's price over the last 12 months."><strong>1-Year</strong></span></td>
-                    <td>{% if raw_data.performance and raw_data.performance['1-Year'] %}
-                        {{ "%.2f"|format(raw_data.performance['1-Year'].stock) }}%
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                    <td>{% if raw_data.performance and raw_data.performance['1-Year'] and raw_data.performance['1-Year'].sp500 is defined %}
-                        {{ "%.2f"|format(raw_data.performance['1-Year'].sp500) }}%
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td><span data-tooltip="The percentage change in the stock's price over the last 3 years."><strong>3-Year</strong></span></td>
-                    <td>{% if raw_data.performance and raw_data.performance['3-Year'] %}
-                        {{ "%.2f"|format(raw_data.performance['3-Year'].stock) }}%
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                    <td>{% if raw_data.performance and raw_data.performance['3-Year'] and raw_data.performance['3-Year'].sp500 is defined %}
-                        {{ "%.2f"|format(raw_data.performance['3-Year'].sp500) }}%
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                </tr>
-            </tbody>
+        <h3>Performance Overview</h3>
+        <div id="performance-chart" class="chart"></div>
+        <table class="custom-table">
+        <table>
+            <tr>
+                <th>Return</th>
+                <th>{{ asset_name }}</th>
+                <th>S&P 500</th>
+            </tr>
+            <tr>
+                <td><span data-tooltip="The percentage change in the stock's price since the beginning of the current calendar year."><strong>YTD Return</strong></span></td>
+                <td>{% if raw_data.performance and raw_data.performance.YTD %} {{ "%.2f"|format(raw_data.performance.YTD.stock) }}% {% else %} N/A {% endif %}</td>
+                <td>{% if raw_data.performance and raw_data.performance.YTD and raw_data.performance.YTD.sp500 is defined %} {{ "%.2f"|format(raw_data.performance.YTD.sp500) }}% {% else %} N/A {% endif %}</td>
+            </tr>
+            <tr>
+                <td><span data-tooltip="The percentage change in the stock's price over the last 12 months."><strong>1-Year</strong></span></td>
+                <td>{% if raw_data.performance and raw_data.performance['1-Year'] %} {{ "%.2f"|format(raw_data.performance['1-Year'].stock) }}% {% else %} N/A {% endif %}</td>
+                <td>{% if raw_data.performance and raw_data.performance['1-Year'] and raw_data.performance['1-Year'].sp500 is defined %} {{ "%.2f"|format(raw_data.performance['1-Year'].sp500) }}% {% else %} N/A {% endif %}</td>
+            </tr>
+            <tr>
+                <td><span data-tooltip="The percentage change in the stock's price over the last 3 years."><strong>3-Year</strong></span></td>
+                <td>{% if raw_data.performance and raw_data.performance['3-Year'] %} {{ "%.2f"|format(raw_data.performance['3-Year'].stock) }}% {% else %} N/A {% endif %}</td>
+                <td>{% if raw_data.performance and raw_data.performance['3-Year'] and raw_data.performance['3-Year'].sp500 is defined %} {{ "%.2f"|format(raw_data.performance['3-Year'].sp500) }}% {% else %} N/A {% endif %}</td>
+            </tr>
         </table>
 
         {{ report_content|safe }}
 
         {% if prediction_data %}
-        <h2 class="text-center pink-heading">Price Prediction Results</h2>
-        <p><strong>Current Price:</strong> ${{ raw_data.close_price|round(2) }}</p>
-        <p><strong>Predicted Price:</strong> ${{ prediction_data.predicted_price|round(2) }}</p>
-        <p><strong>Prediction Date:</strong> {{ prediction_data.prediction_date }}</p>
-        <p><strong>95% Confidence Interval:</strong> ${{ prediction_data.ci_lower|round(2) }} - ${{ prediction_data.ci_upper|round(2) }}</p>
+        <h2>Price Prediction Results</h2>
+        <p>Current Price: ${{ raw_data.close_price|round(2) }}</p>
+        <p>Predicted Price: ${{ prediction_data.predicted_price|round(2) }}</p>
+        <p>Prediction Date: {{ prediction_data.prediction_date }}</p>
+        <p>95% Confidence Interval: ${{ prediction_data.ci_lower|round(2) }} - ${{ prediction_data.ci_upper|round(2) }}</p>
         <img src="data:image/png;base64,{{ prediction_data.plot_prediction }}" alt="Prediction Plot" class="chart">
         {% endif %}
     </div>
-</div>
 
-<div id="emailOverlay" class="overlay">
-    <div class="popup">
-        <h2>Enter your email address</h2>
-        <input type="email" id="emailInput">
-        <button onclick="sendEmail()">Send</button>
-        <button onclick="closeEmailOverlay()">Cancel</button>
+    <div id="emailOverlay" class="overlay">
+        <div class="popup">
+            <h2>Enter your email address</h2>
+            <input type="email" id="emailInput" placeholder="Your email">
+            <button onclick="sendEmail()">Send</button>
+            <button onclick="closeOverlay('emailOverlay')">Cancel</button>
+        </div>
     </div>
-</div>
 
-<div id="subscribeOverlay" class="overlay">
-    <div class="popup">
-        <h2>Enter your email to get weekly updates on this stock</h2>
-        <input type="email" id="subscribeEmail" placeholder="your@email.com">
-        <button onclick="subscribe()">Subscribe</button>
-        <button onclick="closeOverlay('subscribeOverlay')">Cancel</button>
+    <div id="subscribeOverlay" class="overlay">
+        <div class="popup">
+            <h2>Enter your email to get weekly updates on this stock</h2>
+            <input type="email" id="subscribeInput" placeholder="Your email">
+            <button onclick="subscribe()">Subscribe</button>
+            <button onclick="closeOverlay('subscribeOverlay')">Cancel</button>
+        </div>
     </div>
-</div>
 
 <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;">
     <div style="background-color:#FF69B4; padding:20px; border-radius:5px; text-align:center; color:white;">
@@ -178,6 +309,25 @@
     {{ super() }}    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        function showEmailOverlay() {
+            document.getElementById('emailOverlay').style.display = 'flex';
+        }
+        
+        function showCompareOverlay() {
+            // Implement compare functionality or redirect to compare page
+            alert('Compare functionality not implemented yet');
+        }
+        
+        function showSubscribeOverlay() {
+            document.getElementById('subscribeOverlay').style.display = 'flex';
+        }
+        
+        // Close overlay when clicking outside the popup
+        window.onclick = function(event) {
+            if (event.target.className === 'overlay') {
+                event.target.style.display = 'none';
+            }
+        }
         function exportToPDF() {
             const htmlContent = document.documentElement.outerHTML;
             const baseUrl = window.location.origin;

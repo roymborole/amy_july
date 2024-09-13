@@ -1,0 +1,78 @@
+Here is a macroeconomic analysis for Baxter International Inc. for the second quarter of 2024:
+
+{Q2 2024} Macroeconomic Analysis for Baxter International Inc.
+Date: August 6, 2024
+
+Revenue:
+- Net sales were $3.812 billion in Q2 2024, an increase of 3% on an actual currency basis and 4% on a constant currency basis compared to Q2 2023. 
+- U.S. sales grew 3%, emerging markets sales grew 1% (4% constant currency), and rest of world sales grew 5% (7% constant currency).
+
+Revenue drivers:
+- Sales growth was driven by volume increases as well as pricing initiatives across most product categories.
+- Foreign currency had an unfavorable 1 percentage point impact on sales growth due to the strengthening U.S. dollar.
+- Strong revenue growth can indicate rising demand and successful market expansion for Baxter's products across its geographic regions.
+
+Profitability:
+- Gross profit margin was 37.5%, up from 30.0% in Q2 2023, driven by cost savings initiatives and mix benefits, partially offset by higher manufacturing costs.
+- Operating margin was -5.0%, down from -0.5% in Q2 2023, impacted by a $430 million goodwill impairment charge related to the Chronic Therapies business.
+- Excluding special items, gross margin expanded 80 basis points and operating expenses were relatively flat as a percentage of sales compared to the prior year.
+
+Earnings:
+- GAAP loss per share from continuing operations was $0.62, compared to $0.39 in Q2 2023.
+- The goodwill impairment charge negatively impacted EPS by $0.85.
+- Excluding special items, adjusted EPS declined year-over-year, impacted by higher tax expense and an unfavorable geographic mix.
+
+Cash Flow:
+- Operating cash flow from continuing operations was $278 million for the first half of 2024, down from $780 million in the prior year period, impacted by the timing of payments and higher separation costs.
+- The company is generating positive operating cash flow to fund operations and investments.
+
+Debt and Liquidity:  
+- Cash and equivalents were $2.1 billion at June 30, 2024.
+- Total debt was $12.9 billion.
+- The company entered into a $2.05 billion bridge credit facility in July 2024 to fund debt refinancing and separation costs.
+- Credit ratings remain investment grade, supporting access to capital markets.
+
+Outlook:
+- Management expects improved sales growth for the Healthcare Systems segment in the second half of 2024 as supply constraints ease.
+- Costs related to the proposed Kidney Care separation are expected to remain elevated through the completion, anticipated in late 2024 or early 2025.
+- The company is focused on operational execution, new product launches, and completing the separation to enhance shareholder value.
+
+Revenue figures: 
+Q2 2024 net sales of $3.812 billion
+Q2 2023 net sales of $3.707 billion
+
+Earnings per Share:
+Q2 2024 GAAP EPS from continuing ops: $(0.62)
+Q2 2023 GAAP EPS from continuing ops: $(0.39)  
+
+Gross Profit and Margin:
+Q2 2024 gross profit of $1.431 billion (37.5% of sales)
+Q2 2023 gross profit of $1.111 billion (30.0% of sales)
+
+Operating Income/Loss: 
+Q2 2024 operating loss of $(192) million (-5.0% of sales)
+Q2 2023 operating loss of $(17) million (-0.5% of sales)  
+
+Net Income/Loss:
+Q2 2024 net loss of $(311) million
+Q2 2023 net loss of $(139) million
+
+Cash Flow Statement:
+Operating cash flow from continuing ops of $278 million for the first half of 2024
+Operating cash flow from continuing ops of $780 million for the first half of 2023
+
+Balance Sheet items:
+Cash & equivalents of $2.095 billion at June 30, 2024
+Total debt of $12.904 billion at June 30, 2024
+
+The company recorded a $430 million goodwill impairment charge in Q2 2024 related to its Chronic Therapies business within the Kidney Care segment. This was driven by the expected net proceeds from a potential sale of the overall Kidney Care business being lower than the previously estimated sum of the fair values of the two Kidney Care reporting units.
+
+Baxter's results were negatively impacted by continued global supply chain challenges, including higher costs for raw materials, components and transportation. However, the company is seeing some improvement in availability and pricing.
+
+Foreign currency movements had a negative translation impact on sales in Q2 2024 compared to the prior year period.
+
+The company incurred significant costs in Q2 2024 related to its proposed separation of the Kidney Care business, which is expected to be completed in late 2024 or early 2025. These separation costs adversely impacted earnings and cash flow.
+
+Baxter maintained its investment grade credit ratings, supporting continued access to capital markets to fund operations and strategic priorities. The new $2.05 billion bridge credit facility will provide financing flexibility related to the Kidney Care separation.
+
+Overall, Baxter is focused on driving operational improvements, launching new products, and executing the planned Kidney Care separation in order to enhance profitability and shareholder value, despite the challenging global economic environment. The company did not identify any signs of illegal or irregular behavior in its results.

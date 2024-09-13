@@ -4,13 +4,13 @@
     style.textContent = `
         .logo-carousel {
             position: relative;
-            width: 100%;
+            width: 200%;
             max-width: 1000px;
             margin: 0 auto;
             overflow: hidden;
         }
         .carousel-container {
-            width: 100%;
+            width: 200%;
             overflow: hidden;
         }
         .carousel-track {
@@ -55,7 +55,7 @@
     function createCarousel(elementId) {
         const container = document.getElementById(elementId);
         if (!container) return;
-
+    
         const carouselHTML = `
             <div class="logo-carousel">
                 <div class="carousel-container">
@@ -64,10 +64,10 @@
             </div>
         `;
         container.innerHTML = carouselHTML;
-
+    
         const track = container.querySelector('.carousel-track');
         const totalSlides = 20;
-
+    
         for (let i = 1; i <= totalSlides; i++) {
             const slide = document.createElement('div');
             slide.classList.add('carousel-slide');
@@ -86,19 +86,18 @@
             slide.appendChild(img);
             track.appendChild(slide);
         }
-
+    
         // Clone slides for infinite loop
         const slides = track.querySelectorAll('.carousel-slide');
         slides.forEach(slide => {
             const clone = slide.cloneNode(true);
             track.appendChild(clone);
         });
-
+    
         // Adjust the animation duration based on the number of slides
-        const animationDuration = totalSlides * 1.5; // 1.5 seconds per slide
+        const animationDuration = totalSlides * 2; // 2 seconds per slide
         track.style.animation = `scroll ${animationDuration}s linear infinite`;
     }
-
     function generateReport(ticker, logoNumber) {
         console.log(`Generating report for ${ticker} (Logo ${logoNumber})`);
         // Show a loading indicator

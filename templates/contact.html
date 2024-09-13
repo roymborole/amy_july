@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - 100x Club</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
-    <style>
+{% extends "base.html" %}
+{% block content %}
+<style>
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #222222;
@@ -105,29 +99,55 @@
             padding: 10px;
             border-radius: 8px;
         }
+
+        .green-box {
+            background-color: #7ED957;
+            padding: 40px;
+            color: white;
+        }
+        .form-box {
+            background-color: #424242;
+            padding: 40px;
+        }
+        .form-control {
+            background-color: #616161;
+            border: none;
+            color: white;
+        }
+        .green-rectangle {
+            background-color: #7ED957;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .green-rectangle h1 {
+            font-size: 8px;
+            margin-bottom: 10px;
+        }
+        .green-rectangle h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        .green-rectangle p {
+            font-size: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
     </style>
-    </style>
+    
 </head>
 <body>
 
-<div>
-    <div class="header">
-        <div class="logo logo-mini">
-            <a href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='mini-logo.png') }}" alt="100x Club Logo">
-            </a>
-        </div>
-        <div class="nav-buttons">
-           <a href="{{ url_for('about') }}"><strong>About Us</strong></a>
-            <a href="{{ url_for('contact') }}"><strong>Contact Us</strong></a>
-            <div id="search-container"></div>
-    </div>
-</div>
+    <div class="ta-report-container">
+        <div class="green-rectangle">
+                <h1 style="font-size: 51px;">Talk with our sales team</h1>
+                <p>Fill out your information and a 100x representative will reach out to you. Have a simple question? Check out our FAQ.</p>
+            </div>
 
     <div id="lottie-container" style="width: 400px; height: 400px;"></div>
 
 
-    <div class= "report-containerr">
+    <div class="container mt-5">
         <h1>Contact Us</h1>
         <form method="POST" action="{{ url_for('contact') }}">
             <div class="form-group">
@@ -176,3 +196,4 @@
     </script>
 </body>
 </html>
+{% endblock %}

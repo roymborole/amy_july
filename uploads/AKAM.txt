@@ -1,0 +1,129 @@
+Here is the macroeconomic analysis for Akamai Technologies, Inc. for the second quarter of 2024:
+
+2024 Q2 Macroeconomic Analysis for Akamai Technologies, Inc.
+Date: August 8, 2024
+
+Revenue Figures:
+- Total revenue for Q2 2024: $979.6 million 
+   - Security solutions revenue: $498.7 million
+   - Delivery solutions revenue: $329.4 million
+   - Compute solutions revenue: $151.5 million
+
+Earnings per Share:
+- Basic EPS: $0.86
+- Diluted EPS: $0.86
+
+Gross Profit and Margins:
+- Gross profit: $576.7 million 
+- Gross margin: 58.9%
+
+Operating Income/Loss: 
+- Income from operations: $148.0 million
+
+Net Income/Loss:
+- Net income: $131.7 million
+
+Cash Flow Statement:
+- Net cash provided by operating activities: $782.8 million
+- Net cash used in investing activities: ($438.3) million  
+- Net cash used in financing activities: ($376.4) million
+
+Balance Sheet Items:
+- Cash, cash equivalents and marketable securities: $1.9 billion
+- Accounts receivable, net: $699.3 million
+- Unbilled accounts receivable: $203.1 million  
+- Inventory: Not applicable (service business)
+- Accounts payable: $124.5 million
+- Deferred revenue (current + non-current): $168.5 million
+- Short-term debt: $1.15 billion (convertible senior notes due 2025)
+- Long-term debt: $2.39 billion (convertible senior notes due 2027 and 2029)  
+
+Capital Expenditures: 
+- Purchases of property and equipment: $184.7 million
+- Capitalization of internal-use software: $152.5 million
+
+Research & Development Expenses:
+- $113.4 million 
+
+Guidance/Forward-Looking:
+- Management expects continued revenue growth in security and compute solutions for remainder of 2024, offset by declines in delivery solutions.
+- Expects increased costs, particularly co-location and depreciation, to support compute infrastructure build-out.
+- No specific financial guidance provided.
+
+How has the company's revenue changed compared to prior periods?
+- Total revenue increased 4.7% year-over-year and 5.7% at constant currency in Q2 2024.
+- For the first half of 2024, total revenue increased 6.2% year-over-year and 7.0% at constant currency.
+- Security solutions revenue grew 15.2% year-over-year (16.5% at constant currency) in Q2 driven by key product sales.
+- Delivery solutions revenue declined 13.2% year-over-year (12.3% at constant currency) in Q2 due to customer headwinds and pricing impacts.
+- Compute solutions revenue grew 23.1% year-over-year (23.8% at constant currency) in Q2 from sales of compute products.
+
+Is growth driven by volume or price increases?
+Growth in security and compute solutions appears to be driven primarily by increased sales volumes of products and solutions in those portfolios to new and existing customers. The decline in delivery solutions is attributed to pricing pressures from renewals and moderation in traffic growth rates as customers face economic headwinds.
+
+Does revenue relate to stock performance, and if so how?
+Strong revenue growth, particularly in Akamai's strategic focus areas of security and compute, could support improved profitability and cash flows over time. This could be viewed positively by investors and drive stock appreciation. However, the revenue declines in delivery solutions and increased costs to build out the compute platform create profitability headwinds that may concern investors in the near-term.
+
+What are the profit margins and trends?
+- Gross margin was 58.9% in Q2 2024, down from 60.1% in Q2 2023
+- Operating margin was 15.1% in Q2 2024, down from 16.0% in Q2 2023  
+- Net income margin was 13.4% in Q2 2024, down slightly from 13.8% in Q2 2023
+
+Profit margins declined year-over-year due to higher costs, particularly for co-location, depreciation and stock-based compensation, outpacing revenue growth. Gross margins have been pressured by the delivery business declines. However, Akamai stated it is focused on managing operating margins by optimizing bandwidth costs and migrating workloads to its own cloud to reduce third-party cloud expenses.
+
+Has the EPS increased/decreased and how does it compare to expectations? 
+- Diluted EPS was $0.86 in Q2 2024, up slightly from $0.84 in Q2 2023
+- EPS growth was limited by the increased costs outpacing revenue growth
+- No analyst EPS expectations were provided to compare against
+
+Is the company generating positive operating cash flow?
+Yes, Akamai generated very strong operating cash flow of $782.8 million in the first half of 2024, up from $599.8 million in the prior year period. This was driven by increased profitability and timing of collections.
+
+How is cash being utilized?
+- In the first half of 2024, operating cash flow plus $333 million in proceeds from marketable securities funded:
+    - $438 million in investing activities, primarily for the Noname Security acquisition and capital expenditures
+    - $376 million in financing activities, including $253 million in share repurchases
+- Akamai stated it intends to use cash and debt to repay the $1.15 billion convertible notes due in 2025
+
+What is the debt level and any changes?
+- Total debt was $3.54 billion as of June 30, 2024, down from $3.54 billion at December 31, 2023
+- Debt consists of convertible senior notes due in 2025 ($1.15 billion), 2027 ($1.15 billion) and 2029 ($1.27 billion)
+- Debt level was relatively unchanged, as Akamai issued $1.27 billion in new 2029 notes in Q3 2023 to fund the upcoming 2025 notes repayment
+
+What are capex levels and areas of investment?
+- Capital expenditures were $337 million in the first half of 2024, focused on:
+    - Building out compute infrastructure with new co-location facilities 
+    - Investing in servers and other equipment to scale the network
+- Capex declined from $399 million in the prior year period as the initial compute infrastructure build-out moderated
+
+Peer/Industry Performance:
+No specific peer comparisons provided. Akamai stated it faces intense competition, particularly in compute from large established providers. It is taking steps like building out its own cloud to better compete.
+
+Macroeconomic Factors:
+- Akamai cited global economic and geopolitical headwinds that are impacting its customers and its business
+- Factors like inflation, economic uncertainty, geopolitical tensions and supply chain constraints are causing customers to be cautious
+- A large social media customer has taken cost-cutting steps that reduced delivery traffic on Akamai's network
+- Rising energy costs, particularly in Europe, are increasing expenses
+- Changes in international tax laws, like the new 15% global minimum tax, are increasing Akamai's tax rate
+
+Highlighted Risks and Management:
+- Cybersecurity threats and need to invest in security controls
+- Evolving data privacy regulations increasing compliance costs  
+- Supply chain risks impacting ability to source equipment
+- Foreign currency volatility impacting financial results
+- Debt repayment risk, though Akamai expects to fund 2025 notes from cash/new debt
+- Competitive risks if it cannot execute on its compute platform strategy
+- Macroeconomic headwinds persisting or worsening
+
+Management did not provide specific financial guidance for future periods. However, they expect continued growth in security and compute solutions offset by delivery declines in the near-term. Costs are expected to increase, particularly for the compute infrastructure build-out.
+
+P/E Ratio:
+No P/E ratio was provided, but higher growth companies like Akamai often trade at premium valuations.
+
+Anomalies/Unusual Items: 
+- The 13.2% year-over-year decline in delivery solutions revenue was an anomaly driven by the large social media customer's cost-cutting actions
+- No other significant anomalies or unusual items were noted
+
+Illegal/Irregular Behavior:
+No signs of illegal or irregular behavior were identified in the quarterly report.
+
+In summary, Akamai is navigating a transition as it focuses growth investments on security and compute solutions to offset declines in its legacy delivery business. Execution risks remain, but if successful, the strategic shift could drive improved profitability longer-term. However, elevated costs create near-term margin pressures that concern investors. Macroeconomic headwinds add uncertainty, while the strong cash flows and cash position provide financial flexibility.

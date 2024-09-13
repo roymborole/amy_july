@@ -98,7 +98,9 @@ def generate_key_statistics_table(comparison_data):
     return table
 
 def generate_performance_overview_chart(comparison_data):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6), facecolor='#393939')
+    ax = plt.gca()
+    ax.set_facecolor('#393939')
     
     periods = ['YTD', '1-Year', '3-Year']
     asset1_returns = [comparison_data['performance']['asset1'].get(period, {}).get('stock', 0) for period in periods]
@@ -108,20 +110,29 @@ def generate_performance_overview_chart(comparison_data):
     x = range(len(periods))
     width = 0.25
 
-    plt.bar([i - width for i in x], asset1_returns, width, label=comparison_data['asset1']['asset_name'])
-    plt.bar(x, asset2_returns, width, label=comparison_data['asset2']['asset_name'])
-    plt.bar([i + width for i in x], sp500_returns, width, label='S&P 500')
+    # Changed colors here
+    plt.bar([i - width for i in x], asset1_returns, width, label=comparison_data['asset1']['asset_name'], color='pink')
+    plt.bar(x, asset2_returns, width, label=comparison_data['asset2']['asset_name'], color='purple')
+    plt.bar([i + width for i in x], sp500_returns, width, label='S&P 500', color='yellow')
 
-    plt.xlabel('Time Period')
-    plt.ylabel('Return (%)')
-    plt.title('Performance Overview')
-    plt.xticks(x, periods)
-    plt.legend()
+    plt.xlabel('Time Period', color='white')
+    plt.ylabel('Return (%)', color='white')
+    plt.title('Performance Overview', color='white')
+    plt.xticks(x, periods, color='white')
+    plt.yticks(color='white')
+    plt.legend(facecolor='#393939', edgecolor='white', labelcolor='white')
 
+    # Change spine colors to white
+    for spine in ax.spines.values():
+        spine.set_edgecolor('white')
+
+    # Adjust layout to prevent cutoff
+    plt.tight_layout()
+  
     chart = f"""
     <div class="chart-container">
-        <h4>Performance Overview</h4>
-        <img src='data:image/png;base64,{plt_to_base64()}' alt='Performance Overview' />
+        <h4 style="color: white; margin-bottom: 15px;">Performance Overview</h4>
+        <img src='data:image/png;base64,{plt_to_base64()}' alt='Performance Overview' style="max-width: 100%; height: auto;" />
     </div>
     """
     return chart
@@ -173,14 +184,17 @@ def generate_comparison_report(comparison_data):
     report = f"""
     <style>
         .comparison-report {{
-            font-family: Arial, sans-serif;
-            color: #333;
-            line-height: 1.6;
+            font-family: Roboto, sans-serif;
+            color: black;
+            line-height: 1.6;  
+            background-color: #393939;
+            padding: 20px;
         }}
         .comparison-report h2, .comparison-report h3, .comparison-report h4 {{
-            color: #FF69B4;  /* Bright Pink */
+            color: #ffffff;
             text-align: center;
             margin-top: 30px;
+            margin-bottom: 20px;
         }}
         .comparison-report table {{
             width: 100%;
@@ -193,34 +207,89 @@ def generate_comparison_report(comparison_data):
             border-bottom: 1px solid #ddd;
         }}
         .comparison-report th {{
-            background-color: #f2f2f2;
+            background-color: #C1FF72;
             font-weight: bold;
+        }}
+        .comparison-report td {{
+            background-color: #D9D9D9;
         }}
         .comparison-report .chart-container {{
             text-align: center;
             margin-bottom: 30px;
+            background-color: #393939;
+            margin-top: 30px;
         }}
         .comparison-report .chart-container img {{
             max-width: 100%;
             height: auto;
+            background-color: #393939;
+            border-radius: 10px;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }}
-               .performance-table {{
-            width: 100%;
+        .performance-table {{
+            margin: 0 auto;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            width: 80%;
         }}
         .performance-table th, .performance-table td {{
-            padding: 12px;
+            padding: 10px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border: 1px solid white;
+            font-family: 'Roboto', sans-serif;
+            color: black;
         }}
         .performance-table th {{
-            background-color: #f2f2f2;
+            background-color: #C1FF72;
             font-weight: bold;
+        }}
+        .performance-table td {{
+            background-color: #D9D9D9;
+        }}
+        .ai-summary {{
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+            background-color: #393939;
+            margin-bottom: 30px;
+            margin-top: 30px;
+        }}
+        .report-content {{
+            display: flex;
+            flex-direction: column;
+            gap: 40px;  /* Adds space between flex items */
+        }}
+        .chart-container {{
+            text-align: center;
+            background-color: #393939;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            margin-top: 30px;
+        }}
+        .chart-container img {{
+            max-width: 100%;
+            height: auto;
+            background-color: #393939;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            margin-top: 30px;
+        }}
+        .summary-container {{
+            background-color: #393939;
+            padding: 20px;
+            border-radius: 10px;
         }}
     </style>
     <div class="comparison-report">
         <h2>Comparison Report: {asset1_name} vs {asset2_name}</h2>
+    """
+
+    report += f"""
+        <div class="chart-container">
+            <h3>Performance Overview</h3>
+            {generate_performance_overview_chart(comparison_data)}
+        </div>
     """
 
     ai_summary = generate_comparison_summary(comparison_data)
@@ -231,12 +300,9 @@ def generate_comparison_report(comparison_data):
     </div>
     """
 
-    # Performance Comparison
-
-    report += generate_performance_overview(comparison_data)
-    report += generate_performance_overview_chart(comparison_data)
     report += generate_key_statistics_table(comparison_data)
     report += generate_performance_table(comparison_data)
+    report += generate_performance_overview(comparison_data)
 
     # Price Information
     price_metrics = [('close_price', 'Close Price'), ('change_percent', 'Percentage Change'), ('market_cap', 'Market Cap')]
@@ -250,6 +316,7 @@ def generate_comparison_report(comparison_data):
     financial_metrics = ['Diluted EPS', 'Total Revenue', 'Operating Revenue', 'Basic EPS', 'Total Expenses', 
                          'Net Interest Income', 'Interest Expense', 'Interest Income', 'Net Income', 'Normalized Income']
     report += generate_table("Financial Metrics", financial_metrics, comparison_data)
+
     # Charts
     report += "<h3>Comparison Charts</h3>"
     for chart_name, chart_data in comparison_data['charts'].items():
@@ -260,7 +327,11 @@ def generate_comparison_report(comparison_data):
         </div>
         """
 
-    report += "</div>"  # Close comparison-report div
+    report += """
+        </div>  <!-- Close report-content div -->
+    </div>  <!-- Close comparison-report div -->
+    """
+
     return report
 
 def generate_performance_table(comparison_data):
@@ -345,46 +416,51 @@ def plt_to_base64():
 def generate_comparison_charts(data1, data2):
     charts = {}
 
+    def setup_chart(title, xlabel, ylabel):
+        fig, ax = plt.subplots(figsize=(10, 6), facecolor='#393939')
+        ax.set_facecolor('#393939')
+        ax.spines['bottom'].set_color('white')
+        ax.spines['top'].set_color('white')
+        ax.spines['left'].set_color('white')
+        ax.spines['right'].set_color('white')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        ax.xaxis.label.set_color('white')
+        ax.yaxis.label.set_color('white')
+        ax.title.set_color('white')
+        plt.title(title, color='white')
+        plt.xlabel(xlabel, color='white')
+        plt.ylabel(ylabel, color='white')
+        return ax
+
     # Price chart
-    plt.figure(figsize=(10, 6))
-    plt.plot(data1['historical_data'].index, data1['historical_data']['Close'], label=data1['asset_name'])
-    plt.plot(data2['historical_data'].index, data2['historical_data']['Close'], label=data2['asset_name'])
-    plt.title('Price Comparison')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.legend()
+    ax = setup_chart('Price Comparison', 'Date', 'Price')
+    ax.plot(data1['historical_data'].index, data1['historical_data']['Close'], label=data1['asset_name'])
+    ax.plot(data2['historical_data'].index, data2['historical_data']['Close'], label=data2['asset_name'])
+    plt.legend(facecolor='#393939', edgecolor='white', labelcolor='white')
     charts['Price Comparison'] = plt_to_base64()
 
     # Volume chart
-    plt.figure(figsize=(10, 6))
-    plt.plot(data1['historical_data'].index, data1['historical_data']['Volume'], label=data1['asset_name'])
-    plt.plot(data2['historical_data'].index, data2['historical_data']['Volume'], label=data2['asset_name'])
-    plt.title('Volume Comparison')
-    plt.xlabel('Date')
-    plt.ylabel('Volume')
-    plt.legend()
+    ax = setup_chart('Volume Comparison', 'Date', 'Volume')
+    ax.plot(data1['historical_data'].index, data1['historical_data']['Volume'], label=data1['asset_name'])
+    ax.plot(data2['historical_data'].index, data2['historical_data']['Volume'], label=data2['asset_name'])
+    plt.legend(facecolor='#393939', edgecolor='white', labelcolor='white')
     charts['Volume Comparison'] = plt_to_base64()
 
     # RSI chart
-    plt.figure(figsize=(10, 6))
-    plt.plot(data1['historical_data'].index, data1['historical_data']['RSI'], label=data1['asset_name'])
-    plt.plot(data2['historical_data'].index, data2['historical_data']['RSI'], label=data2['asset_name'])
-    plt.title('RSI Comparison')
-    plt.xlabel('Date')
-    plt.ylabel('RSI')
-    plt.legend()
+    ax = setup_chart('RSI Comparison', 'Date', 'RSI')
+    ax.plot(data1['historical_data'].index, data1['historical_data']['RSI'], label=data1['asset_name'])
+    ax.plot(data2['historical_data'].index, data2['historical_data']['RSI'], label=data2['asset_name'])
+    plt.legend(facecolor='#393939', edgecolor='white', labelcolor='white')
     charts['RSI Comparison'] = plt_to_base64()
 
     # Moving Average chart
-    plt.figure(figsize=(10, 6))
-    plt.plot(data1['historical_data'].index, data1['historical_data']['SMA50'], label=f"{data1['asset_name']} 50-day MA")
-    plt.plot(data1['historical_data'].index, data1['historical_data']['SMA200'], label=f"{data1['asset_name']} 200-day MA")
-    plt.plot(data2['historical_data'].index, data2['historical_data']['SMA50'], label=f"{data2['asset_name']} 50-day MA")
-    plt.plot(data2['historical_data'].index, data2['historical_data']['SMA200'], label=f"{data2['asset_name']} 200-day MA")
-    plt.title('Moving Average Comparison')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.legend()
+    ax = setup_chart('Moving Average Comparison', 'Date', 'Price')
+    ax.plot(data1['historical_data'].index, data1['historical_data']['SMA50'], label=f"{data1['asset_name']} 50-day MA")
+    ax.plot(data1['historical_data'].index, data1['historical_data']['SMA200'], label=f"{data1['asset_name']} 200-day MA")
+    ax.plot(data2['historical_data'].index, data2['historical_data']['SMA50'], label=f"{data2['asset_name']} 50-day MA")
+    ax.plot(data2['historical_data'].index, data2['historical_data']['SMA200'], label=f"{data2['asset_name']} 200-day MA")
+    plt.legend(facecolor='#393939', edgecolor='white', labelcolor='white')
     charts['Moving Average Comparison'] = plt_to_base64()
 
     return charts
