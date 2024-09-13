@@ -326,9 +326,8 @@ def crypto_predict(crypto_name):
                            prediction_data=prediction_data)
 
 @app.route('/')
-@login_required
 def home():
-    return render_template('index.html')
+    return render_template('horse.html')
 
 @app.route('/scrib')
 def scrib():

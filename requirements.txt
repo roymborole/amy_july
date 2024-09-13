@@ -332,3 +332,4 @@ zope.interface==7.0.1
 aiofiles
 flask[async]
 Hypercorn==0.17.3
+flask_security
