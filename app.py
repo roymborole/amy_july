@@ -1046,17 +1046,22 @@ def next_static(path):
     return send_from_directory(os.path.join(app.static_folder, '_next'), path)
 
 @app.route('/send_comparison_report', methods=['POST'])
+@csrf.exempt
 def send_comparison_report():
-    data = request.json
-    email = data.get('email')
-    asset1 = data.get('asset1')
-    asset2 = data.get('asset2')
-    report_content = data.get('report_content')
-
-    if not email or not asset1 or not asset2 or not report_content:
-        return jsonify({'message': 'Missing required data'}), 400
-
     try:
+        data = request.get_json()
+        if data is None:
+            return jsonify({'message': 'Invalid JSON'}), 400
+
+        email = data.get('email')
+        asset1 = data.get('asset1')
+        asset2 = data.get('asset2')
+        report_content = data.get('report_content')
+
+        if not email or not asset1 or not asset2 or not report_content:
+            return jsonify({'message': 'Missing required data'}), 400
+
+    
         postmark.emails.send(
             From='reports@100-x.club',
             To=email,
@@ -1072,8 +1077,9 @@ def send_comparison_report():
         )
         return jsonify({'message': 'Email sent successfully'}), 200
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
-        return jsonify({'message': 'Failed to send email'}), 500
+        app.logger.error(f"Error in send_comparison_report: {str(e)}")
+        app.logger.error(traceback.format_exc())
+        return jsonify({'message': f'Server error: {str(e)}'}), 500
 
 
 @app.route('/api/subscribe', methods=['POST'])

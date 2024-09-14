@@ -3,6 +3,7 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/tooltips.css') }}">
 <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
 {% endblock %}
@@ -13,7 +14,7 @@
         <p class="description">Technical analysis is a method used in financial markets to evaluate and predict price movements based on historical data, chart patterns, and statistical indicators.</p>
     
         <div class="button-container">
-            <button id="emailReport()" class="btn btn-email">Email this Comparison Report</button>
+            <button id="emailComparisonButton" class="btn btn-email">Email this Comparison Report</button>
             <button onclick="newSearch()" class="btn btn-compare">New Search</button>
         </div>
 
@@ -30,7 +31,6 @@
             <button id="cancelEmailBtn">Cancel</button>
         </div>
     </div>
-
     <div id="sendingOverlay" class="overlay" style="display: none;">
         <div class="popup">
             <h2>Sending Report</h2>
@@ -130,13 +130,13 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.5);
+        background-color:#545454;
         display: flex;
         justify-content: center;
         align-items: center;
     }
     .popup {
-        background-color: white;
+        background-color: #C1FF72;
         padding: 20px;
         border-radius: 5px;
         text-align: center;
@@ -189,14 +189,14 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: #C1FF72;
         justify-content: center;
         align-items: center;
         z-index: 1000;
     }
     
     .popup {
-        background-color: white;
+        background-color: #C1FF72;
         padding: 20px;
         border-radius: 5px;
         text-align: center;
@@ -287,187 +287,66 @@
     }
 </style>
 {% endblock %}
-
-
 {% block scripts %}
-    {{ super() }}
-    <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
-    <script>
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailButton = document.getElementById('emailComparisonButton');
+    const emailOverlay = document.getElementById('emailOverlay');
+    const sendingOverlay = document.getElementById('sendingOverlay');
 
-        function emailReport() {
-            document.getElementById('emailOverlay').style.display = 'flex';
+    emailButton.addEventListener('click', function() {
+        emailOverlay.style.display = 'flex';
+    });
+
+    document.getElementById('sendEmailBtn').addEventListener('click', sendEmail);
+    document.getElementById('cancelEmailBtn').addEventListener('click', function() {
+        emailOverlay.style.display = 'none';
+    });
+
+    function sendEmail() {
+        const email = document.getElementById('emailInput').value;
+        if (!email) {
+            alert('Please enter an email address');
+            return;
         }
 
-        function newSearch() {
-            // Check if the overlay already exists
-            let searchOverlay = document.getElementById('searchOverlay');
-            
-            if (searchOverlay) {
-                // If it exists, just display it
-                searchOverlay.style.display = 'flex';
-            } else {
-                // If it doesn't exist, create it
-                searchOverlay = document.createElement('div');
-                searchOverlay.id = 'searchOverlay';
-                searchOverlay.className = 'overlay';
-                searchOverlay.innerHTML = `
-                    <div class="popup">
-                        <h2>Search for a Different Asset</h2>
-                        <form id="newSearchForm">
-                            <div id="new-search-container">
-                                <input type="text" id="new-search-input" placeholder="Enter asset name or ticker">
-                                <div id="new-autocomplete-results"></div>
-                            </div>
-                            <button type="submit">Search</button>
-                            <button type="button" onclick="closeSearchOverlay()">Cancel</button>
-                        </form>
-                    </div>
-                `;
-                document.body.appendChild(searchOverlay);
-                searchOverlay.style.display = 'flex';
-                
-                if (typeof SearchModule !== 'undefined' && SearchModule.setupAutocomplete) {
-                    SearchModule.setupAutocomplete('new-search-input', 'new-autocomplete-results', handleNewSearchSelection);
-                } else {
-                    console.warn('SearchModule not available. Autocomplete will not work.');
-                }
-        
-                document.getElementById('newSearchForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    performNewSearch();
+        emailOverlay.style.display = 'none';
+        sendingOverlay.style.display = 'flex';
+
+        fetch('/send_comparison_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    },
+            body: JSON.stringify({
+                email: email,
+                asset1: '{{ asset1 }}',
+                asset2: '{{ asset2 }}',
+                report_content: document.querySelector('.report-container').innerHTML
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
                 });
             }
-        }
-    
-        
-        
-        function handleNewSearchSelection(selectedItem) {
-            const newSearchInput = document.getElementById('new-search-input');
-            if (newSearchInput) {
-                newSearchInput.value = selectedItem.name;
-                document.getElementById('new-autocomplete-results').innerHTML = '';
-            }
-        }
-        
-        function closeSearchOverlay() {
-            const searchOverlay = document.getElementById('searchOverlay');
-            if (searchOverlay) {
-                searchOverlay.style.display = 'none';  // Hide instead of remove
-            }
-        }
-        function performNewSearch() {
-            const newSearchInput = document.getElementById('new-search-input');
-            if (newSearchInput && newSearchInput.value) {
-                showLoadingOverlay();
-                window.location.href = `/loading/${encodeURIComponent(newSearchInput.value)}`;
-            } else {
-                alert('Please enter an asset name or ticker.');
-            }
-        }
-    
-        function closeSearchOverlay() {
-            const searchOverlay = document.getElementById('searchOverlay');
-            if (searchOverlay) {
-                searchOverlay.remove();
-            }
-        }
-    
-        function showLoadingOverlay() {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.style.display = 'flex';
-            }
-        }
-
-        function sendEmail() {
-            var email = document.getElementById('emailInput').value;
-            document.getElementById('emailOverlay').style.display = 'none';
-            document.getElementById('sendingOverlay').style.display = 'flex';
-            
-            // Get the CSRF token from the meta tag
-            var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            fetch('/send_report', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
-                },
-                body: JSON.stringify({
-                    email: email,
-                    asset_name: '{{ asset_name }}',
-                    report_content: document.querySelector('.report-container').innerHTML
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message) });
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('sendingOverlay').style.display = 'none';
-                alert(data.message);
-            })
-            .catch((error) => {
-                document.getElementById('sendingOverlay').style.display = 'none';
-                console.error('Error:', error);
-                alert('Error sending email: ' + error.message);
-            });
-        }
-   
-    
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeTooltips();
-            const emailBtn = document.getElementById('emailComparisonReportBtn');
-            const emailOverlay = document.getElementById('emailOverlay');
-            const sendingOverlay = document.getElementById('sendingOverlay');
-
-            emailBtn.addEventListener('click', function() {
-                emailOverlay.style.display = 'flex';
-            });
-
-            emailOverlay.querySelector('button:first-of-type').addEventListener('click', function() {
-                const email = emailOverlay.querySelector('input').value;
-                if (email) {
-                    emailOverlay.style.display = 'none';
-                    sendingOverlay.style.display = 'flex';
-
-                    // Send the comparison report
-                    fetch('/send_comparison_report', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            email: email,
-                            asset1: '{{ asset1 }}',
-                            asset2: '{{ asset2 }}',
-                            report_content: document.querySelector('.report-content').innerHTML
-                        }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        sendingOverlay.style.display = 'none';
-                        alert(data.message);
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                        sendingOverlay.style.display = 'none';
-                        alert('An error occurred while sending the email. Please try again.');
-                    });
-                } else {
-                    alert('Please enter a valid email address.');
-                }
-            });
-
-            emailOverlay.querySelector('button:last-of-type').addEventListener('click', function() {
-                emailOverlay.style.display = 'none';
-            });
+            return response.json();
+        })
+        .then(data => {
+            sendingOverlay.style.display = 'none';
+            alert(data.message);
+        })
+        .catch((error) => {
+            sendingOverlay.style.display = 'none';
+            console.error('Error:', error);
+            alert('Error sending email. Please check the console for more details.');
         });
-    
-       
-    </script>
+    }
+});
+</script>
 {% endblock %}
 
 
