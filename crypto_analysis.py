@@ -4,23 +4,32 @@ import pandas as pd
 from config import CRYPTOCOMPARE_API_KEY
 from datetime import datetime
 import numpy as np
+import time
 
-def get_crypto_list():
+
+def get_crypto_list(max_retries=3, delay=5):
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
         "vs_currency": "usd",
         "order": "market_cap_desc",
-        "per_page": 250,  # Adjust this number to get more or fewer cryptocurrencies
+        "per_page": 250,
         "page": 1,
         "sparkline": False
     }
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        crypto_data = response.json()
-        return {coin['symbol'].upper(): coin['id'] for coin in crypto_data}
-    else:
-        print("Failed to fetch cryptocurrency list")
-        return {}
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
+            crypto_data = response.json()
+            return {coin['symbol'].upper(): coin['id'] for coin in crypto_data}
+        except requests.RequestException as e:
+            print(f"Attempt {attempt + 1} failed: {str(e)}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                print("Failed to fetch cryptocurrency list after all attempts")
+                return {}
 
 # Fetch the crypto list
 fetched_crypto_mapping = get_crypto_list()
@@ -54,14 +63,22 @@ manual_mapping = {
 crypto_mapping = {**manual_mapping, **fetched_crypto_mapping}
 
 def get_crypto_data(crypto_name):
-    
     symbol = crypto_mapping.get(crypto_name.lower(), crypto_name.upper())
     
     url = f"https://min-api.cryptocompare.com/data/v2/histoday?fsym={symbol}&tsym=USD&limit=365&api_key={CRYPTOCOMPARE_API_KEY}"
-    response = requests.get(url)
-    data = response.json()
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
 
-    if data['Response'] == 'Error':
+        if data['Response'] == 'Error':
+            print(f"API returned an error: {data.get('Message', 'Unknown error')}")
+            return None
+
+        # Rest of your function...
+
+    except requests.RequestException as e:
+        print(f"Error fetching data for {crypto_name}: {str(e)}")
         return None
 
     prices = data['Data']['Data']
