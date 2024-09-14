@@ -2,7 +2,8 @@
 {% block head %}
 {{ super() }}
 <head>
-<script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+ <script src="{{ url_for('static', filename='js/search_module.js') }}"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Technical Analysis Report - {{ asset_name }}</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/tooltips.css') }}">
@@ -51,7 +52,7 @@
         margin: 30px 0;
     }
 
-    .btn {
+    .bongobtn {
         font-family: 'Roboto', sans-serif;
         color: white;
         padding: 15px 25px;
@@ -61,7 +62,7 @@
         font-weight: bold;
         text-decoration: none;
         display: inline-block;
-        font-size: 18px;  
+        font-size: 20px;  
         transition: all 0.3s ease;  
     }
   
@@ -103,11 +104,12 @@
         z-index: 1000;
     }
     
-    .popup {
-        background-color: white;
+    .Zpopup {
+        background-color: #E2C100;
         padding: 20px;
         border-radius: 5px;
         text-align: center;
+        color: black;
     }
 
     .stat-container {
@@ -202,10 +204,10 @@
         <p class="description">Technical analysis is a method used in financial markets to evaluate and predict price movements based on historical data, chart patterns, and statistical indicators.</p>
         <div class="button-container">
             <div class="button-container">
-                <button class="btn btn-email" onclick="openEmailOverlay()">Email</button>
-                <button onclick="showNewsSummary('{{ asset_name }}')" class="btn btn-news">View News</button>
-                <button class="btn btn-compare" onclick="compareAsset()">Compare</button>
-                <button class="btn btn-subscribe" onclick="subscribeToReports()">Subscribe</button>
+                <button class="bongobtn btn-email" onclick="emailReport()">Email</button>
+                <button onclick="showNewsSummary('{{ asset_name }}')" class="bongobtn btn-news">View News</button>
+                <button class="bongobtn btn-compare" onclick="compareAsset()">Compare</button>
+                <button class="bongobtn btn-subscribe" onclick="subscribeUpdates()">Subscribe</button>
             </div>
         </div>
         <h3>Key Statistics</h3>
@@ -274,7 +276,7 @@
     </div>
 
     <div id="emailOverlay" class="overlay">
-        <div class="popup">
+        <div class="Zpopup">
             <h2>Enter your email address</h2>
             <input type="email" id="emailInput" placeholder="Your email">
             <button onclick="sendEmail()">Send</button>
@@ -283,7 +285,7 @@
     </div>
 
     <div id="subscribeOverlay" class="overlay">
-        <div class="popup">
+        <div class="Zpopup">
             <h2>Enter your email to get weekly updates on this stock</h2>
             <input type="email" id="subscribeInput" placeholder="Your email">
             <button onclick="subscribe()">Subscribe</button>
@@ -298,9 +300,19 @@
 </div>
 
 <div id="sendingOverlay" class="overlay">
-    <div class="popup" >
+    <div class="Zpopup" >
         <h2>Sending Report</h2>
         <p>Please wait...</p>
+    </div>
+</div>
+
+<div id="compareOverlay" class="overlay" style="display:none;">
+    <div class="Zpopup">
+        <h2>Compare with another asset</h2>
+        <input type="text" id="compareInput" placeholder="Enter asset name or ticker">
+        <div id="compareAutocompleteResults"></div>
+        <button onclick="compareAssets()">Compare</button>
+        <button onclick="closeOverlay('compareOverlay')">Cancel</button>
     </div>
 </div>
 
@@ -309,316 +321,116 @@
     {{ super() }}    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function showEmailOverlay() {
-            document.getElementById('emailOverlay').style.display = 'flex';
+        function showPrediction(assetName) {
+            window.location.href = '/loading_prediction/' + encodeURIComponent(assetName);
         }
         
-        function showCompareOverlay() {
-            // Implement compare functionality or redirect to compare page
-            alert('Compare functionality not implemented yet');
+        function showNewsSummary(assetName) {
+            window.location.href = '/loading_news/' + encodeURIComponent(assetName);
+        }
+    
+        function compareAsset() {
+            document.getElementById('compareOverlay').style.display = 'flex';
         }
         
-        function showSubscribeOverlay() {
-            document.getElementById('subscribeOverlay').style.display = 'flex';
-        }
-        
-        // Close overlay when clicking outside the popup
-        window.onclick = function(event) {
-            if (event.target.className === 'overlay') {
-                event.target.style.display = 'none';
+        SearchModule.setupComparisonAutocomplete('compareInput', 'compareAutocompleteResults');
+    
+        function compareAssets() {
+            var compareWith = document.getElementById('compareInput').value;
+            if (compareWith) {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+                window.location.href = "/compare/{{ asset_name }}/" + encodeURIComponent(compareWith);
             }
         }
-        function exportToPDF() {
-            const htmlContent = document.documentElement.outerHTML;
-            const baseUrl = window.location.origin;
-            
-            fetch('/export-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ html: htmlContent }),
-            })
-            .then(response => response.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = 'report.pdf';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            })
-            .catch(error => console.error('Error:', error));
-        }
         
-        function openEmailOverlay() {
+        function closeOverlay(overlayId) {
+            document.getElementById(overlayId).style.display = 'none';
+        }
+        function emailReport() {
             document.getElementById('emailOverlay').style.display = 'flex';
         }
-        
-        function closeEmailOverlay() {
-            document.getElementById('emailOverlay').style.display = 'none';
+    
+        function subscribeUpdates() {
+            document.getElementById('subscribeOverlay').style.display = 'flex';
         }
-        
+    
+        function closeOverlay(overlayId) {
+            document.getElementById(overlayId).style.display = 'none';
+        }
+    
         function sendEmail() {
             var email = document.getElementById('emailInput').value;
-            var reportContent = document.querySelector('.report-content').innerHTML;
-        
+            document.getElementById('emailOverlay').style.display = 'none';
+            document.getElementById('sendingOverlay').style.display = 'flex';
+            
+            // Get the CSRF token from the meta tag
+            var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
             fetch('/send_report', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
                 },
                 body: JSON.stringify({
                     email: email,
                     asset_name: '{{ asset_name }}',
-                    report_content: reportContent
-                }),
+                    report_content: document.querySelector('.report-container').innerHTML
+                })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message) });
+                }
+                return response.json();
+            })
             .then(data => {
+                document.getElementById('sendingOverlay').style.display = 'none';
                 alert(data.message);
-                closeEmailOverlay();
             })
             .catch((error) => {
+                document.getElementById('sendingOverlay').style.display = 'none';
                 console.error('Error:', error);
-                alert('Failed to send email. Please try again.');
+                alert('Error sending email: ' + error.message);
             });
         }
+   
 
-    function subscribeToReports() {
-        document.getElementById('subscribeOverlay').style.display = 'flex';
-    }
-
-    function compareAsset() {
-        // Check if the overlay already exists
-        let comparisonOverlay = document.getElementById('comparisonOverlay');
-        
-        if (comparisonOverlay) {
-            // If it exists, just display it
-            comparisonOverlay.style.display = 'flex';
-        } else {
-            // If it doesn't exist, create it
-            comparisonOverlay = document.createElement('div');
-            comparisonOverlay.id = 'comparisonOverlay';
-            comparisonOverlay.className = 'overlay';
-            comparisonOverlay.innerHTML = `
-                <div class="popup">
-                    <h2>Compare with Another Asset</h2>
-                    <form id="comparisonForm">
-                        <div id="comparison-search-container">
-                            <input type="text" id="comparison-search-input" placeholder="Enter asset name or ticker">
-                            <div id="comparison-autocomplete-results"></div>
-                        </div>
-                        <button type="submit">Compare</button>
-                        <button type="button" onclick="closeComparisonOverlay()">Cancel</button>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(comparisonOverlay);
-            comparisonOverlay.style.display = 'flex';
-            
-            if (typeof SearchModule !== 'undefined' && SearchModule.setupComparisonAutocomplete) {
-                SearchModule.setupComparisonAutocomplete('comparison-search-input', 'comparison-autocomplete-results');
-            } else {
-                console.warn('SearchModule not available. Autocomplete will not work.');
-            }
-    
-            document.getElementById('comparisonForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                performComparison();
-            });
+        function subscribe() {
+            var email = document.getElementById('subscribeEmail').value;
+            closeOverlay('subscribeOverlay');
+            // Add subscription logic here
+            alert('Subscription feature coming soon!');
         }
-    }
-    
-    function closeComparisonOverlay() {
-        const comparisonOverlay = document.getElementById('comparisonOverlay');
-        if (comparisonOverlay) {
-            comparisonOverlay.style.display = 'none';  // Hide instead of remove
-        }
-    }
-    function performComparison() {
-        const comparisonInput = document.getElementById('comparison-search-input');
-        if (comparisonInput && comparisonInput.value) {
-            const currentAsset = '{{ asset_name }}';
-            const comparisonAsset = comparisonInput.value;
-            showLoadingOverlay();
-            window.location.href = `/compare/${encodeURIComponent(currentAsset)}/${encodeURIComponent(comparisonAsset)}`;
-        } else {
-            alert('Please enter an asset to compare with.');
-        }
-    }
-
-    function showNewsSummary(assetName) {
-        window.location.href = `/news/${encodeURIComponent(assetName)}`;
-    }
-
-    function newSearch() {
-        // Check if the overlay already exists
-        let searchOverlay = document.getElementById('searchOverlay');
-        
-        if (searchOverlay) {
-            // If it exists, just display it
-            searchOverlay.style.display = 'flex';
-        } else {
-            // If it doesn't exist, create it
-            searchOverlay = document.createElement('div');
-            searchOverlay.id = 'searchOverlay';
-            searchOverlay.className = 'overlay';
-            searchOverlay.innerHTML = `
-                <div class="popup">
-                    <h2>Search for a Different Asset</h2>
-                    <form id="newSearchForm">
-                        <div id="new-search-container">
-                            <input type="text" id="new-search-input" placeholder="Enter asset name or ticker">
-                            <div id="new-autocomplete-results"></div>
-                        </div>
-                        <button type="submit">Search</button>
-                        <button type="button" onclick="closeSearchOverlay()">Cancel</button>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(searchOverlay);
-            searchOverlay.style.display = 'flex';
-            
-            if (typeof SearchModule !== 'undefined' && SearchModule.setupAutocomplete) {
-                SearchModule.setupAutocomplete('new-search-input', 'new-autocomplete-results', handleNewSearchSelection);
-            } else {
-                console.warn('SearchModule not available. Autocomplete will not work.');
-            }
-    
-            document.getElementById('newSearchForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                performNewSearch();
-            });
-        }
-    }
-
     
     
-    function handleNewSearchSelection(selectedItem) {
-        const newSearchInput = document.getElementById('new-search-input');
-        if (newSearchInput) {
-            newSearchInput.value = selectedItem.name;
-            document.getElementById('new-autocomplete-results').innerHTML = '';
-        }
-    }
-    
-    function closeSearchOverlay() {
-        const searchOverlay = document.getElementById('searchOverlay');
-        if (searchOverlay) {
-            searchOverlay.style.display = 'none';  // Hide instead of remove
-        }
-    }
-    function performNewSearch() {
-        const newSearchInput = document.getElementById('new-search-input');
-        if (newSearchInput && newSearchInput.value) {
-            showLoadingOverlay();
-            window.location.href = `/loading/${encodeURIComponent(newSearchInput.value)}`;
-        } else {
-            alert('Please enter an asset name or ticker.');
-        }
-    }
-
-    function closeSearchOverlay() {
-        const searchOverlay = document.getElementById('searchOverlay');
-        if (searchOverlay) {
-            searchOverlay.remove();
-        }
-    }
-
-    function showLoadingOverlay() {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'flex';
-        }
-    }
-
-    var priceHistoryDates = {{ raw_data.price_history.dates | tojson }};
-    var priceHistoryPercentages = {{ raw_data.price_history.percentage_changes | tojson }};
-    
-    // DOM-ready event listener
     document.addEventListener('DOMContentLoaded', function() {
-        // Setup event listeners for email and subscribe overlays
-        document.querySelectorAll('#emailOverlay button, #subscribeOverlay button').forEach(function(button) {
-            button.addEventListener('click', function() {
-                this.closest('.overlay').style.display = 'none';
-            });
+        const compareButton = document.getElementById('compareButton');
+        const compareModal = document.getElementById('compareModal');
+        const compareForm = document.getElementById('compareForm');
+        var sendEmailButton = document.getElementById('sendEmailButton');
+        if (sendEmailButton) {
+            sendEmailButton.addEventListener('click', sendEmail);
+        } else {
+            console.error('Send email button not found');
+        }
+        compareButton.addEventListener('click', function() {
+            compareModal.style.display = 'block';
         });
+    
+        compareForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const asset2 = document.getElementById('asset2Input').value;
+            window.location.href = `/comparison/${currentAsset}/${asset2}`;
 
-        document.querySelectorAll('#emailOverlay form, #subscribeOverlay form').forEach(function(form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var email = this.querySelector('input[type="email"]').value;
-                var action = this.closest('#emailOverlay') ? 'email' : 'subscribe';
-              
-                console.log(action + ' report for ' + email);
-                this.closest('.overlay').style.display = 'none';
-            });
-        });
-
-        // Initialize the price history chart
-        var ctx = document.getElementById('priceChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: priceHistoryDates,
-                datasets: [{
-                    label: 'Percentage Gain/Loss',
-                    data: priceHistoryPercentages,
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Price History (Percentage Change)'
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    x: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Percentage Change'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                }
-            }
+            SearchModule.setupComparisonAutocomplete('compareInput', 'compareAutocompleteResults');
         });
     });
-</script>
+    </script>
     <style>
         .pink-heading { color: #FF69B4; }
         .header-image { max-width: 100%; height: auto; margin: 0 auto; display: block; }
         .button-container { margin: 20px 0; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .popup { background-color: white; padding: 20px; border-radius: 5px; text-align: center; }
     </style>
 {% endblock %}

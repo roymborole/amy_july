@@ -104,7 +104,7 @@ def create_app():
     app.config['DEBUG'] = True
     app.config.from_object(Config)
 
-    csrf = CSRFProtect(app)
+ 
 
     load_dotenv()
 
@@ -163,7 +163,6 @@ def create_app():
     init_extensions(app)
     mail = Mail(app)
     csrf = CSRFProtect(app)
-
     security = Security(app, user_datastore)
     
     
@@ -818,17 +817,20 @@ def api_compare():
     comparison_data = compare_assets(asset1, asset2)
     return jsonify(comparison_data)
 
+csrf = CSRFProtect(app)
+
 @app.route('/send_report', methods=['POST'])
+@csrf.exempt
 def send_report():
-    data = request.json
-    email = data.get('email')
-    asset_name = data.get('asset_name')
-    report_content = data.get('report_content')
-
-    if not email or not asset_name or not report_content:
-        return jsonify({'message': 'Missing required data'}), 400
-
     try:
+        data = request.get_json()
+        email = data.get('email')
+        asset_name = data.get('asset_name')
+        report_content = data.get('report_content')
+
+        if not email or not asset_name or not report_content:
+            return jsonify({'message': 'Missing required data'}), 400
+
         postmark.emails.send(
             From='reports@100-x.club',
             To=email,
@@ -844,8 +846,8 @@ def send_report():
         )
         return jsonify({'message': 'Email sent successfully'}), 200
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
-        return jsonify({'message': 'Failed to send email'}), 500
+        app.logger.error(f"Error in send_report: {str(e)}")
+        return jsonify({'message': f'Server error: {str(e)}'}), 500
 
 def generate_report_background(name_or_ticker):
     try:
