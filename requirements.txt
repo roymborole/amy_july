@@ -333,4 +333,5 @@ aiofiles
 flask[async]
 Hypercorn==0.17.3
 flask_security
-contentful
+Contentful
+flask_cors-5.0.0

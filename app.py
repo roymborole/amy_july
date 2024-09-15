@@ -86,6 +86,9 @@ from models import User, Role
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_wtf.csrf import CSRFProtect
 from contentful_utils import get_top_stories
+from flask_cors import CORS
+from flask import Flask, request, Response
+import requests
 
 
 
@@ -100,7 +103,7 @@ scheduler = BackgroundScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static', static_url_path='/static')
-
+    CORS(app)
     app.config['DEBUG'] = True
     app.config.from_object(Config)
 
@@ -269,34 +272,45 @@ company_trie = Trie()  #what the fuck is this?
 for company, ticker in COMPANIES.items():
     company_trie.insert(company, ticker)
 
+from flask import Flask, render_template, abort
+from contentful import Client
+import os
 
-HEADLINE_CACHE = [
-    "The Spotify Paradox: When Soaring Growth Meets Shaky Foundations",
-    "Bulletproof Profits: Rheinmetall's Explosive 3-Year Surge",
-    "Western Dominance: How Paarl's Rugby Factory is Colonizing the Springboks",
-    "SAAB Fundamental Analysis: A Deep Dive into Defense Industry Dynamics"
-]
+# Set up Contentful client
+contentful_client = Client(
+    space_id=os.environ.get('CONTENTFUL_SPACE_ID'),
+    access_token=os.environ.get('CONTENTFUL_ACCESS_TOKEN')
+)
 
-@app.route('/api/headlines')
-def get_headlines():
-    time.sleep(0.1)  # Add a small delay
-    return jsonify(HEADLINE_CACHE)
+@app.route('/blog', methods=['GET'])
+def blog():
+    try:
+        # Fetch blog posts from Contentful
+        posts = contentful_client.entries({
+            'content_type': 'asset',
+            'order': '-sys.createdAt'
+        })
 
-#for backward compatibility if needed
-@app.route('/api/top-stories')
-def get_top_stories():
-    return jsonify([{"title": headline} for headline in HEADLINE_CACHE])
+        # Print each post's fields to verify they're fetched
+        for post in posts:
+            print(post.fields())
+        return render_template('blog.html', posts=posts)
+    except Exception as e:
+        print(f"Error fetching blog posts: {str(e)}")
+        abort(500)
 
-# Add this function to update headlines (you can call this when you publish new stories)
-def update_headlines(new_headlines):
-    global HEADLINE_CACHE
-    HEADLINE_CACHE = new_headlines
+@app.route('/blog/post/<string:post_id>')
+def blog_post(post_id):
+    try:
+        post = contentful_client.entry(post_id)
+        print(f"Post data: {post}")  # Add this line for debugging
+        return render_template('blog_post.html', post=post)
+    except Exception as e:
+        print(f"Error fetching blog post: {str(e)}")
+        abort(404)
 
-@app.route('/admin/update_headlines', methods=['POST'])
-def admin_update_headlines():
-    new_headlines = request.json.get('headlines', [])
-    update_headlines(new_headlines)
-    return jsonify({"message": "Headlines updated successfully"}), 200
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @app.route('/favicon.ico')
 def favicon():
@@ -309,10 +323,6 @@ def autocomplete():
     matches = company_trie.search_prefix(prefix)
     return jsonify([{'name': name, 'ticker': ticker} for name, ticker in matches[:10]])
 
-
-@app.context_processor
-def inject_ga_tracking_id():
-    return dict(ga_tracking_id=app.config['GA_TRACKING_ID'])
 
 @app.route('/crypto_predict/<crypto_name>')
 def crypto_predict(crypto_name):
@@ -351,9 +361,10 @@ def display_crypto_news(crypto_name):
 def page_not_found(e):
     return render_template('404.html'), 404
 
-@app.route('/_next/static/<path:path>')
+
+@app.route('/static/<path:path>')
 def serve_static(path):
-    return send_from_directory('static', path)
+    return send_from_directory(app.static_folder, path)
 
 @app.route('/crypto_report/<crypto_name>')
 def display_crypto_report(crypto_name):
@@ -424,12 +435,6 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/blog')
-def blog():
-    return send_from_directory(app.static_folder, 'index.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
 
 @app.route('/upload_macro', methods=['GET', 'POST'])
@@ -1039,11 +1044,7 @@ def works():
 
 @app.route('/horse')
 def horse():
-    return render_template('horse.html') #Test file for index
-
-@app.route('/_next/<path:path>')
-def next_static(path):
-    return send_from_directory(os.path.join(app.static_folder, '_next'), path)
+    return render_template('horse.html') #now she's index.
 
 @app.route('/send_comparison_report', methods=['POST'])
 @csrf.exempt

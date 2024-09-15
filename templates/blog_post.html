@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <article>
+        <h2>{{ post.title }}</h2>
+        <p>Published on: {{ post.sys.created_at.strftime('%B %d, %Y') }}</p>
+        {% if post.fields().get('image') %}
+            <img src="{{ post.fields().get('image').url() }}" alt="{{ post.title }}">
+        {% endif %}
+        <div>
+            {{ post.fields().get('description')|safe }}
+        </div>
+    </article>
+{% endblock %}

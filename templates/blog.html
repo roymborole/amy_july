@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+    <h2>Blog Posts</h2>
+    {% for post in posts %}
+        <article>
+            <h3><a href="{{ url_for('blog_post', post_id=post.id) }}">{{ post.title }}</a></h3>
+            <p>{{ post.description|truncate(200) }}</p>
+        </article>
+    {% endfor %}
+{% endblock %}
