@@ -337,3 +337,4 @@ zope.interface==7.0.1
 zopfli==0.2.3
 sentry_sdk
 flask_security
+PyPDF2==1.26.0
