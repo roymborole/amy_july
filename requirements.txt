@@ -252,7 +252,7 @@ referencing==0.35.1
 regex==2024.5.15
 render==1.0.0
 replit==4.0.0
-requests==2.26.0
+requests>=2.31.0
 requests-file==2.1.0
 requests-html==0.10.0
 requests-oauthlib==2.0.0
