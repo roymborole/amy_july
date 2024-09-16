@@ -333,4 +333,5 @@ yfinance==0.2.40
 zipp==3.19.2
 zope.interface==7.0.1
 zopfli==0.2.3
+sentry_sdk
 flask_security
