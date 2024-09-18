@@ -1,0 +1,10 @@
+{
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/api/proxy/[...path]": "pages/api/proxy/[...path].js",
+  "/_error": "pages/_error.js",
+  "/api/revalidate": "pages/api/revalidate.js",
+  "/blog": "pages/blog.js",
+  "/article/[lid]": "pages/article/[lid].js",
+  "/": "pages/index.js"
+}
