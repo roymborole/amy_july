@@ -544,7 +544,10 @@ def get_ticker_from_name(input_str):
     # If not found, return the input as is
     return input_str
 
+csrf = CSRFProtect(app)
+
 @app.route('/generate_macro', methods=['POST'])
+@csrf.exempt
 def generate_macro():
     input_str = request.form['ticker']
     ticker = get_ticker_from_name(input_str)
