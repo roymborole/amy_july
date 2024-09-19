@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}100x Club{% endblock %}</title>
     <style>
       body {
@@ -105,6 +106,7 @@
   border: 2px solid white;
   position: relative;
   margin-bottom: 10px;
+  z-index: 10001;
 }
 
 
@@ -196,17 +198,20 @@ h5 {
   font-size: 14px;
 }
 #autocomplete-results {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background-color: transparent;
-  border: 1px solid #ddd;
-  border-radius: 0 0 5px 5px;
-  max-height: 200px;
-  overflow-y: auto;
-  width: 100%;
-  z-index: 1000;
-}
+    position: absolute;
+    z-index: 1000; /* Higher than the ticker tape */
+    background-color: white;
+    border: 1px solid #ddd;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    top: 100%; /* Position it right below the search input */
+    left: 0;
+    right: 0;
+  }
+
+
 .autocomplete-list {
   list-style-type: none;
   padding: 0;

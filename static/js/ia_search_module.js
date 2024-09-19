@@ -281,11 +281,15 @@ const IASearchModule = {
         generateReport: function(ticker) {
             console.log(`Generating report for ${ticker}`);
         
+            // Get the CSRF token from the meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
             // Make AJAX call to generate macro analysis
             fetch('/generate_macro', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
                 },
                 body: `ticker=${encodeURIComponent(ticker)}`
             })
@@ -304,12 +308,11 @@ const IASearchModule = {
                 window.location.href = '/';
             });
         },
-    
+        
         displayMacroeconomicAnalysis: function(ticker, data) {
             const resultElement = document.getElementById('ia-analysis-result');
             console.log("Displaying analysis for:", ticker, data);  // Debug log
             resultElement.innerHTML = `
-                <h1>Investment Analysis for ${data.company_name || ticker} (${ticker})</h1>
                 <div style="color: white;">
                     ${data.analysis}
                 </div>

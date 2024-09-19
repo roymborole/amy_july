@@ -501,6 +501,8 @@ def handle_nan(data):
         return None
     else:
         return data
+    
+
 @app.route('/generate_macro_analysis/<ticker>')
 def generate_macro_analysis_route(ticker):
     try:
@@ -544,10 +546,11 @@ def get_ticker_from_name(input_str):
     # If not found, return the input as is
     return input_str
 
+
 csrf = CSRFProtect(app)
 
-@app.route('/generate_macro', methods=['POST'])
 @csrf.exempt
+@app.route('/generate_macro', methods=['POST'])
 def generate_macro():
     input_str = request.form['ticker']
     ticker = get_ticker_from_name(input_str)
@@ -589,6 +592,8 @@ def generate_macro():
     except Exception as e:
         app.logger.exception(f"Unexpected error during macro generation for {ticker}")
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+csrf.exempt(generate_macro)
     
 @app.route('/macroeconomic_analysis')
 def macroeconomic_analysis():

@@ -2,6 +2,7 @@
 
 {% block styles %}
 {{ super() }}
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/technical_analysis.css') }}">
 <style>

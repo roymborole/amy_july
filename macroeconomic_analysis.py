@@ -12,15 +12,15 @@ import io
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from ia_company_data import COMPANIES
+from ia_company_data import FIRMS
 
 def get_ticker_from_name(input_str):
     # Check if input is already a ticker
-    if input_str.upper() in COMPANIES.values():
+    if input_str.upper() in FIRMS.values():
         return input_str.upper()
     
     # Check if input is a full company name
-    for name, ticker in COMPANIES.items():
+    for name, ticker in FIRMS.items():
         if name.lower() == input_str.lower():
             return ticker
     
@@ -53,7 +53,7 @@ def generate_macroeconomic_analysis(ticker):
         prompt = generate_prompt(ticker, macro_analysis, summarized_data)
 
         response = anthropic.messages.create(
-            model="claude-3-opus-20240229",
+            model="claude-3-5-sonnet-20240620", 
             max_tokens=4000,
             temperature=0,
             system="You are a financial analyst specializing in macroeconomic trends and their impact on individual stocks. Provide your insight in an investment analysis report.",
@@ -71,10 +71,10 @@ def generate_macroeconomic_analysis(ticker):
     except Exception as e:
         logger.exception(f"Error in generate_macroeconomic_analysis for {ticker}: {str(e)}")
         return None, str(e)
-
+    
 def summarize_financial_data(financial_data):
     return {
-        'asset_name': financial_data.get('asset_name', ''),
+        'company_name': financial_data.get('asset_name', ''), 
         'symbol': financial_data.get('symbol', ''),
         'current_price': financial_data.get('current_price'),
         'change_percent': financial_data.get('change_percent'),
@@ -128,16 +128,15 @@ def process_docx(file_path):
     return content
 
 def generate_prompt(ticker, macro_analysis, summarized_data):
+    company_name = summarized_data.get('company_name', ticker)
     return f"""
-    Given the technical analysis document and the quarterly results summary for {ticker}, please generate a comprehensive macroeconomic analysis that incorporates the following elements:
+    Given the technical analysis document and the quarterly results summary for {company_name} ({ticker}), please generate a comprehensive investment analysis that incorporates the following elements:
 
-    
     Summarized Financial Data:
     {json.dumps(summarized_data, indent=2)}
 
     Macroeconomic Analysis:
     {macro_analysis}
-
 
     Provide a comprehensive report that combines insights from both the macroeconomic analysis and the financial data. 
     Format your response in HTML with the following structure:
@@ -175,7 +174,7 @@ def generate_prompt(ticker, macro_analysis, summarized_data):
 
     </div>
 
-    Ensure that all text is in white color and subheadings use h2 tags for bold formatting. The analysis should be comprehensive, insightful, and provide a unique perspective that goes beyond a simple combination of the input documents. The goal is to deliver actionable intelligence that gives analysts a competitive edge in understanding the macroeconomic landscape. Do no not start the output with the words "Here's a comprehensive....."
+    Ensure that all text is in white color and subheadings use h2 tags for bold formatting. The analysis should be comprehensive, insightful, and provide a unique perspective that goes beyond a simple combination of the input documents. The goal is to deliver actionable intelligence that gives analysts a competitive edge in understanding the economic landscape. Do no not start the output with the words "Here's a comprehensive....."
     """
 
 def format_response(response, summarized_data):
