@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const headlines = [
         { text: "The Spotify Paradox: When Soaring Growth Meets Shaky Foundations", link: 'https://finance.yahoo.com/quote/MRNA/' },
         { text: "Bulletproof Profits: Rheinmetall's Explosive 3-Year Surge", link: 'https://finance.yahoo.com/quote/MRNA/' },
-        { text: "Western Dominance: How Paarl's Rugby Factory is Colonizing the Springboks", link: 'https://finance.yahoo.com/quote/MRNA/' },
+        { text: "Rocket Science Meets Voodoo Economics: Intuitive Machines' Stellar Technical Analysis", link: 'https://finance.yahoo.com/quote/MRNA/' },
         { text: "SAAB Fundamental Analysis: A Deep Dive into Defense Industry Dynamics", link: 'https://finance.yahoo.com/quote/MRNA/' },
     ];
 
