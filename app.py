@@ -82,6 +82,8 @@ import asyncio
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
 from flask_mail import Mail
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf import csrf
 from models import User, Role
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_wtf.csrf import CSRFProtect
@@ -89,7 +91,8 @@ from contentful_utils import get_top_stories
 from flask_cors import CORS
 from flask import Flask, request, Response
 import requests
-
+import markdown2
+import html 
 
 
 
@@ -118,7 +121,7 @@ def create_app():
     app.config['GA_TRACKING_ID'] = os.environ.get('GA_TRACKING_ID')
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///your_database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT')
     app.config['POSTMARK_SERVER_TOKEN'] = os.getenv('POSTMARK_SERVER_TOKEN')
     app.config['CELERY_BROKER_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
@@ -139,6 +142,8 @@ def create_app():
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] = True
 
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    csrf = CSRFProtect(app)
 
     redis_url = get_redis_url()
     
@@ -272,45 +277,93 @@ company_trie = Trie()  #what the fuck is this?
 for company, ticker in COMPANIES.items():
     company_trie.insert(company, ticker)
 
-from flask import Flask, render_template, abort
+from flask import render_template, abort
 from contentful import Client
 import os
+from datetime import datetime
 
-# Set up Contentful client
 contentful_client = Client(
     space_id=os.environ.get('CONTENTFUL_SPACE_ID'),
     access_token=os.environ.get('CONTENTFUL_ACCESS_TOKEN')
 )
 
-@app.route('/blog', methods=['GET'])
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+@app.route('/blog')
 def blog():
     try:
-        # Fetch blog posts from Contentful
-        posts = contentful_client.entries({
-            'content_type': 'asset',
-            'order': '-sys.createdAt'
-        })
-
-        # Print each post's fields to verify they're fetched
-        for post in posts:
-            print(post.fields())
-        return render_template('blog.html', posts=posts)
+        # Make the simplest possible query
+        entries = contentful_client.entries()
+        
+        # Log the number of entries and their content types
+        print(f"Fetched {len(entries)} entries")
+        for entry in entries:
+            print(f"Entry ID: {entry.sys['id']}, Content Type: {entry.sys['content_type'].id}")
+        
+        return render_template('blog.html', posts=entries)
     except Exception as e:
-        print(f"Error fetching blog posts: {str(e)}")
-        abort(500)
+        error_msg = f"Error fetching entries: {str(e)}\n\nTraceback:\n{traceback.format_exc()}"
+        print(error_msg)  # Print to console for immediate visibility
+        return render_template('error.html', error=error_msg), 500
 
-@app.route('/blog/post/<string:post_id>')
+
+def markdown_render(content):
+    # Convert Markdown to HTML
+    html = markdown2.markdown(content, extras=['tables', 'fenced-code-blocks'])
+    # Replace double underscores with strong tags
+    html = html.replace('__', '<strong>', 1).replace('__', '</strong>', 1)
+    return Markup(html)
+
+# Register the filter with your Flask app
+app.jinja_env.filters['markdown_render'] = markdown_render
+
+def render_rich_text(content):
+    if not content or not isinstance(content, dict):
+        return ''
+
+    def render_node(node):
+        if node['nodeType'] == 'text':
+            text = html.escape(node['value'])
+            if node.get('marks'):
+                for mark in node['marks']:
+                    if mark['type'] == 'bold':
+                        text = f'<strong>{text}</strong>'
+                    elif mark['type'] == 'italic':
+                        text = f'<em>{text}</em>'
+            return text
+        elif node['nodeType'] == 'paragraph':
+            return '<p>' + ''.join(render_node(child) for child in node.get('content', [])) + '</p>'
+        elif node['nodeType'] == 'heading-1':
+            return '<h1>' + ''.join(render_node(child) for child in node.get('content', [])) + '</h1>'
+        elif node['nodeType'] == 'heading-2':
+            return '<h2>' + ''.join(render_node(child) for child in node.get('content', [])) + '</h2>'
+        elif node['nodeType'] == 'embedded-asset-block':
+            if 'data' in node and 'target' in node['data']:
+                file_url = node['data']['target']['fields']['file']['url']
+                return f'<img src="https:{file_url}" alt="Embedded asset" class="img-fluid">'
+        elif node['nodeType'] == 'unordered-list':
+            return '<ul>' + ''.join(f'<li>{render_node(item)}</li>' for item in node.get('content', [])) + '</ul>'
+        elif node['nodeType'] == 'ordered-list':
+            return '<ol>' + ''.join(f'<li>{render_node(item)}</li>' for item in node.get('content', [])) + '</ol>'
+        elif node['nodeType'] == 'list-item':
+            return ''.join(render_node(child) for child in node.get('content', []))
+        else:
+            return ''
+
+    return Markup(''.join(render_node(node) for node in content.get('content', [])))
+
+app.jinja_env.filters['render_rich_text'] = render_rich_text
+
+@app.route('/blog/post/<post_id>')
 def blog_post(post_id):
     try:
-        post = contentful_client.entry(post_id)
-        print(f"Post data: {post}")  # Add this line for debugging
-        return render_template('blog_post.html', post=post)
+        entry = contentful_client.entry(post_id)
+        return render_template('blog_post.html', post=entry)
     except Exception as e:
-        print(f"Error fetching blog post: {str(e)}")
-        abort(404)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        error_msg = f"Error fetching blog post: {str(e)}\n\nTraceback:\n{traceback.format_exc()}"
+        app.logger.error(error_msg)
+        return render_template('error.html', error=error_msg), 404
 
 @app.route('/favicon.ico')
 def favicon():

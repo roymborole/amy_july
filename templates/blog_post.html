@@ -1,16 +1,69 @@
 {% extends "base.html" %}
-
 {% block title %}{{ post.title }}{% endblock %}
-
 {% block content %}
-    <article>
-        <h2>{{ post.title }}</h2>
-        <p>Published on: {{ post.sys.created_at.strftime('%B %d, %Y') }}</p>
-        {% if post.fields().get('image') %}
-            <img src="{{ post.fields().get('image').url() }}" alt="{{ post.title }}">
-        {% endif %}
-        <div>
-            {{ post.fields().get('description')|safe }}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <article class="blog-post">
+                <h1 class="mb-4">{{ post.title }}</h1>
+                {% if post.publication_date %}
+                <p class="text-muted">Published on {{ post.publication_date.strftime('%B %d, %Y') }}</p>
+                {% endif %}
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image.url() }}" alt="{{ post.title }}" class="img-fluid mb-4">
+                {% endif %}
+                <div class="content">
+                    {{ post.content|render_rich_text }}
+                </div>
+                <hr>
+                <a href="{{ url_for('blog') }}" class="btn btn-primary">&larr; Back to Blog</a>
+            </article>
         </div>
-    </article>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+    .blog-post {
+        font-size: 18px;
+        line-height: 1.6;
+        background-color: #333333;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .blog-post h1 {
+        font-size: 2.5em;
+        color: #ffffff;
+    }
+    .blog-post h2 {
+        font-size: 2em;
+        color: #ffffff;
+    }
+    .blog-post img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 1em;
+    }
+    .blog-post table {
+        width: 100%;
+        margin-bottom: 1em;
+        border-collapse: collapse;
+    }
+    .blog-post td, .blog-post th {
+        padding: 0.5em;
+        border: 1px solid #666;
+    }
+    .blog-post a {
+        color: #7ED957;
+    }
+    .blog-post a:hover {
+        color: #6AC846;
+    }
+    .text-muted {
+        color: #999999 !important;
+    }
+</style>
 {% endblock %}
