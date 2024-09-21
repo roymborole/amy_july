@@ -338,5 +338,5 @@ zopfli==0.2.3
 sentry_sdk
 flask_security
 contentful
-Markdown 2
+Markdown2
 PyPDF2==1.26.0
