@@ -94,10 +94,7 @@ import requests
 import markdown2
 import html 
 
-
-
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
