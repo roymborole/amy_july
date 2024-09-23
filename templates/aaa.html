@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Website</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/Tickertape.css') }}" rel="stylesheet">
     <style>
+        
         body {
             margin: 0;
             padding: 0;
@@ -114,7 +116,12 @@
 </div>
         <button class="btn-get-started">Get Started</button>
     </nav>
-    <script>
+    <div id="ticker-tape-root" class="ticker-tape"> </div>
+        <script>
+            if (typeof window !== 'undefined' && window.TickerTape) {
+              new window.TickerTape(document.getElementById('ticker-tape-root'));
+          }
+          
         const SearchModule = {
             init: function() {
                 this.setupAutocomplete();
