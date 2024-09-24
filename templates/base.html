@@ -64,7 +64,8 @@
             <div class="navbar-nav flex-grow-1 justify-content-between align-items-center">
 
               <div class="search-container">
-                <input type="text" placeholder="Enter asset name or ticker" id="search-input">
+                <input type="text" id="search-input" placeholder="Enter asset name or ticker">
+                <button class="btn-analyze" onclick="SearchModule.handleSubmit(event)">Analyze</button>
                 <div id="autocomplete-results"></div>
               </div>
                 <a href="{{ url_for('technical_analysis') }}" class="nav-link fw-bold">Technical Analysis</a>
