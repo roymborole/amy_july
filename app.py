@@ -131,6 +131,7 @@ def create_app():
     app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
     app.config['SECURITY_LOGIN_USER_TEMPLATE'] = 'security/login.html'
     app.config['SECURITY_REGISTER_USER_TEMPLATE'] = 'security/register.html'
+    app.config['SECURITY_POST_REGISTER_VIEW'] = '/'
     app.config['WTF_CSRF_ENABLED'] = False
 
     # Flask-Security settings
@@ -368,6 +369,13 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+from flask_security import user_registered
+from flask import flash
+
+@user_registered.connect_via(app)
+def user_registered_sighandler(app, user, **kwargs):
+    flash('Thank you for registering! You have been successfully logged in.', 'success')
+    
 @app.route('/api/autocomplete', methods=['GET'])
 def autocomplete():
     prefix = request.args.get('prefix', '').lower()
