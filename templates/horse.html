@@ -7,6 +7,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
 <style>
+.blog-post-section {
+        padding: 50px 0;
+        background-color: #f8f9fa;
+    }
+.blog-post-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
 body {
     margin: 0;
     padding: 0;
@@ -108,6 +116,27 @@ horse-buttons {
             </div>
             <div id="animation-container" ></div>
         </div>
+    </div>
+    {% if post %}
+<div class="blog-post-section">
+    <div class="blog-post-content">
+        <h2>{{ post.title }}</h2>
+        {% if post.sys.created_at %}
+        <p>Published on {{ post.sys.created_at.strftime('%B %d, %Y') }}</p>
+        {% endif %}
+        {% if post.featured_image %}
+        <img src="{{ post.featured_image.url() }}" alt="{{ post.title }}" class="img-fluid mb-4">
+        {% endif %}
+        <div class="content">
+            {{ post.content|safe }}
+        </div>
+        <a href="{{ url_for('blog') }}" class="btn btn-primary">← Back to Blog</a>
+    </div>
+</div>
+{% endif %}
+        </div>
+    </div>
+        </div>
         </div>
     </div>
     </div>
@@ -128,4 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+</body>
+</html>
 {% endblock %}

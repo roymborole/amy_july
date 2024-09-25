@@ -2,20 +2,64 @@
 {% block title %}100X Club Blog{% endblock %}
 {% block content %}
 
-<div class="container">
-    <dxh1 class="dxh1">Demystifying Finance, one click at a time</dxh1>
+<style>
+    .blog-heading {
+        margin-top: 80px; /* Adjust this value as needed to lower the heading */
+        margin-bottom: 30px;
+        color: #ffffff; /* Ensure the text is visible */
+        text-align: center;
+        font-family: 'League Spartan', sans-serif;
+        font-size: 65px;
+        text-align: center;
+        font-weight: bold;
+    }
 
-    <div class="row">
-        <div class="col-md-8">
+    .blog-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    .blog-posts {
+        width: 80%; /* Increased width for blog posts */
+    }
+    .top-stories {
+        width: 40%; /* Adjust width as needed */
+        margin-top: 0; /* Align with the first blog post */
+    }
+    .card {
+        background-color: #737373;
+        margin-bottom: 20px;
+    }
+    .card-body {
+        color: #ffffff;
+        text-align: left;
+        font-family: 'Roboto', sans-serif;
+        font-size: 20px;
+    }
+    .btn-custom {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .top-stories-header {
+        background-color: #404040;
+        color: #ffffff;
+    }
+    .top-story-link {
+        color: #ffffff;
+    }
+</style>
+
+<div class="container">
+    <h1 class="blog-heading">Demystifying Finance, one click at a time</h1>
+
+    <div class="blog-container">
+        <div class="blog-posts">
             {% for post in posts %}
-            <div class="card mb-4" style="background-color: #737373;">
-                {% if post.featured_image %}
-                    <img src="{{ post.featured_image.url() }}" class="card-img-top" alt="{{ post.title }}">
-                {% endif %}
-                
-                <div class="card-body">
-                    <h2 class="card-title mt-4">{{ post.title or 'Untitled Post' }}</h2>
-                    <p class="card-text">
+                <div class="card">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url() }}" class="card-img-top" alt="{{ post.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h2 class="card-title mt-4">{{ post.title or 'Untitled Post' }}</h2>
                         {% if post.excerpt %}
                             {{ post.excerpt }}
                         {% elif post.content %}
@@ -23,33 +67,33 @@
                         {% else %}
                             No content available
                         {% endif %}
-                    </p>
-                    <a href="{{ url_for('blog_post', post_id=post.id) }}" class="btn btn-custom">Read More →</a>
+                        <a href="{{ url_for('blog_post', post_id=post.id) }}" class="btn btn-custom">Read More →</a>
+                    </div>
+                    <div class="card-footer">
+                        {% if post.publication_date %}
+                            Posted on {{ post.publication_date.strftime('%B %d, %Y') }}
+                        {% endif %}
+                        {% if post.author %}
+                            by {{ post.author }}
+                        {% endif %}
+                    </div>
                 </div>
-
-                <div class="card-footer">
-                    {% if post.publication_date %}
-                        Posted on {{ post.publication_date.strftime('%B %d, %Y') }}
-                    {% endif %}
-                    {% if post.author %}
-                        by {{ post.author }}
-                    {% endif %}
-                </div>
-            </div>
             {% else %}
-            <p>No blog posts available.</p>
+                <p>No blog posts available.</p>
             {% endfor %}
         </div>
 
-        <div class="col-md-4">
-            <div class="card my-4 top-stories-card">
-                <h5 class="card-header top-stories-header" style="background-color: #737373;">Top Stories</h5>
+        <div class="top-stories">
+            <div class="card">
+                <h5 class="card-header top-stories-header">Top Stories</h5>
                 <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        {% for post in posts[:5] %}
-                        <li>
-                            <a href="{{ url_for('blog_post', post_id=post.id) }}" class="top-story-link">{{ post.title or 'Untitled Post' }}</a>
-                        </li>
+                    <ul>
+                        {% for post in posts[:5] %} {# Display top 5 stories #}
+                            <li>
+                                <a href="{{ url_for('blog_post', post_id=post.id) }}" class="top-story-link">
+                                    {{ post.title or 'Untitled Post' }}
+                                </a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -58,55 +102,4 @@
     </div>
 </div>
 
-<style>
-    .dxh1{
-        font-family: 'League Spartan', sans-serif;
-        font-size: 55px;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        font-weight: bold;
-    }
-    .card {
-        background-color: #737373;
-        color: white;
-    }
-    .card-title {
-        margin-top: 20px;
-    }
-    .btn-custom {
-        background-color: #7ED957;
-        color: white;
-        border: none;
-    }
-    .btn-custom:hover {
-        background-color: #6AC846;
-        color: white;
-    }
-    .top-stories-header {
-        font-size: 2em;
-        font-weight: bold;
-    }
-    .col-md-4 {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-    .col-md-8 {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-    .card-footer {
-        color: white;
-    }
-    .top-stories-card {
-        background-color: #393939;
-    }
-    .top-story-link {
-        color: white;
-        text-decoration: none;
-    }
-    .top-story-link:hover {
-        color: #7ED957;
-        text-decoration: underline;
-    }
-</style>
 {% endblock %}
