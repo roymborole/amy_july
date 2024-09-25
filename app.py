@@ -133,6 +133,8 @@ def create_app():
     app.config['SECURITY_REGISTER_USER_TEMPLATE'] = 'security/register.html'
     app.config['SECURITY_POST_REGISTER_VIEW'] = '/'
     app.config['WTF_CSRF_ENABLED'] = False
+    app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
+    app.config['SECURITY_PASSWORD_HASH'] = 'argon2'
 
     # Flask-Security settings
     app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
@@ -375,7 +377,7 @@ from flask import flash
 @user_registered.connect_via(app)
 def user_registered_sighandler(app, user, **kwargs):
     flash('Thank you for registering! You have been successfully logged in.', 'success')
-    
+
 @app.route('/api/autocomplete', methods=['GET'])
 def autocomplete():
     prefix = request.args.get('prefix', '').lower()
