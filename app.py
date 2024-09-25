@@ -131,6 +131,7 @@ def create_app():
     app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
     app.config['SECURITY_LOGIN_USER_TEMPLATE'] = 'security/login.html'
     app.config['SECURITY_REGISTER_USER_TEMPLATE'] = 'security/register.html'
+    app.config['WTF_CSRF_ENABLED'] = False
 
     # Flask-Security settings
     app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
@@ -616,8 +617,8 @@ def get_ticker_from_name(input_str):
 
 csrf = CSRFProtect(app)
 
-@csrf.exempt
 @app.route('/generate_macro', methods=['POST'])
+@csrf.exempt
 def generate_macro():
     input_str = request.form['ticker']
     ticker = get_ticker_from_name(input_str)
