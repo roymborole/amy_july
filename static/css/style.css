@@ -23,8 +23,8 @@ body {
     justify-content: center;
     align-items: flex-start;
     background-color: #222222;
-    padding-top: 20px; 
-}
+    padding-top: 95px; 
+} 
 
 .container-fluid {
     padding-bottom: 0; /* Remove any bottom padding */

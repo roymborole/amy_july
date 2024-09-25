@@ -386,7 +386,24 @@ def crypto_predict(crypto_name):
 
 @app.route('/')
 def home():
-    return render_template('horse.html')
+    try:
+        # Fetch the latest blog post
+        latest_post = contentful_client.entries({
+            'content_type': 'Blog Posts',  # Replace with your actual content type ID
+            'order': '-sys.createdAt',   # Order by creation date, most recent first
+            'limit': 1                   # Limit to 1 entry (the latest)
+        })
+        
+        if latest_post:
+            latest_post = latest_post[0]  # Get the first (and only) entry
+        else:
+            latest_post = None
+        
+        return render_template('horse.html', post=latest_post)
+    except Exception as e:
+        error_msg = f"Error fetching latest blog post: {str(e)}\n\nTraceback:\n{traceback.format_exc()}"
+        print(error_msg)  # Print to console for immediate visibility
+        return render_template('horse.html', post=None) 
 
 @app.route('/scrib')
 def scrib():

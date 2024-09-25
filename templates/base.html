@@ -49,6 +49,7 @@
     </script>
 </head>
 <body>
+  <div class="header-container">
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">
@@ -84,8 +85,13 @@
         </div>
     </div>
   </div>
+</div>
 </nav>
-<div id="ticker-tape-root" class="ticker-tape"> </div>
+<div id="ticker-tape-root" class="ticker-tape">
+  <div class="ticker-tape-content"></div>
+</div>
+
+
 
 {% block content %} {% endblock %}
 {% block styles %} 
@@ -100,7 +106,7 @@
   padding: 10px 0px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding-bottom: 0 !important; 
-  z-index: 990;
+  z-index: 101;
 }
 .nav-logo {
   height: 40px;
@@ -282,6 +288,14 @@ h5 {
           height: 20px;
           position: relative;
           transition: .5s ease-in-out;
+      }
+
+      .header-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
       }
 
       .navbar-toggler:focus {
