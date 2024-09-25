@@ -225,7 +225,6 @@ h5 {
     right: 0;
   }
 
-
 .autocomplete-list {
   list-style-type: none;
   padding: 0;
@@ -257,22 +256,32 @@ h5 {
               position: fixed;
               top: 56px; /* Adjust based on your navbar height */
               left: 0;
+              right: 0;
               padding-left: 15px;
               padding-right: 15px;
               padding-bottom: 15px;
               width: 75%;
               height: 100%;
               background-color: #f8f9fa;
+              transition:  height 0.3s ease;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              max-height: calc(100vh - 56px);
+              overflow-y: auto;
           }
 
           .navbar-collapse.collapsing {
               left: -75%;
-              transition: height 0s ease;
+              navbar-collapse.collapsing {
+              height: auto;
+              overflow: hidden;
+              transition: height 0.3s ease;
+            }
           }
 
           .navbar-collapse.show {
               left: 0;
               transition: left 300ms ease-in-out;
+              height: auto;
           }
 
           .navbar-toggler {
@@ -358,6 +367,7 @@ h5 {
           top: 10px;
           transform: rotate(-135deg);
       }
+ 
 </style>
 {% endblock %}
 
@@ -516,11 +526,49 @@ h5 {
           }
       };
   
-      // Initialize the SearchModule
+
       document.addEventListener('DOMContentLoaded', function() {
-          SearchModule.init();
-           
-        });
+        SearchModule.init();
+          const hamburger = document.querySelector('.navbar-toggler');
+          const navbarCollapse = document.querySelector('.navbar-collapse');
+          let isMenuOpen = false;
+      
+          if (hamburger && navbarCollapse) {
+              hamburger.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  isMenuOpen = !isMenuOpen;
+                  toggleMenu();
+              });
+      
+              // Close menu when clicking outside
+              document.addEventListener('click', function(e) {
+                  if (isMenuOpen && !navbarCollapse.contains(e.target) && !hamburger.contains(e.target)) {
+                      isMenuOpen = false;
+                      toggleMenu();
+                  }
+              });
+      
+              // Prevent clicks inside the menu from closing it
+              navbarCollapse.addEventListener('click', function(e) {
+                  e.stopPropagation();
+              });
+          }
+      
+          function toggleMenu() {
+              if (isMenuOpen) {
+                  navbarCollapse.classList.add('show');
+                  hamburger.setAttribute('aria-expanded', 'true');
+              } else {
+                  navbarCollapse.classList.remove('show');
+                  hamburger.setAttribute('aria-expanded', 'false');
+              }
+          }
+      });
+
+      var bootstrapButton = $.fn.button.noConflict();
+$.fn.bootstrapBtn = bootstrapButton;
+        
         </script>
   {% endblock %}
 </body>

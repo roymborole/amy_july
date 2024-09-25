@@ -30,6 +30,7 @@ h1b {
     color: #F4F3C6;
     text-align: center;
     margin-bottom: 0.5rem;
+    padding-top: 100px;
     font-weight: bold;
 }
 
@@ -92,8 +93,7 @@ horse-buttons {
         margin-top: 20px;
     }
 }
-
-.za-report-container {
+    .za-report-container {
     max-width: 80%;
     margin: 0 auto;
     padding: 2rem 2rem 4rem 2rem; /* Increased bottom padding */
@@ -105,6 +105,48 @@ horse-buttons {
     justify-content: center;
     height: 100vh;
 }
+}
+@media (max-width: 768px) {
+    .za-report-container {
+        padding-top: 120px; /* Increased padding to account for the ticker */
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .za-report-container h1 {
+        font-size: 2.5rem; /* Slightly larger font size */
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    .za-report-container p {
+        font-size: 1rem;
+        line-height: 1.4;
+        margin-bottom: 1.5rem;
+    }
+}
+
+
+    .za-report-container h1 {
+        font-size: 3.5rem;
+        line-height: 1.3;
+        margin-bottom: 1.5rem;
+    }
+
+    .za-report-container p {
+        font-size: 1.2rem;
+        line-height: 1.5;
+        margin-bottom: 2rem;
+    }
+}
+
+.za-report-container {
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+
 </style>
     <div class="za-report-container">
             <h1b>Demystifying Finance, <br>One Click at a Time</h1b>
