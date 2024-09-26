@@ -219,7 +219,7 @@ sentry_sdk.init(
 )
 
 def setup_logging(app):
-    # Set up file logging
+    
     file_handler = RotatingFileHandler("app.log", maxBytes=10240, backupCount=10)
     file_handler.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -260,10 +260,8 @@ with app.app_context():
 file_handler = FileHandler("app.log")
 file_handler.setLevel(logging.INFO)
 
-# Add the handler to your app's logger
 app.logger.addHandler(file_handler)
 
-# Use this to log
 app.logger.info("This is a log message")
 
 def publish_to_queue(queue_name, message):
@@ -366,6 +364,18 @@ def blog_post(post_id):
         app.logger.error(error_msg)
         return render_template('error.html', error=error_msg), 404
 
+from flask import jsonify
+from sqlalchemy import inspect
+
+@app.route('/debug/schema')
+def debug_schema():
+    inspector = inspect(db.engine)
+    tables = {}
+    for table_name in inspector.get_table_names():
+        columns = [column['name'] for column in inspector.get_columns(table_name)]
+        tables[table_name] = columns
+    return jsonify(tables)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -425,6 +435,11 @@ def scrib():
 def signup():
     # Your signup logic here
     return render_template('signup.html')
+
+def upgrade():
+    with op.batch_alter_table('subscription', schema=None) as batch_op:
+        if 'confirmed' not in [c['name'] for c in batch_op.impl.inspector.get_columns('subscription')]:
+            batch_op.add_column(sa.Column('confirmed', sa.Boolean(), nullable=True))
     
 @app.route('/crypto_news/<crypto_name>')
 def display_crypto_news(crypto_name):
@@ -468,6 +483,108 @@ def display_crypto_report(crypto_name):
 @app.route('/gym')
 def gym():
     return render_template('gym.html')
+
+from flask import jsonify
+from flask import jsonify
+from flask_migrate import Migrate
+from alembic.script import ScriptDirectory
+from alembic.config import Config
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy import inspect
+from flask import current_app
+from alembic.script import ScriptDirectory
+from alembic.config import Config
+import os
+
+import os
+from flask import current_app
+from alembic.script import ScriptDirectory
+from alembic.config import Config
+
+def get_migration_history():
+    # Try to find migrations directory
+    possible_locations = [
+        os.path.join(current_app.root_path, 'migrations'),
+        os.path.join(os.path.dirname(current_app.root_path), 'migrations'),
+        os.path.join(os.getcwd(), 'migrations')
+    ]
+
+    migrations_dir = None
+    for location in possible_locations:
+        if os.path.exists(location):
+            migrations_dir = location
+            break
+
+    if not migrations_dir:
+        return {"error": "Migrations directory not found"}
+
+    config = Config()
+    config.set_main_option('script_location', migrations_dir)
+    script = ScriptDirectory.from_config(config)
+    
+    history = []
+    for revision in script.walk_revisions():
+        history.append({
+            'revision': revision.revision,
+            'down_revision': revision.down_revision,
+            'label': revision.doc,
+            'branch_labels': revision.branch_labels,
+            'date_created': str(revision.date) if revision.date else None
+        })
+    
+    return history
+
+
+import os
+from flask import current_app
+from alembic.script import ScriptDirectory
+from alembic.config import Config
+
+def get_migration_history():
+    print("Current working directory:", os.getcwd())
+    print("App root path:", current_app.root_path)
+
+    possible_locations = [
+        os.path.join(current_app.root_path, 'migrations'),
+        os.path.join(os.path.dirname(current_app.root_path), 'migrations'),
+        os.path.join(os.getcwd(), 'migrations')
+    ]
+
+    migrations_dir = None
+    for location in possible_locations:
+        if os.path.exists(location):
+            migrations_dir = location
+            break
+
+    if not migrations_dir:
+        print("Searched locations:", possible_locations)
+        return {"error": "Migrations directory not found"}
+
+    print("Found migrations directory:", migrations_dir)
+
+    config = Config()
+    config.set_main_option('script_location', migrations_dir)
+    script = ScriptDirectory.from_config(config)
+    
+    history = []
+    for revision in script.walk_revisions():
+        history.append({
+            'revision': revision.revision,
+            'down_revision': revision.down_revision,
+            'label': revision.doc,
+            'branch_labels': list(revision.branch_labels) if revision.branch_labels else None,
+            # Remove the date_created field as it's not available
+        })
+    
+    return history
+
+@app.route('/debug/migration-history')
+def migration_history():
+    history = get_migration_history()
+    if isinstance(history, dict) and "error" in history:
+        return jsonify(history), 404
+    return jsonify(history)
 
 @app.route('/dummy')
 def dummy():
