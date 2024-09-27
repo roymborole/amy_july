@@ -242,6 +242,7 @@ COMPANIES = {
     "centerpoint energy": "CNP",
     "centurylink": "CTL",
     "cerner": "CERN",
+    "CAVA Group Inc": "CAVA",
     "cf industries holdings": "CF",
     "charles schwab corporation": "SCHW",
     "charter communications": "CHTR",
