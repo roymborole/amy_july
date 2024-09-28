@@ -11,17 +11,14 @@ from crypto_ai_analysis import get_crypto_analysis_report
 from crypto_news_analysis import get_crypto_news_summary, get_detailed_crypto_news
 from crypto_comparison import compare_cryptos, generate_crypto_comparison_report
 from flask import request, jsonify, flash
-import postmarker
 from postmarker.core import PostmarkClient
 from rabbitmq_config import get_rabbitmq_connection, get_channel
-import smtplib
 from email.mime.text import MIMEText
 from markupsafe import Markup
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session, send_from_directory, current_app
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from werkzeug.middleware.proxy_fix import ProxyFix
-from login import init_auth, auth_bp
 import warnings
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 import yfinance as yf
@@ -29,7 +26,6 @@ from news_analysis import get_news_summary
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from price_prediction import run_prediction
-import torch
 import json 
 from models import User, TempSubscription, Subscription
 import uuid
@@ -43,7 +39,7 @@ from werkzeug.security import generate_password_hash
 from ticker_utils import get_ticker_from_name 
 from price_prediction import run_prediction
 import os
-from extensions import db, celery, migrate, init_extensions, Migrate, init_celery, make_celery, Celery,redis_client, get_redis_url
+from extensions import db, celery, migrate, init_extensions, Migrate, init_celery, Celery, get_redis_url
 from dotenv import load_dotenv
 from models import User, TempSubscription, Subscription
 from logging.handlers import RotatingFileHandler
@@ -68,7 +64,6 @@ from trie import Trie
 import time
 from celery import Celery
 from apscheduler.schedulers.background import BackgroundScheduler
-from extensions import init_extensions, init_celery, make_celery, get_redis_url
 from company_data import COMPANIES
 from flask import send_file, make_response, request, current_app
 import pdfkit
@@ -78,7 +73,6 @@ import os
 import pandas as pd
 from macroeconomic_analysis import generate_macroeconomic_analysis, save_macroeconomic_analysis, get_available_macro_analyses
 import traceback
-import asyncio
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
 from flask_mail import Mail
 from flask_wtf import CSRFProtect
@@ -90,9 +84,20 @@ from flask_wtf.csrf import CSRFProtect
 from contentful_utils import get_top_stories
 from flask_cors import CORS
 from flask import Flask, request, Response
-import requests
 import markdown2
 import html 
+from flask_limiter import Limiter
+from amplitude import Amplitude
+from flask_login import current_user
+from flask_limiter.util import get_remote_address
+from amplitude_analytics import (
+    track_macro_analysis, track_generate_macro, track_crypto_comparison,
+    track_compare_assets, track_loading_news, track_generate_report,
+    track_display_comparison, track_check_report, track_loading
+)
+from amplitude_analytics import init_amplitude
+
+load_dotenv()
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
@@ -102,15 +107,28 @@ logger = logging.getLogger(__name__)
 scheduler = BackgroundScheduler()
 
 def create_app():
-    app = Flask(__name__, static_folder='static', static_url_path='/static')
-    CORS(app)
-    app.config['DEBUG'] = True
-    app.config.from_object(Config)
+    app = Flask(__name__)
+    
+    # Load configuration
+    app.config.from_object('config.Config')
+    
+    # Ensure SECRET_KEY is set
+    if not app.config.get('SECRET_KEY'):
+        app.config['SECRET_KEY'] = os.urandom(32)
+        print("Warning: SECRET_KEY was not set. Using a random value.")
+    
+    # Initialize extensions
+    init_extensions(app)
+    
+    # Initialize Flask-Security
+    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+    app.security = Security(app, user_datastore)
+
+    app.limiter = Limiter(key_func=get_remote_address)
+    app.limiter.init_app(app)
+    
 
  
-
-    load_dotenv()
-
     database_url = os.environ.get('DATABASE_URL')
     if database_url and database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
@@ -135,6 +153,8 @@ def create_app():
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
     app.config['SECURITY_PASSWORD_HASH'] = 'argon2'
+    app.config['AMPLITUDE_API_KEY'] = 'YOUR_API_KEY'
+    Amplitude(app.config['AMPLITUDE_API_KEY'])
 
     # Flask-Security settings
     app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
@@ -156,10 +176,7 @@ def create_app():
     )
 
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-    init_celery(app)
-    celery_app = make_celery(app)
-    celery.conf.update(app.config)
-
+ 
     setup_done = False
     
     @app.before_request
@@ -169,11 +186,6 @@ def create_app():
             send_weekly_reports.apply_async()
             setup_done = True
             
-    init_extensions(app)
-    mail = Mail(app)
-    csrf = CSRFProtect(app)
-    security = Security(app, user_datastore)
-    
     
 
 
@@ -183,13 +195,16 @@ def create_app():
 
     return app, celery
 
-app, celery = create_app()
-
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     filename='app.log')
 
 logger = logging.getLogger(__name__)
+
+app, celery = create_app()
+
+if __name__ == '__main__':
+    app.run()
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(
@@ -208,9 +223,6 @@ scheduler.start()
 
 from celery_worker import send_weekly_reports
 
-
-if __name__ == '__main__':
-    app.run()
 
 sentry_sdk.init(
     dsn="https://199427486a2a2238cc49d3b3f7e4a971@o4507667288031232.ingest.us.sentry.io/4507667290521600",
@@ -289,6 +301,14 @@ contentful_client = Client(
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+limiter = Limiter(key_func=get_remote_address)
+
+@app.route("/api/example")
+@limiter.limit("5 per minute")
+def api_example():
+    return "This route is rate limited"
+
+
 @app.route('/blog')
 def blog():
     try:
@@ -364,8 +384,7 @@ def blog_post(post_id):
         app.logger.error(error_msg)
         return render_template('error.html', error=error_msg), 404
 
-from flask import jsonify
-from sqlalchemy import inspect
+
 
 @app.route('/debug/schema')
 def debug_schema():
@@ -383,17 +402,34 @@ def favicon():
 
 from flask_security import user_registered
 from flask import flash
+from datetime import datetime, timedelta
 
 @user_registered.connect_via(app)
 def user_registered_sighandler(app, user, **kwargs):
-    flash('Thank you for registering! You have been successfully logged in.', 'success')
+    user.trial_start_date = datetime.utcnow()
+    user.trial_end_date = user.trial_start_date + timedelta(days=14)
+    user.is_trial_active = True
+    db.session.commit()
+    flash('Thank you for registering! Your 14-day trial has begun.', 'success')
+
+
+def send_trial_welcome_email(user):
+    postmark.emails.send_with_template(
+        TemplateId=1234567,  # Your Postmark template ID
+        From='info@100-x.club',
+        To=user.email,
+        TemplateModel={
+            'username': user.username,
+            'trial_end_date': user.trial_end_date.strftime('%Y-%m-%d')
+        }
+    )
+
 
 @app.route('/api/autocomplete', methods=['GET'])
 def autocomplete():
     prefix = request.args.get('prefix', '').lower()
     matches = company_trie.search_prefix(prefix)
     return jsonify([{'name': name, 'ticker': ticker} for name, ticker in matches[:10]])
-
 
 @app.route('/crypto_predict/<crypto_name>')
 def crypto_predict(crypto_name):
@@ -700,6 +736,7 @@ def handle_nan(data):
 
 @app.route('/generate_macro_analysis/<ticker>')
 def generate_macro_analysis_route(ticker):
+    track_macro_analysis(ticker)
     try:
         analysis, error = generate_macroeconomic_analysis(ticker)
         if error:
@@ -747,6 +784,7 @@ csrf = CSRFProtect(app)
 @app.route('/generate_macro', methods=['POST'])
 @csrf.exempt
 def generate_macro():
+    track_generate_macro()
     input_str = request.form['ticker']
     ticker = get_ticker_from_name(input_str)
     app.logger.info(f"Generating macroeconomic analysis for input: {input_str}, resolved ticker: {ticker}")
@@ -801,6 +839,7 @@ def available_analyses():
 
 @app.route('/crypto_compare', methods=['POST'])
 def crypto_compare():
+    track_crypto_comparison(crypto1, crypto2)
     crypto1 = request.form.get('crypto1')
     crypto2 = request.form.get('crypto2')
     if not crypto1 or not crypto2:
@@ -821,6 +860,7 @@ def display_crypto_comparison(crypto1, crypto2):
 
 @app.route('/compare/<asset1>/<asset2>')
 def compare_assets_route(asset1, asset2):
+    track_compare_assets(asset1, asset2)
     comparison_data = compare_assets(asset1, asset2)
     if comparison_data is None:
         return render_template('error.html', message=f"Unable to fetch data for comparison between {asset1} and {asset2}.")
@@ -913,6 +953,7 @@ def get_price_prediction(name_or_ticker):
 
 @app.route('/loading_news/<name_or_ticker>')
 def loading_news(name_or_ticker):
+    track_loading_news(ticker)
     return render_template('loading_news.html', asset_name=name_or_ticker)
 
 @app.route('/news/<name_or_ticker>')
@@ -968,6 +1009,7 @@ def login():
 
 @app.route('/generate_report', methods=['POST'])
 def generate_report():
+    track_generate_report(ticker)
     start_time = time.time()
     name_or_ticker = request.form.get('name_or_ticker')
     if not name_or_ticker:
@@ -1010,6 +1052,7 @@ def compare():
 
 @app.route('/compare/<asset1>/<asset2>')
 def display_comparison(asset1, asset2):
+    track_display_comparison(asset1, asset2)
     comparison_data = compare_assets(asset1, asset2)
     if comparison_data:
         report = generate_comparison_report(comparison_data)
@@ -1098,6 +1141,7 @@ def generate_report_background(name_or_ticker):
 
 @app.route('/check_report/<name_or_ticker>')
 def check_report(name_or_ticker):
+    track_check_report(ticker)
     if name_or_ticker in generated_reports:
         if 'error' in generated_reports[name_or_ticker]:
             return jsonify({'status': 'error', 'message': generated_reports[name_or_ticker]['error']})
@@ -1374,6 +1418,7 @@ def terms_of_service():
 
 @app.route('/loading/<name_or_ticker>')
 def loading(name_or_ticker):
+    track_loading(ticker)
     if name_or_ticker not in generated_reports:
         # Start the report generation in a background thread
         thread = threading.Thread(target=generate_report_background, args=(name_or_ticker,))
@@ -1460,6 +1505,8 @@ def get_report(name_or_ticker):
         print(f"Error in get_report: {str(e)}")
         print(f"Traceback: {error_traceback}")
         return jsonify({'error': str(e), 'traceback': error_traceback}), 500
+    
+    
     
 if __name__ == '__main__':
      with app.app_context():

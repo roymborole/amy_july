@@ -1,3 +1,5 @@
+{% from 'macros.html' import trial_status %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,6 +53,7 @@
 </head>
 <body>
   <div class="header-container">
+    {{ trial_status() }}
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">

@@ -340,3 +340,4 @@ flask_security
 contentful
 Markdown2
 PyPDF2==1.26.0
+Flask_limiter

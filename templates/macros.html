@@ -1,0 +1,27 @@
+<!-- templates/macros.html -->
+{% macro trial_status() %}
+  <div id="trial-status">
+    {% if current_user.is_authenticated and current_user.is_trial_active %}
+      <p>Your trial ends in <span id="days-remaining"></span> days</p>
+    {% endif %}
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      function updateTrialStatus() {
+        fetch('/api/trial/status')
+          .then(response => response.json())
+          .then(data => {
+            const daysRemainingElement = document.getElementById('days-remaining');
+            if (daysRemainingElement) {
+              daysRemainingElement.textContent = data.days_remaining;
+            }
+          });
+      }
+
+      // Update immediately and then every hour
+      updateTrialStatus();
+      setInterval(updateTrialStatus, 3600000); // 3600000 ms = 1 hour
+    });
+  </script>
+{% endmacro %}

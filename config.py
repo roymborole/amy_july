@@ -43,18 +43,24 @@ END_DATE = '2024-07-16'
 
 class Config:
    
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     WTF_CSRF_ENABLED = True
     
-    # Celery configurations
+
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL') or 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND') or 'redis://localhost:6379/0'
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///your_database.db'
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
+    SECURITY_REGISTERABLE = True
+    SECURITY_SEND_REGISTER_EMAIL = False
+    SECURITY_UNAUTHORIZED_VIEW = None
     GA_TRACKING_ID = os.environ.get('GA_TRACKING_ID')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     API_KEY = os.environ.get('API_KEY') 
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', '/path/to/upload/folder')
+    AMPLITUDE_API_KEY = os.environ.get('AMPLITUDE_API_KEY')
     
 
 
