@@ -1,16 +1,26 @@
-
 from datetime import datetime
-from amplitude import amplitude
+from amplitude import Amplitude
 from flask import request, current_app
 import os
 from dotenv import load_dotenv
-from app import app
 
 load_dotenv()
 
-app.config['AMPLITUDE_API_KEY'] = os.getenv('AMPLITUDE_API_KEY')
+amplitude_client = None
+
+def init_amplitude(app):
+    global amplitude_client
+    api_key = app.config.get('AMPLITUDE_API_KEY') or os.getenv('AMPLITUDE_API_KEY')
+    if api_key:
+        amplitude_client = Amplitude(api_key)
+    else:
+        app.logger.warning("Amplitude API key not found. Amplitude tracking will be disabled.")
 
 def send_to_amplitude(user, event_type, event_properties=None):
+    if not amplitude_client:
+        current_app.logger.warning("Amplitude client not initialized. Skipping event tracking.")
+        return
+
     if event_properties is None:
         event_properties = {}
 
@@ -33,12 +43,11 @@ def send_to_amplitude(user, event_type, event_properties=None):
 
     # Send the event to Amplitude
     try:
-        amplitude.track(event)
+        amplitude_client.track(event)
         current_app.logger.info(f"Sent event to Amplitude: {event_type}")
     except Exception as e:
         current_app.logger.error(f"Failed to send event to Amplitude: {str(e)}")
 
-# Update your track_event function
 def track_event(user, event_name, properties=None):
     if properties is None:
         properties = {}
@@ -46,7 +55,6 @@ def track_event(user, event_name, properties=None):
     properties['timestamp'] = datetime.utcnow().isoformat()
     
     send_to_amplitude(user, event_name, properties)
-
 
 def track_macro_analysis(user, ticker):
     track_event(user, 'generate_macro_analysis', {'ticker': ticker})
