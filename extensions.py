@@ -34,7 +34,7 @@ def init_extensions(app):
     init_celery(app)
     init_redis(app)
     
-    from amplitude_analytics import init_amplitude
+    from analytics import init_amplitude
     init_amplitude(app)
 
 def init_celery(app):
