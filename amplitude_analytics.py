@@ -1,5 +1,5 @@
 from datetime import datetime
-from amplitude import Amplitude
+from amplitude import Amplitude, BaseEvent
 from flask import request, current_app
 import os
 from dotenv import load_dotenv
