@@ -81,7 +81,7 @@ Flask-Cors==5.0.0
 Flask-Dance==7.1.0
 Flask-Login==0.6.3
 Flask-Mail==0.10.0
-Flask-Migrate==4.0.7
+Flask-Migrate==4.0.5
 Flask-SQLAlchemy>=3.0.0
 flatbuffers==24.3.25
 fonttools==4.53.0
@@ -341,4 +341,5 @@ contentful
 Markdown2
 PyPDF2==1.26.0
 Flask_limiter
+hypercorn==0.15.0
 amplitude-python==0.13

@@ -87,7 +87,6 @@ from flask import Flask, request, Response
 import markdown2
 import html 
 from flask_limiter import Limiter
-from amplitude import Amplitude
 from flask_login import current_user
 from flask_limiter.util import get_remote_address
 from amplitude_analytics import (
@@ -95,7 +94,7 @@ from amplitude_analytics import (
     track_compare_assets, track_loading_news, track_generate_report,
     track_display_comparison, track_check_report, track_loading
 )
-from amplitude_analytics import init_amplitude
+
 
 load_dotenv()
 
@@ -154,7 +153,7 @@ def create_app():
     app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
     app.config['SECURITY_PASSWORD_HASH'] = 'argon2'
     app.config['AMPLITUDE_API_KEY'] = 'YOUR_API_KEY'
-    Amplitude(app.config['AMPLITUDE_API_KEY'])
+    app.config['AMPLITUDE_API_KEY']
 
     # Flask-Security settings
     app.config['SECURITY_EMAIL_SENDER'] = 'reports@100-x.club'
@@ -251,11 +250,6 @@ load_dotenv()
 
 generated_reports = {}
 
-from flask_migrate import Migrate
-
-migrate = Migrate(app, db)
-
-migrate.init_app(app, db)
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
