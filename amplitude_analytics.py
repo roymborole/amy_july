@@ -1,11 +1,21 @@
 from datetime import datetime
+import amplitude
+
+print("Amplitude package:", amplitude.__file__)
+print("Amplitude version:", amplitude.__version__ if hasattr(amplitude, '__version__') else "Unknown")
+
 try:
     from amplitude import Amplitude
 except ImportError:
     try:
         from amplitude import AmplitudeClient as Amplitude
     except ImportError:
-        from amplitude import Client as Amplitude
+        try:
+            from amplitude import Client as Amplitude
+        except ImportError:
+            # If all else fails, let's see what's actually in the amplitude module
+            print("Available attributes in amplitude module:", dir(amplitude))
+            raise ImportError("Unable to import Amplitude client from any known location")
 from flask import request, current_app
 import os
 from dotenv import load_dotenv
