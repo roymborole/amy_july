@@ -1,6 +1,6 @@
 from datetime import datetime
-from amplitude import Amplitude
-from amplitude_analytics import Amplitude
+from amplitude import amplitude
+from amplitude_analytics import amplitude
 from flask import request, current_app
 import os
 from dotenv import load_dotenv
@@ -13,7 +13,7 @@ def init_amplitude(app):
     global amplitude_client
     api_key = app.config.get('AMPLITUDE_API_KEY') or os.getenv('AMPLITUDE_API_KEY')
     if api_key:
-        amplitude_client = Amplitude(api_key)
+        amplitude_client = amplitude(api_key)
     else:
         app.logger.warning("Amplitude API key not found. Amplitude tracking will be disabled.")
 
