@@ -1,5 +1,11 @@
 from datetime import datetime
-from amplitude import AmplitudeClient as Amplitude, BaseEvent
+try:
+    from amplitude import Amplitude
+except ImportError:
+    try:
+        from amplitude import AmplitudeClient as Amplitude
+    except ImportError:
+        from amplitude import Client as Amplitude
 from flask import request, current_app
 import os
 from dotenv import load_dotenv
