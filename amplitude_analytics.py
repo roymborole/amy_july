@@ -1,5 +1,4 @@
 from datetime import datetime
-from amplitude import amplitude
 from amplitude_analytics import amplitude
 from flask import request, current_app
 import os
