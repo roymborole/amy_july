@@ -88,7 +88,7 @@ import markdown2
 import html 
 from flask_limiter import Limiter
 from flask_login import current_user
-from analytics import init_amplitude, track_event
+from analytics import init_mixpanel, track_event
 from flask_limiter.util import get_remote_address
 from analytics import (
     track_macro_analysis, track_generate_macro, track_crypto_comparison,

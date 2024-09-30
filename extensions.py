@@ -34,8 +34,8 @@ def init_extensions(app):
     init_celery(app)
     init_redis(app)
     
-    from analytics import init_amplitude
-    init_amplitude(app)
+    from analytics import init_mixpanel
+    init_mixpanel(app)
 
 def init_celery(app):
     celery.conf.update(app.config)
