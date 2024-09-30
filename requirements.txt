@@ -342,5 +342,5 @@ Markdown2
 PyPDF2==1.26.0
 Flask_limiter
 hypercorn==0.15.0
-Amplitude-analytics==1.1.4
+amplitude-analytics==1.1.4
 amplitude-python==0.13
