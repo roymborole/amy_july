@@ -1503,20 +1503,5 @@ def get_report(name_or_ticker):
     
     
 if __name__ == '__main__':
-     with app.app_context():
-        db.create_all()
-        if app.debug:
-            ngrok_auth_token = os.environ.get("NGROK_AUTH_TOKEN")
-        if ngrok_auth_token:
-            ngrok.set_auth_token(ngrok_auth_token)
-            try:
-                public_url = ngrok.connect(4040)
-                print(f' * ngrok tunnel "{public_url}" -> "http://127.0.0.1:4040"')
-            except Exception as e:
-                print(f"An error occurred while connecting to ngrok: {str(e)}")
-                exit(1)
-        else:
-            print("NGROK_AUTH_TOKEN not found. Please set it as an environment variable.")
-            exit(1)
-
-        app.run(host='127.0.0.1', port=4040)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
